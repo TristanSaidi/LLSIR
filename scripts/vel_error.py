@@ -21,10 +21,10 @@ def main(args):
     curve = gamma(curve_fn)
 
     mean_sq_errors = []
-    epsilon_0 = 0.2
+    epsilon_0 = 0.4
 
     Ns = np.arange(500, 10001, 500)
-    trials = 300
+    trials = 50
 
     # Fix randomness across N
     Nmax = Ns[-1]
@@ -39,6 +39,7 @@ def main(args):
         sq_errors = []
         for x_0 in x_0s:
             epsilon = epsilon_0 * (N / Ns[0])**(-1 / (x_0.shape[0] + 4))  # d=2, but see note below
+            # epsilon = epsilon_0
             llsir = LLSIR(X, curve, link_id, epsilon=epsilon, sigma=0.01)
             beta, y_hat, y_true = llsir.fit(x_0)
             true_beta = curve.unit_gradient(curve.project(x_0)[1])
