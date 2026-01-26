@@ -85,50 +85,132 @@ class sin_curve:
             print("ERROR: zero gradient at t =", t)
             return grad
         return grad / norm
-    
+
+
 class polygon:
     def __call__(self, t, dict):
         return polygon_fn(t, dict)
-    
-    def unit_gradient(self, t, dict):
-        # approximate derivative via finite differences
-        h = 1e-3
-        p1 = polygon_fn(t + h, dict)
-        p0 = polygon_fn(t - h, dict)
-        grad = (p1 - p0) / (2 * h)
-        norm = np.linalg.norm(grad)
-        if norm == 0:
-            print("ERROR: zero gradient at t =", t)
-            return grad
-        return grad / norm
 
-def polygon_fn(t, dict):
-    """
-    Open (non-closed) piecewise-linear polygonal chain parameterized by arc-length.
-    Optionally smooth corners via Chaikin corner-cutting (produces a smooth polyline).
+    def unit_gradient(self, t, dict, kink_mode="right"):
+        """
+        Exact unit tangent on the (possibly smoothed) open polyline.
+        For interior points of a segment: constant unit direction.
+        At vertices (kinks): choose left/right/average via kink_mode.
 
-    Parameters
-    ----------
-    t : float
-        Parameter in [0,1] (clamped).
-    vertices : (m,2) array-like or None
-        Vertices in order. If None, uses a default polyline.
-    smooth : bool
-        If True, apply Chaikin smoothing to round corners.
-    smooth_iters : int
-        Number of Chaikin iterations (>=0). More => smoother.
-    smooth_alpha : float
-        Corner-cutting parameter in (0, 0.5). Typical: 0.25.
+        kink_mode: {"right", "left", "avg"}
+          - "right": use outgoing segment direction
+          - "left" : use incoming segment direction
+          - "avg"  : normalize sum of incoming+outgoing directions (if nonzero)
+        """
+        pts = _polygon_points(dict)  # vertices after optional smoothing
 
-    Returns
-    -------
-    np.ndarray, shape (2,)
-        Point on the (possibly smoothed) polyline at parameter t.
-    """
+        if len(pts) == 0:
+            raise ValueError("vertices must contain at least one point")
+        if len(pts) == 1:
+            return np.zeros(2, dtype=float)
+
+        t = float(np.clip(t, 0.0, 1.0))
+
+        segs = pts[1:] - pts[:-1]
+        lens = np.linalg.norm(segs, axis=1)
+        total = lens.sum()
+        if total == 0:
+            return np.zeros(2, dtype=float)
+
+        s = t * total
+        cum = np.cumsum(lens)
+
+        # Find segment index k such that s lies in segment k
+        # (k in {0,...,m-2})
+        k = int(np.searchsorted(cum, s, side="right"))
+        k = min(max(k, 0), len(lens) - 1)
+
+        # Check if s is exactly at a vertex (within numerical tolerance)
+        # Vertex j corresponds to arc-length cum[j-1] (for j>=1)
+        # Here, "at kink" means s == cum[k-1] or s == cum[k].
+        tol = dict.get("kink_tol", 1e-12) * total
+
+        def unit_dir(idx):
+            """Unit direction of segment idx, skipping zero-length segments."""
+            if idx < 0 or idx >= len(lens):
+                return None
+            if lens[idx] <= 0:
+                return None
+            return segs[idx] / lens[idx]
+
+        # Endpoint conventions
+        if s <= 0 + tol:
+            # at start
+            d = unit_dir(_next_nonzero_segment(lens, start=0, step=+1))
+            return d if d is not None else np.zeros(2, dtype=float)
+        if s >= total - tol:
+            # at end
+            d = unit_dir(_next_nonzero_segment(lens, start=len(lens)-1, step=-1))
+            return d if d is not None else np.zeros(2, dtype=float)
+
+        # Interior: if not near a kink, return the current segment direction
+        s_left = 0.0 if k == 0 else cum[k - 1]
+        s_right = cum[k]
+
+        at_left_kink = (abs(s - s_left) <= tol) and (k > 0)
+        at_right_kink = (abs(s - s_right) <= tol) and (k < len(lens) - 1)
+
+        if not (at_left_kink or at_right_kink):
+            d = unit_dir(k)
+            if d is not None:
+                return d
+            # if this segment is zero-length (rare), walk to nearest nonzero
+            d = unit_dir(_next_nonzero_segment(lens, start=k, step=+1))
+            if d is None:
+                d = unit_dir(_next_nonzero_segment(lens, start=k, step=-1))
+            return d if d is not None else np.zeros(2, dtype=float)
+
+        # Kink handling (vertex)
+        # Incoming segment is k-1 (if at_left_kink), outgoing is k (or k+1 if at_right_kink)
+        if at_left_kink:
+            in_idx = _next_nonzero_segment(lens, start=k-1, step=-1)
+            out_idx = _next_nonzero_segment(lens, start=k, step=+1)
+        else:  # at_right_kink
+            in_idx = _next_nonzero_segment(lens, start=k, step=-1)
+            out_idx = _next_nonzero_segment(lens, start=k+1, step=+1)
+
+        din = unit_dir(in_idx) if in_idx is not None else None
+        dout = unit_dir(out_idx) if out_idx is not None else None
+
+        if kink_mode == "right":
+            return dout if dout is not None else (din if din is not None else np.zeros(2, dtype=float))
+        if kink_mode == "left":
+            return din if din is not None else (dout if dout is not None else np.zeros(2, dtype=float))
+        if kink_mode == "avg":
+            if din is None and dout is None:
+                return np.zeros(2, dtype=float)
+            if din is None:
+                return dout
+            if dout is None:
+                return din
+            g = din + dout
+            ng = np.linalg.norm(g)
+            return g / ng if ng > 0 else dout  # fallback if opposite directions
+        raise ValueError("kink_mode must be one of {'right','left','avg'}")
+
+
+def _next_nonzero_segment(lens, start, step):
+    """Return first index i starting at 'start' stepping by 'step' with lens[i] > 0, else None."""
+    i = start
+    while 0 <= i < len(lens):
+        if lens[i] > 0:
+            return i
+        i += step
+    return None
+
+
+def _polygon_points(dict):
+    """Return polyline points after optional smoothing (same logic as polygon_fn)."""
     vertices = dict.get("vertices", None)
     smooth = dict.get("smooth", False)
     smooth_iters = dict.get("smooth_iters", 3)
     smooth_alpha = dict.get("smooth_alpha", 0.05)
+
     if vertices is None:
         vertices = np.array([
             [0.15, 0.20],
@@ -142,10 +224,6 @@ def polygon_fn(t, dict):
         if vertices.ndim != 2 or vertices.shape[1] != 2:
             raise ValueError("vertices must be an array-like of shape (m, 2)")
 
-    # Clamp t
-    t = float(np.clip(t, 0.0, 1.0))
-
-    # --- Optional smoothing: Chaikin corner-cutting (OPEN polyline, no last->first edge) ---
     pts = vertices
     if smooth:
         if not (0.0 < smooth_alpha < 0.5):
@@ -162,8 +240,16 @@ def polygon_fn(t, dict):
                 new_pts.extend([Q, R])
             new_pts.append(pts[-1])  # keep endpoint
             pts = np.asarray(new_pts, dtype=float)
+    return pts
 
-    # --- Arc-length parameterization along the OPEN polyline ---
+
+def polygon_fn(t, dict):
+    """
+    (Unchanged) returns point on (possibly smoothed) open polyline at arc-length parameter t.
+    """
+    pts = _polygon_points(dict)
+
+    t = float(np.clip(t, 0.0, 1.0))
     if len(pts) == 0:
         raise ValueError("vertices must contain at least one point")
     if len(pts) == 1:
