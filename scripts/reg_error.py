@@ -15,6 +15,13 @@ curve_map = {
     'polygon': polygon
 }
 
+id_to_name = {
+    'identity': 'Identity',
+    'sin_curve': 'Sinusoid',
+    'circle': 'Circle',
+    'polygon': 'Polygon'
+}
+
 epsilon_map = {
     'identity': 0.4,
     'sin_curve': 0.2,
@@ -39,9 +46,9 @@ def main(args):
     mean_sq_errors_dwlls = []
     epsilon_0 = epsilon_map.get(args.curve)
 
-    trials = 50
+    trials = 2
     # bake randomness into Ns
-    Ns = np.arange(500, 10001, 500)
+    Ns = np.arange(500, 1001, 500)
     
 
     # Fix randomness across N
@@ -56,7 +63,7 @@ def main(args):
         sq_error_dwlls = []
         for X_full_i in X_full:
             X = X_full_i[:N, :]
-            epsilon = epsilon_0 * (N / Ns[0])**(-1 / (x_0.shape[0] + 4))  # d=2, but see note below
+            epsilon = epsilon_0 * (N / Ns[0])**(-1 / (x_0.shape[0] + 2))  # d=2, but see note below
             # epsilon = epsilon_0
             llsir = LLSIR(X, curve, link_id, epsilon=epsilon, sigma=0.01)
             beta, y_hat, y_true = llsir.fit(x_0)
@@ -84,14 +91,14 @@ def main(args):
     plt.loglog(Ns, mean_sq_errors, marker='o', markersize=3, color='green')
     plt.xlim(Ns[0] * 0.9, Ns[-1] * 1.1)
     plt.xlabel(r'Number of samples $n$')
-    plt.ylabel(r"$\|\hat{v}'(x_0) - \gamma'(\Pi(x_0))\|_2^2$")
-    # plot reference line of slope -1/(d + 4)
+    plt.ylabel(r"$|\hat{f}(x_0) - \f(\Pi(x_0))|^2$")
+    # plot reference line of slope -2/(d + 2)
     d = x_0.shape[0]
-    theoretic_slope = -4 / (d + 4)
+    theoretic_slope = -2 / (d + 2)
     ref_Ns = np.array([Ns[0], Ns[-1]])
     ref_errors = mean_sq_errors[0] * (ref_Ns / Ns[0])**theoretic_slope
     plt.loglog(ref_Ns, ref_errors, linestyle='--', color='red', 
-            label=rf'Theoretical slope, $-4/{{(d+4)}} = {theoretic_slope:.2f}$')    # fit line to data
+            label=rf'Theoretical slope, $-2/{{(d+2)}} = {theoretic_slope:.2f}$')    # fit line to data
     log_Ns = np.log(Ns)
     log_errors = np.log(mean_sq_errors)
     coeffs = np.polyfit(log_Ns, log_errors, 1)
@@ -105,6 +112,7 @@ def main(args):
         # plot dwlls data and fitted line
         plt.loglog(Ns, mean_sq_errors_dwlls, marker='s', markersize=3, color='orange')
         plt.loglog(Ns, fitted_errors_dwlls, linestyle=':', color='orange', label=rf'DWLLS Fitted slope, ${coeffs_dwlls[0]:.2f}$')
+    plt.title(rf"{id_to_name.get(args.curve)}", fontsize=16)
         
     plt.legend()
     dir = 'outputs'
