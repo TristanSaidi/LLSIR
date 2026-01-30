@@ -28,9 +28,10 @@ class DWLLS:
     def fit_velocity(self):
         # get \epsilon neighborhood
         X = self.X
-        Y_neighborhood = self.f(np.array([self.f(self.gamma.project(Xi)[1]) for Xi in X])) + self.sigma * np.random.randn(X.shape[0])
+        self.Y = self.f(np.array([self.f(self.gamma.project(Xi)[1]) for Xi in X])) + self.sigma * np.random.randn(X.shape[0])
         # center neighborhood points
         X_centered = X - X.mean(axis=0)
+        self.X_centered = X_centered
         x_0 = X.mean(axis=0)
 
         # get density ratio at all points with gaussian centered at x_0
@@ -39,7 +40,7 @@ class DWLLS:
         # fit linear regression to neighborhood points weighted by density ratio
         reg = LinearRegression()
         # ratios are [n, 1], need to flatten to [n,]
-        reg.fit(X_centered, Y_neighborhood, sample_weight=ratios.flatten())
+        reg.fit(X_centered, self.Y, sample_weight=ratios.flatten())
         # get beta vector
         beta = reg.coef_
         # scale beta to unit length
@@ -52,3 +53,17 @@ class DWLLS:
         self.beta = beta
         return beta
     
+    def fit_regression(self, loc):
+        # project entire dataset onto self.beta
+        X = self.X
+        loc_centered = loc - X.mean(axis=0)
+        if not hasattr(self, "beta"):
+            _ = self.fit_velocity()
+
+        projections = self.X_centered @ self.beta
+        # nonparametric regression
+        nonparam_reg = KernelReg(endog=self.Y, exog=projections, var_type='c', bw=[1e-1])
+        # get fitted values
+        yhat0 = nonparam_reg.fit(np.array([0.0]))[0][0]
+        ytrue = self.f(self.gamma.project(loc_centered)[0]) + self.sigma * np.random.randn()
+        return self.beta, yhat0, ytrue
