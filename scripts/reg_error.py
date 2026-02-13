@@ -23,16 +23,16 @@ id_to_name = {
 }
 
 epsilon_map = {
-    'identity': 0.4,
-    'sin_curve': 0.2,
-    'circle': 0.1,
-    'polygon': 0.2
+    'identity': 0.2,
+    'sin_curve': 0.3,
+    'circle': 0.3,
+    'polygon': 0.3
 }
 
 loc_map = {
     'identity': np.array([0.7, 0.5]),
     'sin_curve': np.array([0.6, 0.5]),
-    'circle': np.array([0.8, 0.5]),
+    'circle': np.array([0.3, 0.5]),
     'polygon': np.array([0.7, 0.5])
 }
 
@@ -46,39 +46,43 @@ def main(args):
     mean_sq_errors_dwlls = []
     epsilon_0 = epsilon_map.get(args.curve)
 
-    trials = 2
+    trials = 50
     # bake randomness into Ns
-    Ns = np.arange(500, 1001, 500)
+    Ns = np.arange(500, 10001, 500)
     
 
     # Fix randomness across N
     Nmax = Ns[-1]
     X_full = [np.random.rand(Nmax, 2) for _ in range(trials)]
-
+    Y_full = [np.array([link_id(curve.project(Xi)[1]) for Xi in X_full_i]) for X_full_i in X_full]
+    Y_full_noisy = [Y_full_i + 0.01 * np.random.standard_normal(size=Y_full_i.shape) for Y_full_i in Y_full]
     # Fix x0 across N (optionally keep away from boundary)
-    x_0 = np.array(loc_map.get(args.curve))
+    x_0 = loc_map.get(args.curve)
+    y_true = link_id(curve.project(x_0)[1])
     for N in Ns:
         print(f"Running LLSIR with N = {N}")
         sq_errors = []
         sq_error_dwlls = []
-        for X_full_i in X_full:
+        for t, X_full_i in enumerate(X_full):
+            Y_full_i = Y_full_noisy[t]
+            Y = Y_full_i[:N]
             X = X_full_i[:N, :]
             epsilon = epsilon_0 * (N / Ns[0])**(-1 / (x_0.shape[0] + 2))  # d=2, but see note below
             # epsilon = epsilon_0
-            llsir = LLSIR(X, curve, link_id, epsilon=epsilon, sigma=0.01)
-            beta, y_hat, y_true = llsir.fit(x_0)
-            true_beta = curve.unit_gradient(curve.project(x_0)[1])
+            llsir = LLSIR(X, Y, epsilon=epsilon)
+            beta, y_hat = llsir.fit(x_0)
             if curve_fn is identity:
                 # for identity, compare to single index regression
-                dwlls = DWLLS(X, curve, link_id, sigma=0.01)
-                beta_dwlls, y_hat_dwlls, y_true_dwlls = dwlls.fit_regression(x_0)
-                sq_error_dwlls = (y_hat_dwlls - y_true_dwlls)**2
+                dwlls = DWLLS(X, Y)
+                beta_dwlls, y_hat_dwlls = dwlls.fit_regression(x_0)
+                sq_error_dwlls = (y_hat_dwlls - y_true)**2
             sq_error = (y_hat - y_true) ** 2
             sq_errors.append(sq_error)
         mean_sq_errors.append(np.mean(sq_errors))
+        print(f"LLSIR mean squared error over {trials} trials: {np.mean(sq_errors)}")
         if curve_fn is identity:
             mean_sq_errors_dwlls.append(np.mean(sq_error_dwlls))
-        print(f"Mean squared error over {trials} trials: {np.mean(sq_errors)}")
+            print(f"DWLLS mean squared error over {trials} trials: {np.mean(sq_error_dwlls)}")
 
     plt.rcParams.update({
         "text.usetex": True,
@@ -91,7 +95,7 @@ def main(args):
     plt.loglog(Ns, mean_sq_errors, marker='o', markersize=3, color='green')
     plt.xlim(Ns[0] * 0.9, Ns[-1] * 1.1)
     plt.xlabel(r'Number of samples $n$')
-    plt.ylabel(r"$|\hat{f}(x_0) - \f(\Pi(x_0))|^2$")
+    plt.ylabel(r"$|\hat{f}(x_0) - f(\Pi(x_0))|^2$")
     # plot reference line of slope -2/(d + 2)
     d = x_0.shape[0]
     theoretic_slope = -2 / (d + 2)

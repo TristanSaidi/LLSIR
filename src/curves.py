@@ -14,12 +14,34 @@ class gamma:
         plt.plot(pts[:, 0], pts[:, 1], linestyle='dotted', **kwargs)
 
     def project(self, p, N=1000):
-        # project point p onto curve, return closest point on curve and parameter value
+        """
+        Project point p onto the 2D curve embedded in R^d by zero-padding
+        the curve's coordinates to match dim(p).
+
+        Returns:
+            proj_pt : (d,) numpy array
+            t_star  : float in [0,1]
+        """
+        p = np.asarray(p).reshape(-1)   # ensure (d,)
+        d = p.shape[0]
+
         t = np.linspace(0, 1, N)
-        pts = np.array([self.f(ti, self.dict) for ti in t])
-        dists = np.linalg.norm(pts - p, axis=1)
+
+        # Evaluate 2D curve points: (N, 2)
+        pts2 = np.array([self.f(ti, self.dict) for ti in t], dtype=float)
+        if pts2.ndim != 2 or pts2.shape[1] != 2:
+            raise ValueError(f"Curve function must return 2D points; got shape {pts2.shape}")
+
+        # Embed curve into R^d: (N, d)
+        pts = np.zeros((N, d), dtype=pts2.dtype)
+        pts[:, :2] = pts2
+
+        # Distances in R^d
+        dists = np.linalg.norm(pts - p[None, :], axis=1)
         idx = np.argmin(dists)
+
         return pts[idx], t[idx]
+
     
     def unit_gradient(self, t):
         return self.f.unit_gradient(t, self.dict)

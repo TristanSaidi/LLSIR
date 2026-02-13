@@ -13,14 +13,13 @@ def gaussian_pdf(x, mu, sigma = np.eye(2) * 0.01):
     return coeff * np.exp(exponent)
 
 class DWLLS:
-    def __init__(self, X, gamma, f, sigma = 0.00):
+    def __init__(self, X, Y, sigma = 0.00):
         self.X = X
-        self.gamma = gamma
-        self.f = f
+        self.Y = Y
         self.kde = gaussian_kde(X.T)
         self.sigma = sigma
 
-    def density_ratio(self, x, x_0, sigma = np.eye(2) * 0.1):
+    def density_ratio(self, x, x_0, sigma = np.eye(2) * 0.4):
         p_x = self.kde(x)
         p_gx = gaussian_pdf(x, mu=x_0, sigma=sigma)
         return p_gx / p_x
@@ -28,7 +27,6 @@ class DWLLS:
     def fit_velocity(self):
         # get \epsilon neighborhood
         X = self.X
-        self.Y = self.f(np.array([self.f(self.gamma.project(Xi)[1]) for Xi in X])) + self.sigma * np.random.randn(X.shape[0])
         # center neighborhood points
         X_centered = X - X.mean(axis=0)
         self.X_centered = X_centered
@@ -62,8 +60,8 @@ class DWLLS:
 
         projections = self.X_centered @ self.beta
         # nonparametric regression
-        nonparam_reg = KernelReg(endog=self.Y, exog=projections, var_type='c', bw=[1e-1])
+        nonparam_reg = KernelReg(endog=self.Y, exog=projections, var_type='c', bw=[5e-1])
         # get fitted values
-        yhat0 = nonparam_reg.fit(np.array([0.0]))[0][0]
-        ytrue = self.f(self.gamma.project(loc_centered)[0]) + self.sigma * np.random.randn()
-        return self.beta, yhat0, ytrue
+        loc_proj = np.array([loc_centered @ self.beta])
+        yhat0 = nonparam_reg.fit(np.array(loc_proj))[0][0]
+        return self.beta, yhat0
