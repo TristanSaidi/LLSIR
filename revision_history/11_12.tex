@@ -1,0 +1,1154 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx} % Required for inserting images
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{dirtytalk}
+\usepackage{algorithm}
+\usepackage{mathtools}
+\usepackage{xcolor}
+\usepackage{amssymb}
+\usepackage[title]{appendix}
+\usepackage[noend]{algpseudocode}
+\usepackage{amsthm}
+\usepackage{bigints}
+\usepackage{thm-restate}
+\usepackage[]{hyperref}
+\usepackage{cleveref}
+\usepackage{appendix}
+\usepackage{makecell}
+\usepackage{bigints}
+\usepackage{mathtools}
+\usepackage{subfigure}
+\usepackage{booktabs}
+\usepackage{bbding}
+\usepackage{wrapfig}
+\usepackage{bbm}
+\usepackage{authblk}
+\usepackage{cleveref}
+
+\newtheorem{thm}{Theorem}[section]
+
+% everyone else shares the same counter
+\newtheorem{lemma}[thm]{Lemma}
+\newtheorem{prop}[thm]{Proposition}
+\newtheorem{corollary}[thm]{Corollary}
+\newtheorem{asmpt}[thm]{Assumption}
+\newtheorem{defn}[thm]{Definition}
+\newtheorem{rmk}[thm]{Remark}
+\newtheorem{claim}[thm]{Claim}
+
+\usepackage[numbers]{natbib}
+\bibliographystyle{unsrtnat}
+
+
+\newcommand{\expnumber}[2]{{#1}\mathrm{e}{#2}}
+\newcommand{\man}{\mathcal{M}}
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert}
+
+
+\title{Locally Linear Single Index Regression}
+
+\author{Tristan Luca Saidi}
+\author{Arun Kuchibhotla}
+
+\affil[1]{Department of Statistics and Data Science, Carnegie Mellon University}
+\begin{document}
+
+
+\maketitle
+
+\section{Introduction}
+\subsection{Single-Index Setting}
+We consider the regression setting where we are given samples $\{(x_1, y_1), \dots, (x_d, y_n)\}$ from some joint distribution over $\mathbb{R}^d\times \mathbb{R}$ with bounded support. In the single-index setting, we know that the conditional expectation of $y$ given $x$ has the following compositional structure,
+\[y_i = f(\Pi(x_i)) + \varepsilon_i \qquad \text{with } \qquad \mathbb{E}[\varepsilon_i] = 0, \text{Var}(\varepsilon_i) = \sigma^2.\]
+where $\Pi:\mathbb{R}^d \rightarrow \Gamma$ and $f: \Gamma\rightarrow\mathbb{R}$. The classical single-index setting assumes that $\Gamma = \mathbb{R}$, $\Pi(x) = b^{T}x$ for some $b \in \mathbb{R}^d$, and thus can be thought of as a projection onto a line. In this work, we consider the setting where $\Pi$ is a closest-point projection onto a compact regular $C^3$ curve $\gamma$. We choose to represent $\gamma$ as a function $\gamma:I \rightarrow \Gamma \subset \mathbb{R}^d$ with $I = [0,\text{len}_{\gamma}]$, where $\gamma$ is parameterized by arclength $t$. We assume that $\gamma$ is injective, which ensures that $\gamma^{-1}:\Gamma\rightarrow I$ is well defined and rules out any self-intersections. We define the closest-point projection map as
+\begin{equation}\label{def: projection}
+\Pi(x) = \arg\inf_{t\in I}\|x - \gamma(t)\|_2.
+\end{equation}
+\begin{restatable}[Infimum is attained]{rmk}{} \label{remark: infimum}
+    The infimum in \cref{def: projection} is attained by at least one point in the set $I$ for every $x \in \mathbb{R}^d$.
+\end{restatable}
+\noindent \textit{Proof.} Since the set $\Gamma$ is compact and the Euclidean distance $\|x-a\|_2$ is continuous, the infimum must be attained on some element in $\Gamma$. The result follows from the injectivity of $\gamma$. 
+
+\qed{}
+
+\subsection{Geometry of curves in $\mathbb{R}^d$}
+Before presenting our estimator and its properties, we will remark on relevant results from differential geometry and geometric measure theory. 
+
+
+\begin{restatable}[Medial axis, \cite{federer1959curvature}]{defn}{}
+    Given a closed subset $A \subset \mathbb{R}^d$, the medial axis $M(A)$ is the subset of $\mathbb{R}^d$ consisting of points with at least two nearest neighbors on $A$. Formally,
+    \begin{equation}
+    M(A) = \{x \in \mathbb{R}^d : |\{y \in A : \|x-y\|_2 = d(x,A)\}| > 1\}. \label{eq: medial axis definition}
+    \end{equation}
+\end{restatable}
+
+\begin{restatable}[Reach, \cite{federer1959curvature}]{defn}{}
+    The reach of a closed subset $A \subset \mathbb{R}^d$ is defined as 
+    \begin{equation}
+        \tau_A = \inf_{p\in A} d(p,M(A)) = \inf_{z\in M(A)}d(z,A). \label{eq: reach definition}
+    \end{equation}
+\end{restatable}
+
+
+\begin{restatable}[Boundedness of $\gamma^{(k)}$]{rmk}{} \label{remark: deriv bound}
+    The curve $\gamma$ has bounded first, second and third derivatives. Namely, for any $\gamma \in C^3(I)$ and $k \in \{1,2,3\}$ we have 
+    \[\sup_{t\in I}\|\gamma^{(k)}(t)\|_2 \leq M_k\]
+    for some $|M_k| < \infty$.
+\end{restatable}
+\noindent \textit{Proof.} Since $\gamma \in C^3(I)$, $\gamma^{(k)}$ is continuous for $k \leq 3$. Since $I$ is a compact set, by the Extreme Value Theorem $\gamma^{(k)}$ must be bounded on $I$. 
+
+\qed{}
+
+
+\noindent We will now discuss some properties of the closest point projection map $\Pi$. 
+
+
+\begin{restatable}[Differentiability of $\Pi$]{thm}{} \label{thm: differentiability of pi}
+    There exists an \textit{open} set $R$ of full $d$-dimensional Lebesgue measure such that the following conditions hold for all $x \in R$:
+    \begin{enumerate}
+        \item $s = \Pi(x)$ is unique and well defined
+        \item both $\nabla\Pi(x)$, $\nabla^2\Pi(x)$ exist and can be expressed as $\nabla\Pi(x)  = -\gamma'(s)/g(x)$ and 
+        \begin{equation}
+            \nabla^2\Pi(x) = \frac{1}{g^2(x)}\left(\gamma''(s)\gamma'(s)^T + \gamma'(s)\gamma''(s)^T\right)- \frac{\langle\gamma^{(3)}(s), x - \gamma(s)\rangle}{g^3(x)}\gamma'(s)\gamma'(s)^T
+        \end{equation}
+        where $g(x) = -1 + \langle\gamma''(s), x-\gamma(s)\rangle$. 
+    \end{enumerate}
+\end{restatable}
+\noindent \textit{Proof.} Let $B$ and $\overline{\text{Sing}(\Gamma)}$ be defined as in \cref{eq: ift degeneracy set} and \cref{eq: singular set} respectively. By \Cref{lemma: IFT degen} and \Cref{lemma: singular set measure} we know that both sets have Lebesgue measure $0$. By \Cref{lemma: IFT degen closed} we also know that $B$ is closed. It follows that $B \, \cup \overline{\text{Sing}(\Gamma)}$ has measure $0$ and is also closed, from which we have that 
+\begin{equation}
+    R = \left(B \, \cup \overline{\text{Sing}(\Gamma)}\right)^c \label{eq: good set}
+\end{equation}
+is open with full measure. We also know that for any $x \in R$
+\begin{enumerate}
+    \item $x \notin \overline{\text{Sing}(\Gamma)}$, which means $\Pi(x)$ is differentiable at $x$ and $\Pi(x)$ therefore exists and is unique. 
+    \item $x \notin B$, which allows us to apply \Cref{prop: proj gradient} and \Cref{prop: proj hessian} to get the expressions for $\nabla\Pi(x)$ and $\nabla^2\Pi(x)$ in the theorem statement.
+\end{enumerate}
+\qed{}
+
+% \begin{restatable}[Lebesgue almost everywhere uniqueness of $\Pi$, \cite{erdos1945some}]{corollary}{} \label{remark: uniqueness}
+%     The closest point projection $\Pi$ onto the closed regular $C^3$ curve $\gamma$ is Lebesgue almost everywhere unique. 
+% \end{restatable}
+
+
+\subsection{Distribution of Covariates}
+Previous works utilize the Linear Conditional Expectation (LCE) property, where we assume that the following condition on the distribution of the covariates holds: for any $b \in \mathbb{R}^p$ and $B \in \mathbb{R}^{d\times p}$, then there exists a $c \in \mathbb{R}^d$ such that the conditional expectation $\mathbb{E}[b^{T}x \, | B^{T}x] = B^{T}xc$. In this work we will only assume that the support of $x$ is contained in $\mathcal{B}(0, r)$ for some $r > 0$. We will also suppose that $\Gamma  = \text{Im}(\gamma) \subset \mathcal{B}(0, r)$ as well. 
+
+\begin{restatable}[Elliptically symmetric distributions]{defn}{}\label{def: elliptical symmetry}
+Let $\mu \in \mathbb{R}^d$ and let $\Lambda \in \mathbb{R}^{d\times d}$ with $\Lambda \succeq 0$. If $x$ has density
+\begin{equation}
+     f(x) = |\Lambda|^{-1/2}g\left((x-m)^{T}\Lambda^{-1}(x - m)\right)
+\end{equation}
+and $g:[0, \infty) \rightarrow[0, \infty)$ does not depend on $m$, $\Lambda$, then the distribution of $x$ is said be elliptically symmetric. 
+\end{restatable}
+
+\begin{restatable}[Spherically symmetric distributions]{defn}{}\label{def: spherical symmetry}
+If $X\in \mathbb{R}^d$ has density satisfying \Cref{def: elliptical symmetry} with $\Lambda = I_d$, then the distribution of $x$ is said to be spherically symmetric. Equivalently, a random variable $x$ has a spherically symmetric distribution about its mean $m$ if for every orthogonal matrix $Q$, we have $Q(x - m) \overset{d}{=} x - m$ (where $\overset{d}{=}$ denotes equivalence in distribution). 
+\end{restatable}
+
+\subsection{Recovering the underlying curve}
+For a given $x_0 \in \mathbb{R}^d$ will construct an estimator $\widehat{\beta}_{x_0} \approx  \begin{bmatrix} \alpha_0 & \alpha_1\gamma'(\Pi(x_0)) \end{bmatrix}^T$ for some $\alpha_0, \alpha_1 \in \mathbb{R}$ using the following procedure. Let $\epsilon > 0$ and define
+\begin{align} 
+\widehat{\beta}_{x_0,\epsilon}, \widehat{\alpha}_{x_0, \epsilon} &= \arg\min_{\beta \in \mathbb{R}^d,\, \alpha \in \mathbb{R}} \sum_{x_i \in \mathcal{B}(x_0, \epsilon)}\frac{p^*(x_i - x_0;\theta_0, \epsilon)}{\hat{p}(x_i)}\left(y_i - (x_i - x_0)^{T}\beta - \alpha\right)^2 \\
+&= \arg\min_{\beta \in \mathbb{R}^d,\, \alpha \in \mathbb{R}} \sum_{i = 1}^{n}\frac{p^*(x_i - x_0;\theta_0, \epsilon)}{\hat{p}(x_i)}\left(y_i - (x_i - x_0)^{T}\beta - \alpha\right)^2
+\end{align}
+where $\hat{p}$ is some consistent estimate of $p$, the density of $x$. 
+
+\begin{restatable}{asmpt}{} \label{assumption: lce and covariate density}
+    We require that $p^*(x; \theta_0, \epsilon)$ be a zero-mean spherically symmetric distribution with isotropic covariance parameterized by $\theta_0$. Moreover, we require the following: 
+    \begin{enumerate}
+        \item (Compact support): the density $p^*(x; \theta_0, \epsilon)$ is bounded and satisfies $C(\theta_0, \epsilon) \subseteq \mathcal{B}(0, \epsilon)$ for \begin{equation} \label{eq: support}
+             C(\theta_0, \epsilon) = \overline{\{x : p^*(x; \theta_0, \epsilon) \neq 0\}}.
+        \end{equation}
+        \item (LCE continuity): the density $p^*(x; \theta_0, \epsilon)$ is continuous in $x$ Lebesgue almost everywhere.
+        \item (LCE covariance): the density $p^*(x; \theta_0, \epsilon)$ satisfies $\mathbb{E}_{p^*}[XX^T] \succ 0$. 
+        \item (Covariate support): for all $x \in C(\theta_0, \epsilon)$ defined above, we have that $p_0(x) > 0$. Moreover, we assume that the support of the covariates is bounded, $\{x : p_0(x) \neq 0\} \subseteq \mathcal{B}(0, r). $
+        \item (Covariate density smoothness): 
+        there exists a non-negative integer $k$ such that the density $p_0(x)$ is $C^k$ and has bounded derivatives on $\mathbb{R}^d$.
+    \end{enumerate} 
+\end{restatable}
+\noindent By a slight abuse of notation, we'll redefine each $x_i$ to have $x_0$ subtracted off and we'll let $X_i = \begin{bmatrix}
+    1 & x_i
+\end{bmatrix}^T$ to handle the intercept. The optimization becomes 
+\begin{align} 
+\widehat{\beta}_{x_0,\epsilon} &= \arg\min_{\beta \in \mathbb{R}^{d+1}} \sum_{i = 1}^{n}\underbrace{\frac{p^*(x_i;\theta_0, \epsilon)}{\hat{p}_0(x_i)}}_{\hat{w}_i}\left(y_i - X_i^{T}\beta\right)^2
+\end{align}
+where $\hat{p}_0$ is now a consistent estimate of the density of $x - \,x_0$. 
+% Define the weighted means of $X_i$ and $Y_i$ as 
+% \begin{equation}
+%     \overline{X}_{\hat{w}} = \frac{\sum_{i = 1}^n \hat{w}(X_i)X_i}{\sum_{i = 1}^n \hat{w}(X_i)} \qquad \text{and} \qquad \overline{Y}_{\hat{w}} = \frac{\sum_{i = 1}^n \hat{w}(X_i)f(\Pi(X_i+x_0))}{\sum_{i = 1}^n \hat{w}(X_i)}.
+% \end{equation}
+Through a straightforward calculation one would find that
+\begin{align}
+    \widehat{\beta}_{x_0,\epsilon} &= \left(\sum_{i = 1}^n\hat{w}_iX_iX_i^T\right)^{-1}\left(\sum_{i = 1}^n\hat{w}_iX_iy_i\right). \label{eq: sample est closed form}
+\end{align}
+A similar set of calculations leads to the population quantity. We will again abuse notation and assume that $x$ has had $x_0$ subtracted off. The population optimization problem then looks like
+\begin{align}
+\beta^*_{x_0, \epsilon} &= \arg\min_{\beta \in \mathbb{R}^{d+1}} \mathbb{E}_{x\sim p_0} \Big[\frac{p^*(x;\theta_0, \epsilon)}{p_0(x)}\Big(f(\Pi(x + x_0)) - X^{T}\beta \Big)^2\Big] \label{eq: population estimator}
+\end{align}
+where $p_0$ is the density of the random variable $x$. Solving for $\beta^*_{x_0, \epsilon}$ yields
+\begin{align}
+    \beta^*_{x_0, \epsilon} = \mathbb{E}_{x \sim p^*(\cdot\,; \, \theta_0)}\left[XX^T\right]^{-1}\mathbb{E}_{x \sim p^*(\cdot\,;\,\theta_0)}\left[Xy\right] \label{eq: population est closed form}
+\end{align}
+where $y = f(\Pi(x+x_0))$. We will show that the last $d$ entries of $\widehat{\beta}_{x_0,\epsilon}$ are a consistent estimate of $\gamma'(\Pi(x_0))$ up to scale. To formalize this, let $V = \begin{bmatrix} 0 & I_d\end{bmatrix}$ and define the population approximation of $\gamma'(\Pi(x_0))$ as
+\begin{equation}
+    v^*_{x_0, \epsilon} = V\beta^*_{x_0, \epsilon} \label{eq: population velocity estimator}
+\end{equation}
+and the sample estimator
+\begin{equation}
+    \hat{v}_{x_0, \epsilon} = V\hat{\beta}_{x_0, \epsilon}. \label{eq: sample velocity estimator}
+\end{equation}
+
+\subsection{Density Estimation}
+
+The estimators in \cref{eq: sample est closed form} and \cref{eq: sample velocity estimator} require an estimate of the density ratio $\hat{w}_i \approx p^*(x_i;\theta_0, \epsilon)/p_0(x_i)$ -  we will need to impose some assumptions on a kernel density estimator $\hat{p}_0$ of $p_0$ that ensures consistency of the estimate of $\hat{v}_{x_0, \epsilon}$. Let $K(\cdot)$ be a kernel that meets \cref{assumption: kernel smoothness} and $h > 0$ its bandwidth parameter. Then the kernel density estimate of $p_0$ is
+\begin{equation}
+    \hat{p}_0(x) = \frac{1}{n}\sum_{i = 1}^nh^{-d}K\left(\frac{x -x_i}{h}\right) \label{eq: kde}
+\end{equation}
+where 
+\[\int_{\mathbb{R}^d}K(u)\,du_1\dots du_d = 1.\]
+
+\begin{restatable}{asmpt}{} \label{assumption: kernel smoothness}
+    The kernel $K(\cdot)$ is Lipschitz, zero outside of a bounded set, and there exists a positive integer $s \leq k$ (with $k$ defined in \cref{assumption: lce and covariate density}) such that for all $d$-tuples of non-negative integers $(j_1, \dots, j_d)$ such that $\sum_i j_i < s$ and
+    \[\int_{\mathbb{R}^d}u_1^{j_1}\dots u_d^{j_d}K(u)\,du_1\dots du_d.\]
+\end{restatable}
+
+
+\begin{restatable}[Uniform convergence over a compact set, \citet{87881b06-b1f4-38f8-874e-03ce94e584ba}]{lemma}{} \label{lemma: uniform convergence of kde}
+    For a given covariate density $p_0(\cdot)$, let $C(\theta_0, \epsilon)$ be the compact set arising from \cref{assumption: lce and covariate density}. Suppose the kernel $K(\cdot)$ satisfies \cref{assumption: kernel smoothness} with integer $s$, and the bandwidth sequence $h_n$ is chosen such that $\sqrt{n}h_n^d/\ln(n) \rightarrow \infty$ and $\sqrt{n}h_n^s \rightarrow 0$. Then we have
+    \begin{equation}
+        \sup_{x \in C(\theta_0, \epsilon)} \left|\hat{p}_0(x) - p_0(x)\right| \overset{p}{\rightarrow} 0
+    \end{equation}
+    for $\hat{p}_0(\cdot)$ defined as in \cref{eq: kde}.
+\end{restatable}
+
+\section{Consistency}
+
+\subsection{Velocity estimate}
+
+\begin{restatable}[Population quantity proportionality]{thm}{}\label{thm: population prop}
+    For some scalar $\alpha_1 \in \mathbb{R}$ and Lebesgue almost every $x_0 \in \mathcal{B}(0, r)$ there exists an $\epsilon_0 > 0$ such that for all $\epsilon \leq \epsilon_0$ 
+    \[\|v^*_{x_0, \epsilon} - \alpha_1\gamma'(s_0)\|_2 \lesssim (M_2+rM_3)L_f\epsilon\]
+    with $v^*_{x_0, \epsilon}$ defined in \cref{eq: population velocity estimator} and $s_0 = \Pi(x_0)$.
+\end{restatable}
+
+\noindent \textit{Proof.} By \Cref{thm: differentiability of pi} we have that for Lebesgue almost every $x_0$, $\Pi(x_0)$ exists, is unique and $\nabla\Pi(x_0) \propto \gamma'(\Pi(x_0))$. Thus it suffices to show that $\beta^*_{x_0, \epsilon} \rightarrow \nabla\Pi(x_0)$. To do so, we'll define 
+\[g(x) = f\Big(\Pi(x_0) + \nabla\Pi(x_0)^{T}(x-x_0)\Big)\]
+and 
+\[\xi(x) = f(\Pi(x)) - g(x).\] Note that \Cref{lemma: proj approx} implies that there exists an $\epsilon_0 > 0$ such that for all $\epsilon \leq \epsilon_0$ and for all $x \in \mathcal{B}(x_0, \epsilon)$ we have $\xi(x) \lesssim (M_2 + rM_3)L_f\epsilon^2$. Let  
+\begin{align}
+    \tilde{\beta}^*_{x_0, \epsilon} &= \arg\min_{\beta}\mathbb{E}_{x\sim p_0}\Big[\underbrace{\frac{p^*(x;\theta_0, \epsilon)}{p_{0}(x)}}_{w}\Big(g(x+x_0) - X^{T}\beta\Big)^2\Big]. \label{eq: perturbed pop estimator}
+\end{align}
+By \Cref{lemma: surrogate problem} we know that for some $\alpha_0, \alpha_1 \in \mathbb{R}$ we have $\tilde{\beta}^*_{x_0, \epsilon}  =  \begin{bmatrix}
+    \alpha_0 & \alpha_1\nabla\Pi(x_0)
+\end{bmatrix}^T$, and by \Cref{lemma: proj approx}, we know that
+\begin{align*}
+    \left|\xi(x+x_0)\right| &= \big|f(\Pi(\underbrace{x+x_0}_{z})) - f\left(\Pi(x_0) + \nabla\Pi(x_0)^Tx\right)\big| \\
+    &= \left|f(\Pi(z)) - f\left(\Pi(x_0) + \nabla\Pi(x_0)^T(z-x_0)\right)\right|\\
+    &\lesssim (M_2 + rM_3)L_f\epsilon^2.
+\end{align*}
+Observe that $\mathbb{E}_{x\sim p_{0}}[wXX^{T}]$ is necessarily positive definite as shown in \Cref{lemma: pd}. Thus, \Cref{lemma: perturbation} allows us to say 
+\begin{align*} 
+\|\beta^*_{x_0, \epsilon} - \tilde{\beta}_{x_0, \epsilon}^*\|_2 &= \left\|\left\{\mathbb{E}_{p_{0}}[wXX^{T}]\right\}^{-1}\mathbb{E}_{p_{0}}[wX\xi(x+x_0)]\right\|_2 \\
+&\leq \left\|\left\{\mathbb{E}_{p_{0}}[wXX^{T}]\right\}^{-1}\mathbb{E}_{p_{0}}[wX]\right\|_2(M_2 + rM_3)L_f\epsilon^2.
+\end{align*}
+Now we'll apply \Cref{lemma: pnorm bound} to obtain,
+\begin{align}
+    \|\beta^*_{x_0, \epsilon} - \tilde{\beta}_{x_0, \epsilon}^*\|_2 &\lesssim (M_2 + rM_3)L_f\epsilon.
+\end{align}
+The statement follows from the definitions in \cref{eq: sample velocity estimator} and \cref{eq: population velocity estimator}. 
+
+\qed{}
+
+\begin{restatable}[Central limit for $\hat{v}_{x_0, \epsilon}$]{corollary}{} \label{corr: central limit for v}
+    If \cref{assumption: kernel smoothness} and \cref{assumption: lce and covariate density} are satisfied, then we have asymptotic normality of the velocity vector estimate $\hat{v}_{x_0, \epsilon}$. In particular,
+    \[\sqrt{n}(\hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon}) \overset{d}{\rightarrow}N(0, VQ^{-1}\Lambda Q^{-1}V^T)\]
+    with $V = \begin{bmatrix}
+        0 & I_d
+    \end{bmatrix}$ and 
+    \[\Lambda = \text{Var}(wX\sigma).\]
+\end{restatable}
+\noindent \textit{Proof.} The result follows from the central limit for $\hat{\beta}_{x_0, \epsilon}$ via \Cref{thm: central limit for beta} and application of the delta method with the Jacobian of the map $\hat{v}_{x_0, \epsilon} = V\hat{\beta}_{x_0, \epsilon}$. 
+
+\qed{}
+
+\begin{restatable}[Central limit for $\hat{\beta}_{x_0, \epsilon}$]{thm}{} \label{thm: central limit for beta}
+    If \cref{assumption: kernel smoothness} and \cref{assumption: lce and covariate density} are satisfied, then we have asymptotic normality of $\hat{\beta}_{x_0,\epsilon}$. In particular
+    \[\sqrt{n}(\hat{\beta}_{x_0, \epsilon} - \beta^*_{x_0, \epsilon}) \overset{d}{\rightarrow} N(0, Q^{-1}\Lambda Q^{-1})\]
+    where 
+    \[\Lambda = \text{Var}(wX\sigma).\]
+\end{restatable}
+\noindent \textit{Proof.} This proof will follow closely the argument from \citet{Newey_Ruud_2005}. Let's define the matrices
+\begin{equation}
+    Q = \mathbb{E}_{p^*(\cdot\,;\, \theta_0)}\left[XX^T\right] \qquad \text{and} \qquad \hat{Q} = \frac{1}{n}\sum_{i = 1}^n\hat{w}_iX_iX_i^T.
+\end{equation}
+Taking the root-$n$ scaled difference between $\hat{\beta}_{x_0, \epsilon}$ and $\beta^*_{x_0, \epsilon}$ yields
+\begin{align}
+    \sqrt{n}(\hat{\beta}_{x_0, \epsilon} -\beta^*_{x_0, \epsilon}) &= \sqrt{n}\left(n\hat{Q}\right)^{-1}\left(\sum_{i = 1}^n\hat{w}_iX_i\right) - \sqrt{n}\,\beta_{x_0, \epsilon}^*\\
+    &= \frac{1}{\sqrt{n}}\hat{Q}^{-1}\left(\sum_{i = 1}^n\hat{w}_iX_iy_i\right) - \sqrt{n}\hat{Q}^{-1}\hat{Q}\beta_{x_0, \epsilon}^* \\
+    &= \hat{Q}^{-1}\frac{1}{\sqrt{n}}\sum_{i=1}^n \hat{w}_iX_iu_i\\
+    &= \hat{Q}^{-1}\frac{1}{\sqrt{n}}\sum_{i = 1}^nw_iX_iu_i + \hat{Q}^{-1}\frac{1}{\sqrt{n}}\sum_{i = 1}^n(\hat{w}_i - w_i)X_iu_i\label{eq: asymptotic expansion}
+\end{align}
+where $u_i = y_i - X_i^T\beta^*_{x_0, \epsilon}$. By \Cref{lemma: newey lemma}, we have the following equivalence
+\begin{align}
+    \frac{1}{\sqrt{n}}\sum_{i = 1}^n(\hat{w}_i - w_i)X_iu_i &= \frac{1}{\sqrt{n}}\sum_{i = 1}^nw_iX_i\left(X_i^T\beta^*_{x_0, \epsilon} - \mathbb{E}[y_i|x_i]\right) + o_p(1)
+\end{align}
+which yields
+\begin{align}
+    \sqrt{n}(\hat{\beta}_{x_0, \epsilon} -\beta^*_{x_0, \epsilon}) &= \hat{Q}^{-1}\frac{1}{\sqrt{n}}\sum_{i = 1}^nw_iX_iu_i + \hat{Q}^{-1}\frac{1}{\sqrt{n}}\sum_{i = 1}^nw_iX_i\left(X_i^T\beta^*_{x_0, \epsilon} - \mathbb{E}[y_i|x_i]\right) + o_p(1) \\
+    &= \hat{Q}^{-1}\frac{1}{\sqrt{n}}\sum_{i = 1}^nw_iX_i\left(y_i - \mathbb{E}[y_i|x_i]\right) + o_p(1).
+\end{align}
+Observe that the first term has mean zero, which implies
+\begin{align*}
+    \frac{1}{n}\sum_{i = 1}^nw_i^2X_iX_i^T(y_i - \mathbb{E}[y_i|x_i])^2 &\overset{p}{\rightarrow} \mathbb{E}_{p_0}\left[w^2XX^T\sigma^2\right] \\
+    &= \text{Var}\left(wX\sigma\right).
+\end{align*}
+This is exactly the asymptotic variance of the first term.  \Cref{lemma: Q convergence} establishes that $\hat{Q}^{-1}\overset{p}{\rightarrow} Q^{-1}$. Plugging back into \cref{eq: asymptotic expansion} and applying Slutsky's theorem yields
+\begin{equation}
+    \sqrt{n}(\hat{\beta}_{x_0, \epsilon} - \beta_{x_0, \epsilon}^*) = \frac{1}{\sqrt{n}}Q^{-1}\sum_{i = 1}^nw_iX_i\left(y_i - \mathbb{E}[y_i|x_i]\right) + o_p(1).
+\end{equation}
+Via the central limit theorem and the delta method, it follows that
+\begin{equation}
+     \sqrt{n}(\hat{\beta}_{x_0, \epsilon} - \beta_{x_0, \epsilon}^*) \overset{p}{\rightarrow} N(0, Q^{-1}\Lambda Q^{-1})
+\end{equation}
+with $\Lambda = \text{Var}(wX\sigma)$. 
+
+\qed{}
+
+\subsection{Nonparametric Regression}
+
+To obtain a regression estimate for an $x$, we will project its neighborhood onto the estimate $\hat{v}_{x_0, \epsilon}$ and then perform kernel regression. Since we stipulate that $\gamma$ is parameterized by arclength, we will first normalize the velocity vector estimate to obtain $\hat{v}_{x_0, \epsilon}' = \hat{v}_{x_0, \epsilon}/\|\hat{v}_{x, \epsilon}\|_2$ (with its population counterpart being $v'^{*}_{x, \epsilon}$). 
+
+\begin{algorithm}[H]
+    \begin{algorithmic}[1]
+        \caption{Locally Linear Single Index Regression}
+        \label{alg: LLR}
+        \Require New sample $x$, $\epsilon$-neighborhood of $x$ and associated responses $\{(x_i, y_i)\}_{i=1}^k \subseteq \mathbb{R}^d \times \mathbb{R}$, normalized velocity estimate $\hat{v}_{x, \epsilon}'$, a positive nonparametric regression kernel $K_r$ and bandwidth $h_r$\\
+        Obtain neighborhood projection as $\hat{z}_i = \langle x_i - x, \hat{v}'_{x, \epsilon} \rangle$ \\
+        Estimate response as 
+        \begin{equation} \label{eq: kernel regressor}
+            \hat{f}(x) = \sum_{i \in N(x, \epsilon)}\frac{y_iK_r(\frac{\hat{z}_i}{h_r})}{\sum_{j\in N(x, \epsilon)}K_r(\frac{\hat{z}_j}{h_r})}
+        \end{equation}
+        where $N(x, \epsilon) = \{i : \|x_i - x\|_2 \leq \epsilon\}$. \\
+        \Return $\hat{f}(x)$
+    \end{algorithmic}
+\end{algorithm}
+
+\begin{restatable}[Pointwise central limit of $\hat{f}$]{thm}{} 
+    Let $x_1, \dots, x_n \sim \lambda$ where $x_i$ admits a density $p_0(x_i)$, and let $\hat{f}$ be an estimator of the regression function computed from the samples $x_1, \dots, x_n$ and their associated responses $y_1, \dots, y_n$. Under the assumptions of \Cref{corr: central limit for v} and for some $x\in \mathcal{B}(0, r)$ we have
+    \[\sqrt{n}\left(\hat{f}(x) - f(s)\right) \overset{d}{\rightarrow} N(\bar{b}(x; \epsilon), \textcolor{red}{??}) \]
+    where $s = \Pi(x)$ and $\bar{b}(x;\epsilon)$ is the asymptotic bias and has the form
+    \begin{equation}
+        \bar{b}(x; \epsilon) = \frac{\mathbb{E}_{x'}\left[\left\{f(\Pi(x')) - f(s)\right\}K_r(z'/h_r)\mathbbm{1}\{x'\in \mathcal{B}(x, \epsilon)\}\right]}{\mathbb{E}_{x'}\left[K_r(z'/h_r)\mathbbm{1}\{x'\in \mathcal{B}(x, \epsilon)\}\right]}
+    \end{equation}
+    with $z' = \langle x' - x, \gamma'(\Pi(x'))\rangle.$
+\end{restatable}
+\noindent \textit{Proof.} Let $z_i = \langle x_i - x, v'^*_{x, \epsilon}\rangle$ and define
+\[\tilde{f}(x) = \sum_{i \in N(x, \epsilon)}\frac{y_iK_r(\frac{z_i}{h_r})}{\sum_{j \in N(x, \epsilon)}K_r(\frac{z_j}{h_r})}\]
+and
+\[\bar{f}(x) = \frac{\mathbb{E}_{x'}\left[f(\Pi(x'))K_r(z'/h_r)\mathbbm{1}\{x'\in \mathcal{B}(x, \epsilon)\}\right]}{\mathbb{E}_{x'}\left[K_r(z'/h_r)\mathbbm{1}\{x'\in \mathcal{B}(x, \epsilon)\}\right]}\]
+where $z' = \langle x'-x,\gamma'(\Pi(x'))\rangle$. Expanding yields
+\begin{align}
+    \hat{f}(x) - f(x) &= \hat{f}(x) - \tilde{f}(x) + 
+    \tilde{f}(x) - \bar{f}(x) + \bar{f}(x) - f(s).
+\end{align}
+Defining $A^{(1)}, B^{(1)}, \widehat{A}^{(1)}, \widehat{B}^{(1)}$ to be the numerator and denominator of $\tilde{f}$ and $\hat{f}$ respectively allows us to write the difference as
+\begin{align}
+    \hat{f}(x) - \tilde{f}(x)  &= \frac{\widehat{A}^{(1)}}{\widehat{B}^{(1)}} - \frac{A^{(1)}}{B^{(1)}} \\
+    &= \frac{\widehat{A}^{(1)}-A^{(1)}}{B^{(1)}}\frac{B^{(1)}}{\widehat{B}^{(1)}} + \frac{A^{(1)}}{B^{(1)}}\left(\frac{B^{(1)} - \widehat{B}^{(1)}}{B^{(1)}}\right)\frac{B^{(1)}}{\widehat{B}^{(1)}} \\
+    &= 
+    \left[\frac{\widehat{A}^{(1)}-A^{(1)}}{B^{(1)}} + \frac{\frac{A^{(1)}}{B^{(1)}}\left(B^{(1)} - \widehat{B}^{(1)}\right)}{B^{(1)}}\right]\frac{B^{(1)}}{\widehat{B}^{(1)}}. \label{eq: kdr estimator decomp}
+\end{align}
+Now we can analyze these terms individually. Note that \Cref{lemma: projection error limit} indicates that $\hat{z}_i =  z_i + O_p(n^{-1/2})$. By continuity of the kernel $K_r$, the continuous mapping theorem implies that 
+\begin{align}
+    \frac{1}{n}\sum_{j = 1}^{n}\mathbbm{1}\{x_j \in \mathcal{B}(x, \epsilon)\}K_r(\hat{z}_j/h_r) &= \frac{1}{n}\sum_{j = 1}^n \mathbbm{1}\{x_j \in \mathcal{B}(x, \epsilon)\}K_r((z_j + O_p(n^{-1/2}))/h_r) \\
+    &= \frac{1}{n}\sum_{j = 1}^n \mathbbm{1}\{x_j \in \mathcal{B}(x, \epsilon)\}K_r(z_j/h_r)\left[1 + L_{K_r}O_p(n^{-1/2})\right] \\
+    &= \frac{1}{n}\sum_{j = 1}^n \mathbbm{1}\{x_j \in \mathcal{B}(x, \epsilon)\}K_r(z_j/h_r) + O_p(n^{-1/2})
+\end{align} 
+Thus, we can rewrite the relationship between $\frac{1}{n}\widehat{B}^{(1)}, \frac{1}{n}B^{(1)}$ as $\frac{1}{n}\widehat{B}^{(1)} = \frac{1}{n}B^{(1)} + O_p(n^{-1/2})$, from which it follows that
+\begin{align*}
+    \frac{B^{(1)}}{\widehat{B}^{(1)}} &= \frac{B^{(1)}}{B^{(1)} + O_p(n^{-1/2})} \\
+    &= 1  + O_p(n^{-1/2}).
+\end{align*}
+Now consider,
+\begin{align}
+    \frac{\widehat{A}^{(1)} - A^{(1)}}{B^{(1)}} &= \frac{\sum_{i=1}^n\mathbbm{1}\{x_i \in \mathcal{B}(x, \epsilon)\}y_i\left[K_r(\frac{\hat{z}_i}{h_r}) - K_r(\frac{z_i}{h_r})\right]}{\sum_{i = 1}^n\mathbbm{1}\{x_i \in \mathcal{B}(x, \epsilon)\}K_r(z_i/h_r)} \\
+    &= \frac{\sum_{i=1}^n\mathbbm{1}\{x_i \in \mathcal{B}(x, \epsilon)\}y_i\left[\frac{d}{dz_i}K_r(\frac{z_i}{h_r})(\hat{z}_i - z_i) + O_p((\hat{z}_i - z_i)^2)\right]}{\sum_{i = 1}^n\mathbbm{1}\{x_i \in \mathcal{B}(x, \epsilon)\}K_r(z_i/h_r)} \\
+    &= \frac{\sum_{i=1}^n\mathbbm{1}\{x_i \in \mathcal{B}(x, \epsilon)\}y_i\left[\frac{d}{dz_i}K_r(\frac{z_i}{h_r})(\hat{z}_i - z_i) + O_p((\hat{z}_i - z_i)^2)\right]}{\sum_{i = 1}^n\mathbbm{1}\{x_i \in \mathcal{B}(x, \epsilon)\}K_r(z_i/h_r)}.
+\end{align}
+Observe that $\hat{z}_i - z_i = \langle x_i - x, \hat{v}'_{x, \epsilon} - v'^*_{x, \epsilon}\rangle$ and from \Cref{corr: central limit for v} we know that $\alpha_1\sqrt{n}(\hat{v}'_{x, \epsilon} - v'^*_{x, \epsilon}) \overset{d}{\rightarrow} N(0, VQ^{-1}\Lambda Q^{-1}V^T)$. Expanding the asymptotic component of the numerator,
+\begin{align*}
+    O_p((\hat{z}_i - z_i)^2) &= O_p(\|x_i-x\|_2^2\|\|\hat{v}_{x, \epsilon} - v'^*_{x, \epsilon}\|^2) \\
+    &= O_p(\epsilon^2(\epsilon^{-2}n^{-1}\alpha_1^{-2})) \\
+    &= O_p(n^{-1}\alpha_1^{-2})
+\end{align*}
+which follows from Cauchy-Schwartz and \Cref{thm: velocity risk}. For a fixed $\epsilon$, we have constant $\alpha_1$ -- this renders the second term in the expansion of $(\widehat{A}^{(1)} - A^{(1)})/B^{(1)}$ negligible, resulting in 
+\begin{align}
+    \frac{\widehat{A}^{(1)} - A^{(1)}}{B^{(1)}} &\asymp \frac{\frac{1}{n}\sum_{i = 1}\mathbbm{1}\{x_i \in \mathcal{B}(x, \epsilon)\}y_i\frac{d}{dz_i}K_r(\frac{z_i}{h_r})O_p(n^{-1/2})}{\frac{1}{n}\sum_{i = 1}^n\mathbbm{1}\{x_i \in \mathcal{B}(x, \epsilon)\}K_r(z_i/h_r)} \\
+    &= O_p(n^{-1/2}).
+\end{align}
+Now we'll consider $(B^{(1)} - \widehat{B}^{(1)})/B^{(1)}$ by applying the same Taylor expansion as above,
+\begin{align}
+    \frac{B^{(1)} - \widehat{B}^{(1)}}{B^{(1)}} &= \frac{\sum_{i = 1}^n\mathbbm{1}\{x_i \in \mathcal{B}(x, \epsilon)\}\left[K_r(z_i/h_r) - K_r(\hat{z}_i'/h_r)\right]
+    }{\sum_{i = 1}^n\mathbbm{1}\{x_i \in \mathcal{B}(x, \epsilon)\}K_r(z_i/h_r)} \\
+    &= -\frac{\sum_{i = 1}^n\mathbbm{1}\{x_i \in \mathcal{B}(x, \epsilon)\}\left[\frac{d}{dz_i}K_r\left(z_i/h_r\right)(\hat{z}_i - z_i) + O_p((\hat{z}_i - z_i)^2)\right]
+    }{\sum_{i = 1}^n\mathbbm{1}\{x_i \in \mathcal{B}(x, \epsilon)\}K_r(z_i/h_r)} \\
+    &\asymp -\frac{\sum_{i = 1}^n\mathbbm{1}\{x_i \in \mathcal{B}(x, \epsilon)\}\frac{d}{dz_i}K_r\left(z_i/h_r\right)(\hat{z}_i - z_i)
+    }{\sum_{i = 1}^n\mathbbm{1}\{x_i \in \mathcal{B}(x, \epsilon)\}K_r(z_i/h_r)} \\
+    &= -\frac{\frac{1}{n}\sum_{i = 1}^n\mathbbm{1}\{x_i \in \mathcal{B}(x, \epsilon)\}\frac{d}{dz_i}K_r\left(z_i/h_r\right)(\hat{z}_i - z_i)
+    }{\frac{1}{n}\sum_{i = 1}^n\mathbbm{1}\{x_i \in \mathcal{B}(x, \epsilon)\}K_r(z_i/h_r)} \\
+    &= -\frac{\frac{1}{n}\sum_{i = 1}^n\mathbbm{1}\{x_i \in \mathcal{B}(x, \epsilon)\}\frac{d}{dz_i}K_r\left(z_i/h_r\right)(\hat{z}_i - z_i)
+    }{\mathbb{E}_{x'}[\mathbbm{1}\{x' \in \mathcal{B}(x, \epsilon)\}K_r(z'/h_r)]}\left(1 + O_p(n^{-1/2})\right) \\
+    &=  -\frac{\frac{1}{n}\sum_{i = 1}^n\mathbbm{1}\{x_i \in \mathcal{B}(x, \epsilon)\}\frac{d}{dz_i}K_r\left(z_i/h_r\right)O_p(n^{-1/2})
+    }{\mathbb{E}_{x'}[\mathbbm{1}\{x' \in \mathcal{B}(x, \epsilon)\}K_r(z'/h_r)]}\left(1 + O_p(n^{-1/2})\right) \\
+    &= O_p(n^{-1/2}).
+\end{align}
+Thus, plugging into \cref{eq: kdr estimator decomp} yields
+\begin{equation}
+    \hat{f}(x) - \tilde{f}(x) = O_p(n^{-1/2}).
+\end{equation}
+Now we'll apply a similar decomposition for $\tilde{f}(x) - \bar{f}(x)$. In particular, if we let $A^{(2)}$, $B^{(2)}$, $n\widehat{A}^{(2)}$, $n\widehat{B}^{(2)}$ be the numerator and denominator of $\bar{f}$ and $\tilde{f}$ respectively, then we have
+\begin{align}
+    \tilde{f}(x) - \bar{f}(x) &=  \left[\frac{\widehat{A}^{(2)}-A^{(2)}}{B^{(2)}} + \frac{\frac{A^{(2)}}{B^{(2)}}\left(B^{(2)} - \widehat{B}^{(2)}\right)}{B^{(2)}}\right]\frac{B^{(2)}}{\widehat{B}^{(2)}}. 
+\end{align}
+Now, by the LLN we have 
+\begin{align}
+    \frac{1}{n}\sum_{i = 1}^n \mathbbm{1}\{x_i \in \mathcal{B}(x)\}K_r(z_i/h_r) \overset{p}\rightarrow \mathbb{E}_{x'}\left[K_r(z'/h_r)\mathbbm{1}\{x'\in \mathcal{B}(x, \epsilon)\}\right]
+\end{align}
+thus $\widehat{B}^{(2)} = B^{(2)} + O_p(n^{-1/2})$. From this we get the equivalence
+\begin{align}
+    \frac{B^{(2)}}{\widehat{B}^{(2)}} &= 1 + O_p(n^{-1/2}).
+\end{align}
+Now we can plug into the expression above to say
+\begin{align}
+    \tilde{f}(x) - \bar{f}(x) &= \left(1 + O_p(n^{-1/2})\right)\frac{1}{n}\sum_{i = 1}^n\phi(x_i, y_i; x, \epsilon) \\
+    &= \frac{1}{n}\sum_{i = 1}^n\phi(x_i, y_i; x, \epsilon) + O_p(n^{-1/2})
+\end{align}
+where 
+\begin{equation*}
+    \phi(x_i, y_i; x, \epsilon) = \frac{\mathbbm{1}\{x_i \in \mathcal{B}(x, \epsilon)\}K_r\left(\frac{z_i}{h_r}\right)\left[y_i - \bar{f}(x)\right] - \mathbb{E}_{x', y'}\left[\mathbbm{1}\{x' \in \mathcal{B}(x, \epsilon)\}K_r\left(\frac{z'}{h_r}\right)\left[y' - \bar{f}(x)\right]\right]}{\mathbb{E}_{x'}\left[K_r(z'/h_r)\mathbbm{1}\{x'\in \mathcal{B}(x, \epsilon)\}\right]}.
+\end{equation*}
+Observe that $\phi(x_i, y_i; x, \epsilon)$ is mean $0$. 
+Trivially, for the third pair of terms we have
+\begin{align}
+    \bar{f}(x) - f(s) &= \frac{\mathbb{E}_{x'}\left[f(\Pi(x'))K_r(z'/h_r)\mathbbm{1}\{x'\in \mathcal{B}(x, \epsilon)\}\right]}{\mathbb{E}_{x'}\left[K_r(z'/h_r)\mathbbm{1}\{x'\in \mathcal{B}(x, \epsilon)\}\right]} - f(s) \\
+    &= \frac{\mathbb{E}_{x'}\left[\left\{f(\Pi(x')) - f(s)\right\}K_r(z'/h_r)\mathbbm{1}\{x'\in \mathcal{B}(x, \epsilon)\}\right]}{\mathbb{E}_{x'}\left[K_r(z'/h_r)\mathbbm{1}\{x'\in \mathcal{B}(x, \epsilon)\}\right]} + f(s) - f(s) \\
+    &= \bar{b}(x; \epsilon).
+\end{align}
+Putting it together, we have 
+\begin{equation}
+    \hat{f}(x) - f(s) = \bar{b}(x; \epsilon) + \frac{1}{n}\sum_{i = 1}^n\phi (x_i, y_i; x, \epsilon) + O_p(n^{-1/2}).
+\end{equation}
+\textcolor{red}{Some comments: $\phi$ is mean zero but the residual rate is $O_p(n^{-1/2})$, not $o_p(n^{-1/2})$ which is problematic for a CLT as it is non-negligible.}
+
+\qed{}
+
+\section{Risk}
+\subsection{Velocity estimation}
+\begin{restatable}[Risk of $\hat{v}_{x_0, \epsilon}$]{thm}{} \label{thm: velocity risk}
+    Let $x_1, \dots, x_n \sim \lambda$ where $x_i$ admits a density $p_0(x_i)$. Under the assumptions of \Cref{corr: central limit for v} we have
+    \[\|\hat{v}_{x_0, \epsilon} - \alpha_1\gamma'(s_0)\|_{L^2(\lambda)}^2 \lesssim \frac{1}{\epsilon^2n} + \epsilon^2 \]
+    with $s_0 = \Pi(x_0)$. In particular, if we choose $\epsilon \asymp n^{-1/4}$ then we have
+    \[\|\hat{v}_{x_0, \epsilon} - \alpha_1\gamma'(s_0)\|_{L^2(\lambda)}^2 \lesssim n^{-1/2}. \]
+\end{restatable}
+\noindent \textit{Proof.} By the triangle inequality and \Cref{thm: population prop} we have
+\begin{align}
+    \|\hat{v}_{x_0, \epsilon} - \alpha_1\gamma'(s_0)\|_{L^2(\lambda)}^2 &\leq \|\hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon} \|_{L^2(\lambda)}^2 + \|v^*_{x_0, \epsilon}  - \alpha_1\gamma'(s_0)\|_{L^2(\lambda)}^2 \\
+    &\lesssim  \|\hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon} \|_{L^2(\lambda)}^2 + (M_2 + rM_3)^2L_f^2\epsilon^2.
+\end{align}
+To bound the first term, we'll use the fact that $\sqrt{n}(\hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon}) \overset{d}{\rightarrow}N(0, VQ^{-1}\Lambda Q^{-1}V^T)$ from \Cref{corr: central limit for v} to say
+\begin{align}
+    \|\hat{v}_{x_0, \epsilon} - \alpha_1\gamma'(s_0)\|_{L^2(\lambda)}^2
+    &\lesssim  \frac{1}{n}\text{tr}\left( VQ^{-1}\Lambda Q^{-1}V^T\right) + (M_2 + rM_3)^2L_f^2\epsilon^2.
+\end{align}
+By \Cref{lemma: trace bound} we have a bound on the trace of the asymptotic variance, leading to
+\begin{align}
+    \|\hat{v}_{x_0, \epsilon} - \alpha_1\gamma'(s_0)\|_{L^2(\lambda)}^2
+    &\lesssim  \frac{1}{\epsilon^2n} + \epsilon^2.
+\end{align}
+If we choose $\epsilon \asymp n^{-1/4}$ then we have
+\[\|\hat{v}_{x_0, \epsilon} - \alpha_1\gamma'(s_0)\|_{L^2(\lambda)}^2 \lesssim n^{-1/2}. \]
+
+\qed{}
+
+\subsection{Nonparametric Regression}
+
+\begin{restatable}[Pointwise risk of $\hat{f}$]{thm}{} 
+    Let $x_1, \dots, x_n \sim \lambda$ where $x_i$ admits a density $p_0(x_i)$. Under the assumptions of \Cref{corr: central limit for v} and for some $x\in \mathcal{B}(0, r)$ we have
+    \[\|\hat{f}(x) - f(x)\|_{L^2(\lambda)}^2 \lesssim \textcolor{red}{something} \]
+    with $s = \Pi(x)$, where $\hat{f}$ is an estimator of the regression function computed from the samples $x_1, \dots, x_n$.
+\end{restatable}
+\noindent \textit{Proof.} 
+
+% Let $z_i = \Pi(x_i) - \Pi(x)$ and define
+% \[\tilde{f}(x) = \sum_{i \in N(x, \epsilon)}\frac{y_iK_r(\frac{z_i}{h_r})}{\sum_{j \in N(x, \epsilon)}K_r(\frac{z_j}{h_r})}.\]
+% Critically, observe that we are summing over indices $\{i : \|x_i - x\|_2 \leq \epsilon\}$, which is a subset of the full $n$ samples. Expanding yields
+% \begin{align}
+%     \|\hat{f}(x) - f(x) \|_{L^2(\lambda)}^2 &= \|\hat{f}(x) - \tilde{f}(x) + \tilde{f}(x) - f(s)\|_{L^2(\lambda)}^2 \\
+%     &\leq \|\hat{f}(x) - \tilde{f}(x)\|_{L^2(\lambda)}^2 + \|\tilde{f}(x) - f(s)\|_{L^2(\lambda)}^2.
+% \end{align}
+% Note that the first term captures the projection error, while the second term captures the kernel regression error. Let's consider this first term. Defining $A, B, \widehat{A}, \widehat{B}$ to be the numerator and denominator of $\tilde{f}$ and $\hat{f}$ respectively allows us to write the difference as
+% \begin{align}
+%     \hat{f}(x) - \tilde{f}(x) &= \frac{\sum_{i \in N(x, \epsilon)}y_iK_r(\frac{\hat{z}_i}{h_r})}{\sum_{j \in N(x, \epsilon)}K_r(\frac{\hat{z}_j}{h_r})} - \frac{\sum_{i \in N(x, \epsilon)}y_iK_r(\frac{z_i}{h_r})}{\sum_{j \in N(x, \epsilon)}K_r(\frac{z_j}{h_r})} \\
+%     &= \frac{\widehat{A}}{\widehat{B}} - \frac{A}{B} \\
+%     &= \frac{\widehat{A}-A}{B}\frac{B}{\widehat{B}} + \frac{A}{B}\left(\frac{B - \widehat{B}}{B}\right)\frac{B}{\widehat{B}}.
+% \end{align}
+% Now we can analyze these terms individually. Note that 
+% \begin{align*}
+%     \frac{B}{\hat{B}} &= \frac{\sum_{j \in N(x, \epsilon)}K_r(\frac{z_j}{h_r})}{\sum_{j \in N(x, \epsilon)}K_r(\frac{\hat{z}_j}{h_r})} \\
+%     &= \frac{\sum_{j \in N(x, \epsilon)}K_r(\frac{z_j}{h_r})}{\sum_{j \in N(x, \epsilon)}K_r(\frac{z_j + \hat{z}_j - z_j}{h_r})}
+% \end{align*}
+
+% Now define
+% \[\bar{f}(x) = \sum_{i \in N(x, \epsilon)}\frac{y_iK_r(\frac{\hat{z}_i}{h_r})}{\sum_{j \in N(x, \epsilon)}K_r(\frac{z_j}{h_r})}\]
+% which allows us to say
+% \begin{align}
+%     \|\hat{f}(x) - \tilde{f}(x)\|_{L^2(\lambda)}^2 &= \|\hat{f}(x) - \bar{f}(x) + \bar{f}(x) - \tilde{f}(x)\|_{L^2(\lambda)}^2 \\
+%     &\leq \|\hat{f}(x) - \bar{f}(x)\|_{L^2(\lambda)}^2 + \| \bar{f}(x) - \tilde{f}(x)\|_{L^2(\lambda)}^2.
+% \end{align}
+% Expanding the first term,
+% \begin{align}
+%     \|\hat{f}(x) - \bar{f}(x)\|_{L^2(\lambda)}^2&= \left\|\frac{\sum_{i \in N(x, \epsilon)}y_i\left[K_r(\frac{\hat{z}_i}{h_r}) - K_r(\frac{z_i}{h_r})\right]}{\sum_{j \in N(x, \epsilon)}K_r(\frac{\hat{z}_j}{h_r})}\right\|_{L^2(\lambda)}^2.
+% \end{align}
+% We can bound the discrepancy in the numerator using the Lipschitz property of the kernel (as guaranteed by \Cref{assumption: kernel smoothness}) and \Cref{lemma: projection error}. In particular, we have
+% \begin{align}
+%     K_r(\hat{z}_i/h_r) - K_r(z_i/h_r) &\leq L_{K_r}|\hat{z}_i - z_i| \\
+%     &\leq \epsilon L_{K_r}\left(\|\hat{v}_{x, \epsilon} - \gamma'(s)\|_2 + L_{x, \epsilon} + 1\right)
+% \end{align}
+% where $L_{K_r}$ is taken to be the Lipschitz constant of $K_r$. Thus,
+% \begin{align}
+%     \|\hat{f}(x) - \bar{f}(x)\|_{L^2(\lambda)}^2&\leq \left\|\frac{\sum_{i \in N(x, \epsilon)}y_i\left|K_r(\frac{\hat{z}_i}{h_r}) - K_r(\frac{z_i}{h_r})\right|}{\sum_{j \in N(x, \epsilon)}K_r(\frac{\hat{z}_j}{h_r})}\right\|_{L^2(\lambda)}^2 \\
+%     &\leq \left\|\frac{\epsilon L_{K_r}\left(\|\hat{v}_{x, \epsilon} - \gamma'(s)\|_2 + L_{x, \epsilon} + 1\right)\sum_{i \in N(x, \epsilon)}y_i}{\sum_{j \in N(x, \epsilon)}K_r(\frac{\hat{z}_j}{h_r})}\right\|_{L^2(\lambda)}^2 \\
+%     &= \epsilon L_{K_r}\left(\|\hat{v}_{x, \epsilon} - \gamma'(s)\|_2 + L_{x, \epsilon} + 1\right)\left\|\frac{\sum_{i \in N(x, \epsilon)}y_i}{\sum_{j \in N(x, \epsilon)}K_r(\frac{\hat{z}_j}{h_r})}\right\|_{L^2(\lambda)}^2
+% \end{align}
+% Expanding the second term,
+% \begin{align*}
+%     \| \bar{f}(x) - \tilde{f}(x)\|_{L^2(\lambda)}^2 &= \left\|\sum_{i \in N(x, \epsilon)}y_i K_r(z_i/h_r)\left[\frac{1}{\sum_{j \in N(x, \epsilon)}K_r(\frac{z_j}{h_r})} - \frac{1}{\sum_{j \in N(x, \epsilon)}K_r(\frac{\hat{z}_j}{h_r})}\right]\right\|_{L^2(\lambda)}^2
+% \end{align*}
+
+\section{Technical results}
+
+
+\begin{restatable}[Projection error]{lemma}{} \label{lemma: projection error limit}
+    For a point $x\in R$ (with $R$ defined in \Cref{thm: differentiability of pi}) we have for any $x_i \in \mathcal{B}(x, \epsilon)$, $\langle x_i - x, \hat{v}_{x, \epsilon}'\rangle  = \langle x_i - x, v'^*_{x, \epsilon}\rangle + O_p( n^{-1/2})$. 
+\end{restatable}
+\noindent \textit{Proof.} From \Cref{corr: central limit for v} we know that  
+\[\alpha_1\sqrt{n}(\hat{v}'_{x, \epsilon} - v'^*_{x, \epsilon}) \overset{d}\rightarrow N(0, \Sigma(\epsilon)).\]
+Let $e_i = x_i - x$ and $\Delta v = \hat{v}_{x, \epsilon}' - v'^*_{x, \epsilon}$. Then by the delta method
+\begin{align}
+    \langle e_i, \Delta v \rangle \overset{d}\rightarrow N(0, n^{-1}\alpha_1^{-2}e_i^T\Sigma(\epsilon)e_i).
+\end{align}
+Thus, 
+\begin{align}
+\text{Var}(\langle e_i, \Delta v\rangle) &\asymp  \frac{1}{n\alpha_1^{2}}e_i^T\Sigma(\epsilon)e_i \\
+&\leq \frac{\epsilon^2}{n\alpha_1^{2}}\|\Sigma(\epsilon)\|_{\text{op}} \\
+&\leq \frac{\epsilon^2}{n\alpha_1^{2}}\text{tr}(\Sigma(\epsilon))
+\end{align}
+where the last step followed from the fact that $\Sigma(\epsilon) \succeq 0$. Due to \Cref{lemma: trace bound} we have a bound on the trace, yielding
+\begin{align}
+    \text{Var}(\langle e_i, \Delta v\rangle)  = O_p\left(\frac{1}{n\alpha_1^2}\right).
+\end{align}
+Thus,
+\begin{align}
+    \langle x_i - x, \hat{v}_{x, \epsilon}'\rangle  -  \langle x_i - x, v'^*_{x, \epsilon}\rangle &= O_p( n^{-1/2})
+\end{align}
+from which the statement follows.
+
+\qed{}
+
+
+% \begin{restatable}[Projection error]{lemma}{} \label{lemma: projection error}
+%     For a point $x\in R$ (with $R$ defined in \Cref{thm: differentiability of pi}) and fixed point cloud $x_1, \dots, x_n$ contained in the support of the measure $\lambda$ such that $\|x_i - x\|_2 \leq \epsilon$, we have
+%     \begin{equation}
+%         \left||\langle x_i - x, \hat{v}_{x_0, \epsilon}'\rangle| - |\Pi(x_i) - \Pi(x)| \right| \leq \left(\|\hat{v}_{x, \epsilon} - \gamma'(s)\|_2 + L_{x, \epsilon} + 1\right)\epsilon
+%     \end{equation}
+%     where $\hat{v}'_{x, \epsilon} = \hat{v}'_{x, \epsilon}(x_1, \dots, x_n, y_1, \dots, y_n)$ can be regarded as a function of $x_1, \dots, x_n$ and their associated responses $y_1, \dots, y_n$. 
+% \end{restatable}
+% \noindent \textit{Proof.} Letting $s = \Pi(x)$ and expanding the left-hand side yields
+% \begin{align*}
+%      \left||\langle x_i - x, \hat{v}_{x, \epsilon}'\rangle| - |\Pi(x_i) - \Pi(x)| \right| &=  \left|\,\left|\langle x_i - x, \hat{v}_{x, \epsilon}' - \gamma'(s) + \gamma'(s)\rangle\right| - \left|\Pi(x_i) - \Pi(x)\right|\, \right| \\
+%      &= \left|\, \left|\langle x_i - x, \hat{v}_{x, \epsilon}' - \gamma'(s)\rangle + \langle x_i - x, \gamma'(s)\rangle\right| - \left|\Pi(x_i) - \Pi(x)\right| \,\right| \\
+%      &\leq \left|\,\left|\epsilon\|\hat{v}_{x, \epsilon} - \gamma'(s)\|_2 + \epsilon\right| - |\Pi(x_i) - \Pi(x)| \,\right|.
+% \end{align*}
+% where the last step follows from application of Cauchy Schwartz. By the assumption that $x \in R$ we know that $\Pi$ is differentiable on $\mathcal{B}(0, \epsilon)$ for $\epsilon$ sufficiently small. Differentiability of $\Pi$ implies \textit{locally} Lipschitz. Taking $\mathcal{B}(0, \epsilon)$ to be the open ball, we know that $\Pi$ is Lipschitz on $\mathcal{B}(0, \epsilon)$ with some constant $L_{x, \epsilon}$ non-increasing in $\epsilon$. This allows us to bound $|\Pi(x_i) - \Pi(x)| \leq L_{x, \epsilon}\epsilon$, yielding
+% \begin{align*}
+%      \left||\langle x_i - x, \hat{v}_{x, \epsilon}'\rangle| - |\Pi(x_i) - \Pi(x)| \right| &\leq \left|\,\left|\epsilon\|\hat{v}_{x, \epsilon} - \gamma'(s)\|_2 + \epsilon\right| - L_{x,\epsilon}\epsilon \,\right| \\
+%      &\leq \left(\|\hat{v}_{x, \epsilon} - \gamma'(s)\|_2 + L_{x, \epsilon} + 1\right)\epsilon.
+% \end{align*}
+
+% \qed{}
+
+% \begin{restatable}[Projection error limit]{corollary}{} \label{corollary: projection error limit}
+%     For a point $x\in R$ (with $R$ defined in \Cref{thm: differentiability of pi}) and taking $\epsilon \asymp n^{-1/4}$ yields $\left||\langle x_i - x, \hat{v}_{x_0, \epsilon}'\rangle| - |\Pi(x_i) - \Pi(x)| \right| \overset{p}{\rightarrow} 0$. 
+% \end{restatable}
+% \noindent \textit{Proof.} Combining \Cref{lemma: projection error} and \Cref{thm: velocity risk} yields
+% \[\left||\langle x_i - x, \hat{v}_{x_0, \epsilon}'\rangle| - |\Pi(x_i) - \Pi(x)|\right| \lesssim (n^{-1/4} + O(1) + 1)n^{-1/4}\]
+% when $\epsilon \asymp n^{-1/4}$. Note that $L_{x, \epsilon}$ is non-increasing in $\epsilon$, so we can replace it with $O(1)$ to yield the inequality above. The statement follows by taking $n \rightarrow \infty$. 
+
+% \qed{}
+
+
+
+
+\begin{restatable}{lemma}{} \label{lemma: trace bound}
+    For the matrices defined in \Cref{thm: central limit for beta} and appropriately chosen $p^*$, we have
+    \[\text{tr}(VQ^{-1}\Lambda Q^{-1}V^T) \lesssim \epsilon^{-2} \]
+\end{restatable}
+\noindent \textit{Proof.} Observe that we can rewrite $Q$ as follows
+\begin{align}
+    Q &= \mathbb{E}_{p^*}\left[\begin{pmatrix}
+        1 \\ x
+    \end{pmatrix}\begin{pmatrix}
+        1 \\ x
+    \end{pmatrix}^T\right] \\
+    &= \mathbb{E}_{p^*}\left[
+    \begin{bmatrix}
+         1 & x^T \\
+         x & xx^T
+    \end{bmatrix}\right] \\
+    &= \begin{bmatrix}
+         \mathbb{P}_{p^*}(x \in \mathcal{B}(0, \epsilon)) & 0 \\
+         0 & \mathbb{E}\left[xx^T\right]
+    \end{bmatrix} \\
+    &= \begin{bmatrix}
+         1 & 0 \\
+         0 & \nu^2I_d
+    \end{bmatrix}
+\end{align}
+where
+\[\nu^2 = \mathbb{E}_{p^*}[x_i^2]\]
+for any $i \in [d]$. Note that the last two steps follows from the spherical symmetry of $p^*$. It follows that $Q^{-1}$ is
+\begin{align}
+    Q^{-1} &= \begin{bmatrix}
+         1 & 0 \\
+         0 & \nu^{-2}I_d
+    \end{bmatrix}.
+\end{align}
+Now we'll analyze $\Lambda$, 
+\begin{align}
+    \Lambda &= \mathbb{E}_{p_0}\left[w^2\sigma^2\begin{pmatrix}
+        1 \\ x
+    \end{pmatrix}\begin{pmatrix}
+        1 \\ x
+    \end{pmatrix}^T\right] \\
+    &= 
+    \sigma^2\cdot\begin{bmatrix}
+         \mathbb{E}[w^2] & \mathbb{E}[w^2x] \\
+         \mathbb{E}[w^2x] & \mathbb{E}[w^2xx^T]
+    \end{bmatrix}.
+\end{align}
+From the definition of $V$ we know that applying it in the manner above will select the bottom right $d\times d$ entries of the block diagonal matrix $Q^{-1}\Lambda Q^{-1}$. Therefore, after performing the matrix multiplications one obtains
+\begin{align}
+    VQ^{-1}\Lambda Q^{-1}V^T&= \sigma^2\nu^{-4} \cdot \mathbb{E}_{p_0}\left[w^2xx^T\right] \\
+    &= \sigma^2\nu^{-4} \cdot \mathbb{E}_{p^*}\left[wxx^T\right]
+\end{align}
+By linearity of trace,
+\begin{align}
+    \text{tr}(VQ^{-1}\Lambda Q^{-1}V^T) &= \sigma^2\nu^{-4} \cdot \mathbb{E}_{p^*}\left[\text{tr}(wxx^T)\right] \\
+    &= \sigma^2\nu^{-4} \cdot \mathbb{E}_{p^*}\left[\sum_{i = 1}^dwx_i^2\right] \\
+    &= d\sigma^2\nu^{-4} \cdot \mathbb{E}_{p^*}\left[wx_i^2\right] \\
+    &\leq w_{\max}d\sigma^2\nu^{-4} \cdot \underbrace{\mathbb{E}_{p^*}\left[x_i^2\right]}_{\nu^2} \\
+    &= w_{\max}d\sigma^2\nu^{-2}
+\end{align}
+where $w_{\max} = \max_{x\in \mathcal{B}(0, \epsilon)}w.$ If we choose $p^*$ such that $\nu^2 \gtrsim \epsilon^2$ then the statement follows. 
+
+\qed{}
+
+\begin{restatable}{lemma}{}
+    Let the matrices $Q$ and $\hat{Q}$ be defined as follows, 
+    \begin{equation}
+    Q = \mathbb{E}_{p^*(\cdot\,;\, \theta_0)}\left[XX^T\right] \qquad \text{and} \qquad \hat{Q} = \frac{1}{n}\sum_{i = 1}^n\hat{w}_iX_iX_i^T.
+    \end{equation}
+    Under \cref{assumption: kernel smoothness} and \cref{assumption: lce and covariate density} we have $\hat{Q}\overset{p}{\rightarrow}Q$. \label{lemma: Q convergence}
+\end{restatable}
+\noindent \textit{Proof.} Recall that $Q$ can be written as an expectation over $p_0$, $Q = \mathbb{E}_{p_0}\left[wXX^T\right]$. We'll apply the hypothesis to bound $\max_i|\hat{w}_i - w_i|$ as
+\begin{align*}
+    \max_{i \in \{1, \dots, N\}} \left|p^*(x_i)\left(\frac{1}{\hat{p}_0(x_i)} - \frac{1}{p_0(x_i)}\right)\right| & =  \max_{i \in \{1, \dots, N\}} p^*(x_i)\left|\frac{1}{\hat{p}_0(x_i)} - \frac{1}{p_0(x_i)}\right| \\
+    &\leq p_{\max}\cdot \max_{i \in \{1, \dots, N\}}\left|\frac{1}{\hat{p}_0(x_i)} - \frac{1}{p_0(x_i)}\right|.
+\end{align*}
+Due to the hypothesis, \Cref{lemma: uniform convergence of kde} indicates that we have uniform convergence of the kernel density estimate. It follows that the right-hand term above converges in probability to zero, implying $\max_i|\hat{w}_i - w_i|\overset{p}{\rightarrow}p$. Now define 
+\[\tilde{Q} = \frac{1}{n}\sum_{i = 1}^n w_iX_iX_i^T\]
+and observe that 
+\begin{align}
+\left\|\hat{Q} - \tilde{Q}\right\|_{\text{op}} &= \left\|\frac{1}{n}\sum_{i = 1}^n\hat{w}_iX_iX_i^T - \frac{1}{n}\sum_{i = 1}^nw_iX_iX_i^T\right\|_{\text{op}} \\
+&= \left\|\frac{1}{n}\sum_{i = 1}^n(\hat{w}_i - w_i)X_iX_i^T\right\|_{\text{op}} \\
+&\leq \max_{i \in \{1, \dots, N\}}|\hat{w}_i - \hat{w}| \left\|\sum_{i = 1}^nX_iX_i^T\right\|_{\text{op}} \\
+&\overset{p}{\rightarrow} 0.
+\end{align}
+Thus $\hat{Q}\overset{p}{\rightarrow}Q$, and by LLN $\tilde{Q} \overset{p}{\rightarrow}Q$. It follows that $\hat{Q} \overset{p}{\rightarrow}Q$, and the statement follows from the invertibility of $Q$.
+
+\qed{}
+
+\begin{restatable}{lemma}{} \label{lemma: newey lemma}
+    We have
+    \[\frac{1}{\sqrt{n}}\sum_{i = 1}^n(\hat{w}_i - w_i)X_iu_i = -\frac{1}{\sqrt{n}}\sum_{i = 1}^n\left[\frac{p^*(x_i;\theta_0, \epsilon)(\mathbb{E}[y_i|x_i] - X_i^T\beta^*_{x_0, \epsilon})}{p_0(x_i)}\right] + o_p(1).\]
+\end{restatable}
+\noindent \textit{Proof.} Expanding the left hand side yields,
+\begin{align*}
+    \frac{1}{\sqrt{n}}\sum_{i = 1}^n(\hat{w}_i - w_i)X_iu_i &= \frac{1}{\sqrt{n}}\sum_{i = 1}^n\left[\hat{p}_0(x_i)^{-1} - p_0(x_i)^{-1}\right]a(z).
+\end{align*}
+To prove the result, it will suffice to show that the assumptions of Lemma 4.1 of \citet{Newey_Ruud_2005} are met with $a(z) = p^*(x_i;\theta_0, \epsilon) X_i\left(y_i - X_i^T\beta^*_{x_0, \epsilon}\right)$. \Cref{assumption: lce and covariate density} directly guarantees many of the assumptions, but a few remain to be verified. 
+\begin{enumerate}
+    \item We need $\mathbb{E}[a(z)\,|\,x]$ to be bounded on $C(\theta_0, \epsilon)$ (defined in \cref{eq: support}) and continuous in $x$ on a set of full Lebesgue measure. To see why this holds, observe that 
+    \[\mathbb{E}[a(z)\,|\,x] = p^*(x;\theta_0, \epsilon) X\left(\mathbb{E}[y | x] - X^T\beta^*_{x_0, \epsilon}\right).\]
+    By \cref{assumption: lce and covariate density} we know that this expression is bounded on $C(\theta_0, \epsilon)$. Continuity in $x$ almost everywhere stems from the assumption that $p^*(x; \theta_0, \epsilon)$ is continuous almost everywhere and it takes the value $0$ outside of $\mathcal{B}(0, \epsilon)$. This means that multiplication with the (discontinuous) indicator function does not get rid of continuity. 
+    \item The requirement that $a(z) = 0$ except on a compact set is trivially true. Taking that set to be $C(\theta_0, \epsilon)$ yields the requirement that $p_0(x) > 0$ for all $x \in C(\theta_0, \epsilon).$ 
+    \item Finally, we need $\mathbb{E}\left[\|a(z)\|^4\right] < \infty$. Since the $a(z)$ from \citet{Newey_Ruud_2005} differs with ours only by deletion of the indicator function, satisfaction of the condition in their case implies the same for ours. 
+\end{enumerate}
+Since all requirements of Lemma 4.1 of \citet{Newey_Ruud_2005} are satisfied, we can apply the Lemma to say
+\begin{multline}
+    \frac{1}{\sqrt{n}}\sum_{i = 1}^n(\hat{w}_i - w_i)X_iu_i = -\frac{1}{\sqrt{n}}\sum_{i = 1}^n\Bigg[\frac{p^*(x_i;\theta_0, \epsilon) X_i\left(\mathbb{E}[y_i|x_i] - X_i^T\beta^*_{x_0, \epsilon}\right)}{p_0(x_i)} \\
+    + \mathbb{E}\left[\frac{p^*(x;\theta_0, \epsilon) X\left(y - X^T\beta^*_{x_0, \epsilon}\right)}{p_0(x)}\right]\Bigg] + o_p(1).
+\end{multline}
+We'll finish the result by showing that the second term in the brackets is zero. By iterated expectation the second term in the brackets can be rewritten as 
+\begin{equation*}
+    \mathbb{E}\left[\frac{p^*(x;\theta_0, \epsilon) X\left(\mathbb{E}[y|x] - X^T\beta^*_{x_0, \epsilon}\right)}{p_0(x)}\right] = \mathbb{E}\left[\frac{p^*(x;\theta_0, \epsilon)}{p_0(x)} X\left(f(\Pi(x+x_0)) - X^T\beta^*_{x_0, \epsilon}\right)\right].
+\end{equation*}
+By the first order optimality conditions of the population optimization in \cref{eq: population estimator} this term must be zero. 
+
+\qed{}
+
+\begin{restatable}[Projection norm bound]{lemma}{} \label{lemma: pnorm bound} Suppose $X\sim p_0$ and $p^*(\cdot\,;\, \theta_0)$ is some spherically symmetric distribution satisfying \cref{assumption: lce and covariate density}. Let
+\[w =  \frac{p^*(x;\,\theta_0)}{p_0(x)}.\]
+Then for $\epsilon$ sufficiently small we have
+\begin{equation}
+   \left\|\left\{\mathbb{E}_{p_{0}}[wXX^{T}]\right\}^{-1}\mathbb{E}_{p_{0}}[wX]\right\|_2 \lesssim \epsilon^{-1}.
+\end{equation}
+\end{restatable}
+
+\noindent \textit{Proof}. Let $b= \Big(a^{T}\left\{\mathbb{E}_{p_{0}}[wXX^{T}]\right\}^{-1}\Big)^{T}$. We have,
+\begin{align}
+    \left\|\left\{\mathbb{E}_{p_0}[wXX^{T}]\right\}^{-1}\mathbb{E}_{p_0}[wX]\right\|_2 &= \sup_{\|a\|_2\neq 0} \frac{a^{T}\left\{\mathbb{E}_{p_0}[wXX^{T}]\right\}^{-1}\mathbb{E}_{p_0}[wX]}{\sqrt{a^{T}a}} \\
+    &= \sup_{\|b\|_2 \neq 0} \frac{b^{T}\mathbb{E}_{p_0}[wX]}{\sqrt{b^{T} \mathbb{E}_{p_0}\big[wXX^{T}\big]\mathbb{E}_{p_0}\big[wXX^{T}\big]^{T}b}}. \label{eq: projection norm}
+\end{align}
+First we'll analyze the numerator. Observe that for a any $b$ we can bound it as
+\begin{align}
+    b^{T}\mathbb{E}_{p_{0}}[wX] &= b^{T}\,\mathbb{E}_{ p_{0}}\left[\frac{p^*(x;\theta_0, \epsilon)}{p_{0}(x)}X\right] \\
+    &= b^{T}\,\mathbb{E}_{p^*(\cdot\,; \,\theta_0)}\left[X\right] \\
+    &= b^{T}\int_{\mathbb{R}^d}p^*(x;\theta_0, \epsilon)X dx_1 \dots dx_d \\
+    &= b^{T}\int_{\mathcal{B}(0, \epsilon)}p^*(x;\theta_0, \epsilon)X dx_1 \dots dx_d \\
+    &= \int_{\mathcal{B}(0, \epsilon)}p^*(x;\theta_0, \epsilon)(b^{T}X) dx_1 \dots dx_d \\
+    &\leq \epsilon \|b\|_2 \int_{\mathcal{B}(0, \epsilon)}p^*(x;\theta_0, \epsilon) dx_1 \dots dx_d \\
+    &= \epsilon\|b\|_2. \label{eq: numerator bound}
+\end{align}
+Similarly, for a any $b$ the denominator can be bounded as
+\begin{align}
+    \sqrt{b^{T} \mathbb{E}_{p_0}\big[wXX^{T}\big]\mathbb{E}_{p_0}\big[wXX^{T}\big]^{T}b} &= \left\| \mathbb{E}_{p_0}\big[wXX^{T}\big]^{T}b\right\|_2 \\
+    &\geq \sigma_{\min}\left(\mathbb{E}_{ p_0}\big[wXX^{T}\big]\right) \|b\|_2 \\
+    &= \sigma_{\min}\left(\mathbb{E}_{p^*}\left[XX^{T}\right]\right) \|b\|_2. \label{eq: denominator bound 1}
+\end{align}
+Now it suffices to find a lower bound on the smallest singular value of the restricted scatter matrix. Note that since the matrix is symmetric and positive semidefinite, we have 
+\begin{align*}
+    \sigma_{\min}\left(\mathbb{E}_{p^*}\left[XX^{T}\right]\right) &= \lambda_{\min}\left(\mathbb{E}_{p^*}\left[\begin{pmatrix}
+        1 \\ x
+    \end{pmatrix}
+    \begin{pmatrix}
+        1 \\ x
+    \end{pmatrix}^{T}\right]\right) \\
+    &= \lambda_{\min}\left(\begin{bmatrix}
+        1 & 0 \\
+        0 & \mathbb{E}_{p^*}[xx^T]
+    \end{bmatrix}\right) \\
+    &= \min\{1, \nu^2\}
+\end{align*}
+where $\nu^2 = \mathbb{E}_{p^*}[x_i^2]$ for any $i \in [d]$. Note that $\nu^2 \asymp \epsilon^2$ as we choose $p^*$ to be spherically symmetric and supported on $\mathcal{B}(0, \epsilon)$. Plugging this, \cref{eq: denominator bound 1} and \cref{eq: numerator bound} back into \cref{eq: projection norm}, we obtain
+\begin{align*}
+    \left\|\left\{\mathbb{E}_{X\sim p_0}[w(X)XX^{T}]\right\}^{-1}\mathbb{E}_{X \sim p_0}[w(X)X]\right\|_2 &\leq \frac{\epsilon\|b\|_2}{\|b\|\min\{1, \nu^2\}} \\
+    &= \epsilon\nu^{-2}
+\end{align*}
+for sufficiently small $\epsilon$. The statement follows from the fact that $\epsilon \asymp \nu$.
+
+\qed{}
+
+
+\begin{restatable}[Surrogate]{lemma}{} \label{lemma: surrogate problem} Let 
+\[\tilde{\beta}^*_{x_0, \epsilon} = \arg\min_{\beta \in \mathbb{R}^{d+1}}\mathbb{E}_{ p_{0}}\Big[\frac{p^*(x;\theta_0, \epsilon)}{p_{0}(x)}\Big(g(x + x_0) - X^{T}\beta \Big)^2\Big]\]
+with 
+\[g(X) = f\Big(\Pi(x_0) + \nabla\Pi(x_0)^{T}(x-x_0)\Big).\]
+Then for some $\alpha_0, \alpha_1 \in \mathbb{R}$ we have $\tilde{\beta}^*_{x_0, \epsilon} = \begin{bmatrix}\alpha_0  & \alpha_1\nabla \Pi(x_0) \end{bmatrix}^T$. 
+\end{restatable}
+\noindent \textit{Proof.} Define 
+\[R_{\epsilon}(\beta; x) = \mathbb{E}_{ p_{0}}\Big[\frac{p^*(x;\theta_0, \epsilon)}{p_{0}(x)}\Big(g(x + x_0) - X^{T}\beta\Big)^2\Big].\]
+Then we have,
+\begin{align*}
+    R_{\epsilon}(\beta; x)&= \int_{\mathbb{R}^d}\frac{p^*(x;\theta_0, \epsilon)}{p_{0}(x)}\Big(g(x+x_0) - X^{T}\beta\Big)^2p_{0}(x) dx_1 \dots dx_d \\
+    &= \int_{\mathbb{R}^d}p^*(x;\theta_0, \epsilon)\Big(g(x + x_0) - X^{T}\beta \Big)^2 dx_1 \dots dx_d.
+\end{align*}
+Now let 
+\begin{equation}
+    A(\epsilon) = \int_{\mathbb{R}^d} p^*(x;\theta_0, \epsilon) dx_1 \dots dx_d.
+\end{equation}
+Then we have,
+\begin{align*}
+    R_{\epsilon}(\beta; x)&= A(\epsilon) \bigintsss_{\mathbb{R}^d}\underbrace{\frac{p^*(x;\theta_0, \epsilon)}{A(\epsilon)}}_{\tilde{p}(x;\vartheta)}\Big(g(x+x_0) - X^{T}\beta \Big)^2 dx_1 \dots dx_d \\
+    &= A(\epsilon)\, \mathbb{E}_{ \tilde{p}}\left(g(x+x_0)-X^{T}\beta\right)^2.
+\end{align*}
+Continuing, we have
+\begin{align*}
+    R_{\epsilon}(\beta; X)&= A(\epsilon)\,\mathbb{E}\left[\mathbb{E}\left[\left(g(X+x_0)-X^{T}\beta\right)^2 \, \Big| 
+    \, \nabla\Pi(x_0)^{T}x\right]\right]\\
+    &= A(\epsilon)\,\mathbb{E}\left[\mathbb{E}\left[\left(f\Big(\Pi(x_0) + \nabla\Pi(x_0)^{T}x\Big)-X^{T}\beta\right)^2 \, \Big| 
+    \, \nabla\Pi(x_0)^{T}x\right]\right].
+\end{align*}
+By \Cref{prop: conditional spherical symmetry} we know that $\tilde{p}$ is also a spherically symmetric distribution, and it therefore satisfies the LCE property. Now we'll apply Jensen's inequality to say,
+\begin{align*}
+    R_{\epsilon}(\beta; x) &\geq A( \epsilon)\,\mathbb{E}\left[\left(f\Big(\Pi(x_0) + \nabla\Pi(x_0)^{T}x\Big)-\mathbb{E}\left[X^{T}\beta \, \Big| 
+    \, \nabla\Pi(x_0)^{T}x\right]\right)^2\right] \\
+    &= A( \epsilon)\,\mathbb{E}\left[\left(f\Big(\Pi(x_0) + \nabla\Pi(x_0)^{T}x\Big)-\mathbb{E}\left[x^{T}\beta' \, \Big| 
+    \, \nabla\Pi(x_0)^{T}x\right]- \beta_0\right)^2\right]
+\end{align*}
+where $\beta'$ is the last $d$ entries of $\beta$.  Since $\tilde{p}$ is spherically symmetric, it satisfies the LCE property. Thus,
+\begin{align}
+    R_{\epsilon}(\beta; x) &\geq A( \epsilon)\,\mathbb{E}\left[\left(f\Big(\Pi(x_0) + \nabla\Pi(x_0)^{T}x\Big)-\alpha_0' - \alpha_1\nabla\Pi(x_0)^{T}x - \beta_0\right)^2\right] \\
+    &=  A( \epsilon)\,\mathbb{E}\left[\left(f\Big(\Pi(x_0) + \nabla\Pi(x_0)^{T}x\Big) - \alpha_1\nabla\Pi(x_0)^{T}x - \alpha_0\right)^2\right]. \label{eq: surrogate risk lower bound}
+\end{align}
+Observe that the inequality becomes an equality when $\beta = \begin{bmatrix}\alpha_0  & \alpha_1\nabla \Pi(x_0) \end{bmatrix}^T$ for some $\alpha_0, \alpha_1 \in \mathbb{R}$, which completes the proof.
+
+\qed{}
+
+\begin{restatable}[Proportionality constant]{rmk}{}
+    The proportionality constant $\alpha_1 \in \mathbb{R}$ for \Cref{lemma: surrogate problem} may be $0$, preventing us from recovering any information about the direction of $\nabla\Pi(x_0)$. To avoid this, one must impose additional assumptions on $f$ and the distribution of the covariates. In particular, by \cref{eq: surrogate risk lower bound} we can rewrite the surrogate optimization problem as
+    \begin{align}
+        \alpha_0^*, \alpha_1^* &= \arg\min_{\alpha_0, \alpha_1 \in \mathbb{R}} \mathbb{E}\left[\left(f\Big(\Pi(x_0) + \nabla\Pi(x_0)^{T}x\Big) - \alpha_1 \nabla\Pi(x_0)^Tx - \alpha_0 \right)^2\right].
+    \end{align}
+    With some calculation one would obtain
+    \begin{align}
+        \alpha_1^* = \frac{\mathbb{E}\left[y\nabla\Pi(x_0)^Tx\right] - \mathbb{E}[y]\cdot \mathbb{E}\left[\nabla\Pi(x_0)^Tx\right]}{\text{Var}(\nabla\Pi(x_0)^Tx)}
+    \end{align}
+    where $y = f\left(\Pi(x_0) + \nabla\Pi(x_0)^Tx\right)$. Thus, $
+    \alpha_1^*$ is nonzero if and only if $y \not\!\perp\!\!\!\perp \nabla\Pi(x_0)^Tx$. Equivalently, 
+    \[\alpha_1^* \neq 0 \iff \mathbb{E}\left[f\left(\Pi(x_0) + \nabla\Pi(x_0)^Tx\right)\nabla\Pi(x_0)^Tx\right] \neq 0.\]
+    Since the arguments in \Cref{lemma: surrogate problem} are applicable to any convex cost, one may sidestep the problem of $\alpha^*_1 = 0$ computationally by obtaining an estimate of $\nabla\Pi(x_0)$ with a different convex loss and averaging with the estimate obtained via squared loss.
+    
+    
+\end{restatable}
+
+By spherical symmetry of the distribution of $x$ in the expectation above, we know that $\nabla\Pi(x_i)^Tx$ is some 1-dimensional distribution symmetric about $0$. Rewriting, we see that the condition boils down to 
+\[\mathbb{E}_z[f(c + z)z] \neq 0\]
+where $z$ is some symmetric density about $0$. Expanding
+\begin{align*}
+    \int_{\mathbb{R}}f(c+z)z p(z)dz &= \int_{-\infty}^0 f(c+z)z p(z)dz + \int_{0}^\infty f(c+z)z p(z)dz \\
+    &= \int_{0}^\infty f(c+(-z))(-z) p(-z)d(-z) + \int_{0}^\infty f(c+z)z p(z)dz\\
+    &= \int_{0}^{\infty}[f(c + z) + f(c - z)]zp(z)dz.
+\end{align*}
+By the mean value theorem $f(c + z) = f(c) + f'(\bar{z}_1(z))z$ and $f(c - z) = f(c) - f'(\bar{z}_2(z))z$ where $\bar{z}_1: [0, \infty) \rightarrow  [c, c+z]$ and $\bar{z}_2: [0, \infty) \rightarrow [c-z, c]$. Plugging back in yields
+\begin{align*}
+    \int_{\mathbb{R}}f(c+z)z p(z)dz &= \int_\mathbb{R}\left[2f(c)zp(z) + (f'(\bar{z}_1(z)) - f'(\bar{z}_2(z))zp(z)\right]dz \\
+    &= 2f(c)\int_\mathbb{R}zp(z)dz + \int_\mathbb{R}(f'(\bar{z}_1(z)) - f'(\bar{z}_2(z))zp(z)dz \\
+    &= f(c) \mathbb{E}|z| + \frac{1}{2}\mathbb{E}\left(f'(\bar{z}_1(|z|)) - f'(\bar{z}_2(|z|))\right)|z|
+\end{align*}
+
+\begin{restatable}[Conditional spherical symmetry]{prop}{} \label{prop: conditional spherical symmetry}
+    Suppose $x$ has a density $f(x)$ satisfying spherical symmetry (\Cref{def: spherical symmetry}) with mean $0$ and covariance $\sigma^2I$ for some $\sigma > 0$. Then for any $\epsilon > 0$ the distribution of the random variable $x \,| \, x \in \mathcal{B}(0, \epsilon)$ is also spherically symmetric. 
+\end{restatable}
+\noindent \textit{Proof.} We have that for any orthogonal $Q$ and for any Borel set $A$
+\begin{align*}
+    \mathbb{P}(Qx \in A \, | \, x \in \mathcal{B}(0,\epsilon) ) &= \int_{A}f(Qx\,|\,x \in \mathcal{B}(0,\epsilon))dx_1\dots dx_d \\
+    &= \bigintsss_{A}\frac{f(Qx) }{\int_{\mathcal{B}(0,\epsilon)}f(x')dx'_1 \dots dx'_d}dx_1\dots dx_d \\
+    &= \bigintsss_{A}\frac{f(x) }{\int_{\mathcal{B}(0,\epsilon)}f(x')dx'_1 \dots dx'_d}dx_1\dots dx_d
+\end{align*}
+where the last line follows from spherical symmetry of $x$. Thus,
+\begin{align*}
+    \mathbb{P}(Qx \in A \, | \, x \in \mathcal{B}(0,\epsilon) ) &= \bigintsss_{A}\frac{f(x) }{\int_{\mathcal{B}(0,\epsilon)}f(x')dx'_1 \dots dx'_d}dx_1\dots dx_d \\
+    &= \int_{A}f(x\,|\,x \in \mathcal{B}(0,\epsilon))dx_1\dots dx_d \\
+    &= \mathbb{P}(x \in A \, | \, x \in \mathcal{B}(0,\epsilon) ).
+\end{align*}
+\qed{}
+
+\begin{restatable}[Approximation]{lemma}{} \label{lemma: proj approx}
+    Suppose $f$ is $L_f$-Lipschitz. Then for Lebesgue almost every $x_0 \in \mathcal{B}(0,r)$, there exists an $\epsilon_0 > 0$ such that for all $\epsilon \leq \epsilon_0$ and for all $x \in \mathcal{B}(x_0, \epsilon)$
+    \[\bigg|f\big(\Pi(x)\big) - f\big(\Pi(x_0) + \nabla\Pi(x_0)^{T}(x-x_0) \big)\bigg| \lesssim (M_2+rM_3)L_f\epsilon^2. \]
+\end{restatable}
+
+\noindent \textit{Proof.} By \Cref{lemma: operator norm bound} we have that for Lebesgue almost every $x_0 \in \mathcal{B}(0,r)$, there exists finite $\epsilon_0, \lambda > 0$ such that for all $\epsilon \leq \epsilon_0$ and for every $x \in \mathcal{B}(x_0, \epsilon)$
+\[\|\nabla^2\Pi(x)\|_{\text{op}} \leq \underbrace{2M_2\lambda^{2}+rM_3\lambda^{3}}_{= C_{x_0, \lambda}}.\]
+We can employ an expansion of the projection map as follows,
+\begin{align*}
+    \Pi(x) &= \Pi(x_0) + \nabla\Pi(x_0)^{T}(x-x_0) + \underbrace{\int_{0}^{1}(x-x_0)^T\nabla^2\Pi(x+t(x-x_0))(x-x_0) dt}_{= R(x)}.
+\end{align*}
+By the operator norm bound, we have that
+\[\|R(x)\|_2 \leq \int_{0}^{1}\|x - x_0\|_2^2\|\|\nabla^2\Pi(x+t(x-x_0))\|_{\text{op}} \,dt \leq C_{x_0, \lambda}\epsilon^2.\]
+It follows that 
+\begin{align}
+    \left|\,\Pi(x) - \left(\Pi(x_0) + \nabla\Pi(x_0)^{T}(x-x_0)\right)\right| &\leq C_{x_0, \lambda}\epsilon^2.
+\end{align}
+The lemma follows from the Lipschitz continuity of $f$. 
+
+\qed{}
+
+
+\begin{restatable}[Perturbation]{lemma}{} \label{lemma: perturbation}
+    Let 
+    \[\beta^* = \arg\min_{\beta}\mathbb{E}\big[w\big(Y - \beta^{T}X\big)^2\big]\]
+    and define $\tilde{\beta}^*$ to be the solution to the same optimization with perturbed responses,
+    \[\tilde{\beta}^* = \arg\min_{\beta}\mathbb{E}\big[w\big(Y - \xi(x) - \beta^{T}X\big)^2\big].\]
+    If $\mathbb{E}[wXX^T] \succ 0$, then we have
+    \[\beta^* - \tilde{\beta}^* = \mathbb{E}[wXX^{T}]^{-1}\mathbb{E}[wX\xi(x)].\]
+\end{restatable}
+\noindent \textit{Proof.} We can use the normal equations to say
+\begin{align*}
+    \mathbb{E}[wXX^{T}]\beta^* = \mathbb{E}[wXY]
+\end{align*}
+implying 
+\[\beta^* = \mathbb{E}[wXX^{T}]^{-1}\mathbb{E}[wXY].\]
+We can apply the same argument to obtain 
+\[\tilde{\beta}^* = \mathbb{E}[wXX^{T}]^{-1}\mathbb{E}[wX(Y - \xi(x))].\]
+Taking the difference, we obtain
+\begin{align*}
+    \beta^* - \tilde{\beta}^* &= \mathbb{E}[wXX^{T}]^{-1}\mathbb{E}[wX(Y -  Y + \xi(X) )] \\
+    &= \mathbb{E}[wXX^{T}]^{-1}\mathbb{E}[wX\xi(x)].
+\end{align*}
+\qed{}
+
+\begin{restatable}{lemma}{} \label{lemma: pd}
+    The matrix $\mathbb{E}_{p_0}[wXX^T]$ is positive definite.
+\end{restatable}
+\noindent \textit{Proof.} Expanding $w$ yields
+\begin{align}
+    \mathbb{E}_{p_0}[wXX^T] &= \mathbb{E}_{p_0}\left[\frac{p^*(x; \theta_0, \epsilon)}{p_0(x)}XX^T\right] \\
+    &= \mathbb{E}_{p^*}\left[XX^T\right] \\
+    &= \mathbb{E}_{p^*}\left[XX^T\right]  \\
+    &\succ 0.
+\end{align}
+where the last two steps follow from \cref{assumption: lce and covariate density}.
+
+\qed{}
+
+\begin{restatable}[Projection gradient]{prop}{} \label{prop: proj gradient}
+    Let $\Pi: \mathbb{R}^d \rightarrow [0, \text{len}_{\gamma}]$ be the closest-point projection onto $\gamma$ as defined in \Cref{def: projection}. Then for every $x \notin \overline{\text{Sing}(\Gamma)}$ such that 
+    \[\langle\gamma''(\Pi(x)), x - \gamma(\Pi(x))\rangle \neq 1\]
+    we have 
+    \[\nabla\Pi(x)  = -\frac{\gamma'(\Pi(x))}{-1 + \left\langle\gamma''(\Pi(x)), x - \gamma(\Pi(x))\right\rangle}.\]
+\end{restatable}
+
+\noindent \textit{Proof of \Cref{prop: proj gradient}.} Let $f(x,t) = \|x - \gamma(t)\|_2^2$. By non-negativity of $\|\cdot\|_2$ and monotonicity of $h(x) = x^2$ for $x \geq 0$, we have $\Pi(x) = \arg\min_t \|x - \gamma(t)\|_2 = \arg \min_t \|x - \gamma(t)\|_2^2 = \arg\min_t f(x, t)$. We have the first-order condition that 
+\[ \partial_t f(x,t) = 0\]
+at the optimum. Now, if we define $F(x, t) = \partial_t f(x,t)$ the first order condition amounts to the requirement that $F(x,t) = 0$. Expanding $F$, we have
+\begin{align}
+    F(x, t) &= \partial_t \|x - \gamma(t)\|_2^2 \\ \label{eq: ift}
+    &= -2\langle x - \gamma(t)), \gamma'(t)\rangle.
+\end{align}
+Observe that the first order condition implies that the projection displacement $x - \gamma(t)$ lies normal to the curve at optimality. 
+Now we'll apply the implicit function theorem to $F(x, t)$. Because $x$ is \textit{not} in the closure of the singular set, we have that $\Pi(x)$ is unique and $\Pi$ is differentiable in a neighborhood about $x$ - its not hard to verify that this yields continuous differentiability of $F(x,t)$ in a neighborhood about $(x, \Pi(x))$. This, coupled with the assumption that $\langle\gamma''(\Pi(x)), x - \gamma(\Pi(x))\rangle \neq 1$ allows us apply the implicit function theorem to conclude that 
+\begin{align}
+    \nabla\Pi(x) &= - \frac{\nabla_x F\big(x, t\big)}{\partial_t F\big(x, t\big)} \Bigg|_{t = \Pi(x)}\\
+    &= - \frac{\nabla_x\left(-2\langle x - \gamma(t), \gamma'(t)\rangle\right)}{\partial_t \left(-2\langle x - \gamma(t), \gamma'(t)\rangle\right)} \Bigg|_{t = \Pi(x)}\\
+    &= -\frac{\gamma'(t)}{-\|\gamma'(t)\|_2^2 + 
+    \langle\gamma''(t), x - \gamma(t)\rangle}\Bigg|_{t = \Pi(x)} \label{eq: projection grad} \\ 
+    &= -\frac{\gamma'(\Pi(x))}{-1 + \left\langle\gamma''(\Pi(x)), x - \gamma(\Pi(x))\right\rangle}.
+\end{align}
+\qed{}
+
+
+\begin{restatable}[Projection hessian]{prop}{} \label{prop: proj hessian}
+    Let $\Pi: \mathbb{R}^d \rightarrow [0, \text{len}_{\gamma}]$ be the closest-point projection onto $\gamma$ as defined in \Cref{def: projection}. Then for every $x \notin \overline{\text{Sing}(\Gamma)}$ and 
+    \[\langle\gamma''(s), x - \gamma(s)\rangle \neq 1\]
+    we have
+    \[\nabla^2\Pi(x) = \frac{1}{g^2(x)}\left(\gamma''(s)\gamma'(s)^T + \gamma'(s)\gamma''(s)^T\right)- \frac{\langle\gamma^{(3)}(s), x - \gamma(s)\rangle}{g^3(x)}\gamma'(s)\gamma'(s)^T.\]
+    where $s = \Pi(x)$ and $g(x) = -1 + \langle\gamma''(s), x-\gamma(s)\rangle$.
+\end{restatable}
+\noindent \textit{Proof.} By \cref{prop: proj gradient} we know that for all $x$ such that the assumptions hold, we have
+\begin{align}
+    \nabla\Pi(x) &= -\frac{\gamma'(s)}{-1 + \langle\gamma''(s), x - \gamma(s)\rangle} \\
+    &= -\frac{\gamma'(s)}{g(x)}.
+\end{align}
+Taking the gradient again yields
+\begin{align}
+    \nabla^2\Pi(x) &= -\frac{g(x)\nabla \gamma'(s) - \gamma'(s)\nabla g(x)^T}{g(x)^2} \\
+    &= -\frac{\nabla \gamma'(s)}{g(x)} + \frac{1}{g^2(x)}\gamma'(s)\nabla g(x)^T.
+\end{align}
+By the chain rule, we have $\nabla\gamma'(s) = \gamma''(s)\nabla\Pi(x)^T$ and 
+\begin{align}
+    \nabla g(x) &= \nabla\langle\gamma''(s), x\rangle -\nabla\langle \gamma''(s), \gamma(s)\rangle \\
+    &= \langle \gamma^{(3)}(s), x\rangle \nabla\Pi(x) + \gamma''(s) - \langle\gamma^{(3)}(s), \gamma(s)\rangle\nabla\Pi(x) - \underbrace{\langle\gamma''(s), \gamma'(s)\rangle}_{= 0}\nabla\Pi(x) \\
+    &= \langle\gamma^{(3)}(s), x - \gamma(s)\rangle\nabla\Pi(x) + \gamma''(s).
+\end{align}
+Thus,
+\begin{align*}
+    \nabla^2\Pi(x) &= -\frac{1}{g(x)}\gamma''(s)\nabla\Pi(x)^T + \frac{\langle\gamma^{(3)}(s), x - \gamma(s)\rangle}{g^2(x)}\gamma'(s)\nabla\Pi(x)^T + \frac{1}{g^2(x)}\gamma'(s)\gamma''(s)^T \\
+    &= \frac{1}{g^2(x)}\gamma''(s)\gamma'(s)^T - \frac{\langle\gamma^{(3)}(s), x - \gamma(s)\rangle}{g^3(x)}\gamma'(s)\gamma'(s)^T + \frac{1}{g^2(x)}\gamma'(s)\gamma''(s)^T \\
+    &= \frac{1}{g^2(x)}\left(\gamma''(s)\gamma'(s)^T + \gamma'(s)\gamma''(s)^T\right)- \frac{\langle\gamma^{(3)}(s), x - \gamma(s)\rangle}{g^3(x)}\gamma'(s)\gamma'(s)^T.
+\end{align*}
+\qed{}
+
+\begin{restatable}[Operator norm bound]{lemma}{} \label{lemma: operator norm bound}
+    Suppose $x \in \mathcal{B}(0,r) \cap R$ with $R$ defined in \cref{eq: good set}. Then there exist finite $\epsilon_0, \lambda > 0$ such that for every $\epsilon \leq \epsilon_0$ and every $y\in \mathcal{B}(x,\epsilon)$ 
+    \[\|\nabla^2\Pi(y)\|_{\text{op}} \leq 2M_2\lambda^{2}+rM_3\lambda^{3}.\]
+\end{restatable}
+
+\noindent \textit{Proof.} By \Cref{thm: differentiability of pi} we have that for every $x \in R$, 
+\[\nabla^2\Pi(x) = \frac{1}{g^2(x)}\left(\gamma''(s)\gamma'(s)^T + \gamma'(s)\gamma''(s)^T\right)- \frac{\langle\gamma^{(3)}(s), x - \gamma(s)\rangle}{g^3(x)}\gamma'(s)\gamma'(s)^T.\]
+where $s = \Pi(x)$ and $g(x) = -1 + \langle\gamma''(s), x-\gamma(s)\rangle$. Since $R$ is an open set, there exists an $\epsilon_0 > 0$ such that this expression holds for all $y \in \mathcal{B}(x, \epsilon)$ for $\epsilon \leq \epsilon_0$.  Bounding the operator norm yields
+\begin{align*}
+    \|\nabla^2\Pi(x)\|_{\text{op}} &= \max_{v\in \mathbb{S}^{d-1}} \|\nabla^2\Pi(x)v\|_2 \\
+    &\leq \max_{v\in \mathbb{S}^{d-1}}\left(\frac{\|\gamma''(s)\gamma'(s)^Tv + \gamma'(s)\gamma''(s)^Tv\|_2}{|g^2(x)|} + \frac{\langle\gamma^{(3)}(s), x - \gamma(s)\rangle}{|g^3(x)|} \|\gamma'(s)\gamma'(s)^Tv\|_2\right) \\
+    &\leq \max_{v\in \mathbb{S}^{d-1}}\left(\frac{\|\gamma''(s)\gamma'(s)^Tv\|_2 + \|\gamma'(s)\gamma''(s)^Tv\|_2}{|g^2(x)|} + \frac{\langle\gamma^{(3)}(s), x - \gamma(s)\rangle}{|g^3(x)|} \|\gamma'(s)\gamma'(s)^Tv\|_2\right) \\
+    &\leq \frac{2M_2}{|g^2(x)|} + \frac{\langle\gamma^{(3)}(s), x - \gamma(s)\rangle}{|g^3(x)|} \\
+    &\leq \frac{2M_2}{|g^2(x)|} + \frac{r M_3}{|g^3(x)|}.
+\end{align*}
+where the final line follows from the assumption that $\Gamma = \text{Im}(\gamma) \subset \mathcal{B}(0, r)$ and $x \in \mathcal{B}(0, r)$. Now we will establish that $1/|g(x)|$ is continuous everywhere in $\mathcal{B}(0,r) \cap R$. This property is a consequence of 
+\begin{enumerate}
+    \item the of $|g(x)|$ in $\mathcal{B}(0,r) \cap R$, which follows from the definitions of $g$ and $R$
+    \item the fact that $|g(x)| \neq 0$ for all $x \in R$ -- this too follows from the definitions of $g$ and $R$.
+\end{enumerate}
+
+From these two properties, we can deduce that $1/|g(x)|$ is continuous everywhere in $\mathcal{B}(0,r) \cap R$. The continuity of $1/|g(x)|^k$ for $k\geq 1$ follows. We will leverage what has been shown to say that for every $x$ in $\mathcal{B}(0,r) \cap R$, $\alpha = 1/|g(x)| <\infty$. Furthermore, for the $\epsilon$ defined earlier, there exists a $\delta>0$ such that for all $y \in \mathcal{B}(x, \epsilon)$, $1/|g(y)| \leq \alpha+\delta = \lambda.$ The statement follows.
+
+\qed{}
+
+\begin{restatable}[IFT degeneracy]{lemma}{} \label{lemma: IFT degen}
+    Let 
+    \begin{equation} 
+    B= \{x \in \mathbb{R}^d : 1 - \langle\gamma''(t), x-\gamma(t)\rangle = 0 \text{ for all }t \in \arg\inf_t \|x-\gamma(t)\|_2\} \label{eq: ift degeneracy set}
+    \end{equation}
+    and let $\mu$ denote the $d$-dimensional Lebesgue measure on $\mathbb{R}^d$. Then $\mu(B) = 0.$
+\end{restatable}
+\noindent \textit{Proof of \Cref{lemma: IFT degen}.} Let $N\gamma = \{(p, v) : p \in \gamma([0, \text{len}_{\gamma}]), v \in (T_p \gamma)^{\bot}\}$ denote the normal bundle of the curve $\gamma$, where $T_p\gamma$ denotes the tangent space of $\gamma$ at point $p$. Observe that $N\gamma$ forms a smooth $d$-dimensional manifold - explicitly, one has the canonical local chart $(t,w) \rightarrow (\gamma(t), w_1n_1(t) + \dots+w_{d-1}n_{d-1}(t))$ where $\{n_i(t)\}_{i\in [d-1]}$ form an orthonormal basis of $N_p\gamma$. 
+
+Now let $B'= \{(p,v) \in N\gamma : \langle v,  \gamma''(\gamma^{-1}(p))\rangle = 1\}$, and let $\Phi:N\gamma \rightarrow \mathbb{R}$ be the function
+\[\Phi(p,v) = \langle v, \gamma''(\gamma^{-1}(p))\rangle - 1.\]
+Observe that for all $x' \in B$, for all $t' \in \arg\min_t \|x-\gamma(t)\|$ we have \[\langle \underbrace{x' - \gamma(t')}_{v'}, \gamma''(t')\rangle = 1\] where $v' \in N_{\gamma(t')}\gamma$. Thus $x' \in \exp(B')$ where $\exp(p,v) = p + v$. It follows that $B\subset \exp(B')$.
+
+We will now show that $0$ is a regular value of $\Phi$, allowing us to conclude that the level set $\Phi^{-1}(0) = B$ is an embedded submanifold of $N\gamma$ of codimension 1. To show that $0$ is a regular value of $\Phi$, observe that $\Phi$ can be expressed in local coordinates as
+\[\Phi(t,w) = \sum_{i = 1}^{d-1}w_i\langle n_i(t), \gamma''(t)\rangle - 1.\]
+Taking the partial derivative with respect to $w_i$ we have
+\[\partial_{w_i}\Phi(t,w) = \langle n_i(t), \gamma''(t)\rangle\]
+To show the regularity of $\Phi^{-1}(0)$, we need to establish that for all $(t,w)$ such that $\Phi(t,w) = 0$, the gradient is nonzero. Observe that for all such $(t,w)$, $\langle v(t,w), \gamma''(t)\rangle = 1$, where $v(t,w) = \sum_{i = 1}^{d-1}w_in_{i}(t)$ -- therefore $\gamma''(t) \neq 0$. Now we need to guarantee that $\gamma''(t)$ has a component in $N_{\gamma(t)}\gamma$. We will show this by contradiction: suppose $\gamma''(t) \in T_{\gamma(t)}\gamma$. Then $\langle\gamma''(t), v\rangle = 0$ for all $v$ normal to $\gamma$ at $t$, which contradicts $\langle \gamma''(t), v(t,w) \rangle = 1$.
+
+Since $\gamma''(t)$ necessarily has a some component normal to the curve, we know that $\partial_{w_i}\Phi(t,w)$ is nonzero for some $i$. This renders the differential of $\Phi$ surjective for all $(t,w)$ such that $\Phi(t,w) = 0$. This means one can apply the regular level set theorem to conclude that $B'$ forms a $d-1$ dimensional submanifold of the normal bundle of $\gamma$ (\citet{lee2003smooth}, Corollary 5.14). Now since $\exp\big|_{B'}$ is a smooth map from $B'$ to $\mathbb{R}^d$, $\exp(B')$ must have $d$-dimensional Lebesgue measure $0$ (\citet{lee2003smooth} Corollary 6.11). Since $B \subset \exp(B')$, by monotonicity of the Lebesgue measure $B$ must have measure $0$ as well.
+
+\qed{}
+
+
+\begin{restatable}[IFT degeneracy is closed]{lemma}{} \label{lemma: IFT degen closed}
+    The set 
+    \begin{equation}
+    B = \{x \in \mathbb{R}^d : 1 - \langle\gamma''(t), x-\gamma(t)\rangle = 0 \text{ for all }t \in \arg\inf_t\|x-\gamma(t)\|_2\}
+    \end{equation}
+    is a closed subset of $\mathbb{R}^d$. 
+\end{restatable}
+
+\noindent \textit{Proof.} Define the set
+\begin{equation}
+S= \{(x,t) \in \mathbb{R}^d\times I : t \in \arg\inf_{t\in I}\|x-\gamma(t)\|_2, \, 1 - \langle\gamma''(t), x - \gamma(t)\rangle = 0\} \label{eq: S}
+\end{equation}
+which is trivially a subset of $\mathbb{R}^{d+1}$. If one fixes $s \in I$, the map $(x,t) \mapsto \|x-\gamma(t)\|_2 - \|x-\gamma(s)\|_2$ is continuous. Since sublevel sets of continuous functions are closed, the set
+\begin{equation}
+S_s = \{(x,t) : \|x-\gamma(t)\|_2 - \|x-\gamma(s)\|_2 \leq 0\}
+\end{equation}
+is a closed subset of $\mathbb{R}^{d+1}$. Observe that
+\begin{align*}
+    \bigcap_{s \in I} S_s &= \bigcap_{s \in I} \Big\{(x,t) : \|x-\gamma(t)\|_2 - \|x-\gamma(s)\|_2 \leq 0\Big \} \\
+    &= \Big\{(x,t) : t\in \arg\inf_{t\in I}\|x-\gamma(t)\|_2 \Big \} \\
+    &= S'.
+\end{align*}
+To see why consider the following. The element $(x,t)$ is in $S'$ if and only if $\|x - \gamma(t)\|_2  \leq \|x - \gamma(s)\|_2$ for all $s \in I$. Since the image of $\gamma$ is closed, this occurs if and only if $t \in \arg\inf_{t \in I} \|x - \gamma(t)\|_2$. Having established the closure of $S_s$, the closure of $S'$ follows from the fact that uncountable intersections of closed sets are still closed. 
+
+To establish the closure of the set $S$ defined in \cref{eq: S}, consider the map $(x,t) \mapsto 1 - \langle \gamma''(t), x - \gamma(t)\rangle$. Since $\gamma \in C^3(I)$ this is a continuous map. It follows that the level set $\{(x,t) : 1 - \langle \gamma''(t), x - \gamma(t)\rangle = 0\}$ is closed. Taking the intersection with $S'$ implies the closure of the set $S$. 
+
+Now we will use this to show that $B$ is a closed subset of $\mathbb{R}^d$. To see this, observe that $B$ can be rewritten as $B = \{x : (x,t) \in S\}.$ We will show that $B$ is closed by showing that it contains all of its limit points via its connection to the closed set $S$. Let $\tilde{x}$ be a limit point of $B$. This means there exists a sequence $x_n \in B$ such that $x_n\rightarrow \tilde{x}$. By the connection to $S$ established above, we know that there are associated values $t_n$ such that 
+\[t_n \in \arg\inf_{t \in I}\|x_n - \gamma(t_n)\|_2 \quad \text{and} \quad 1 - \langle\gamma''(t_n), x_n - \gamma(t_n)\rangle = 0.\]
+Thus, we have a sequence $(x_n, t_n) \in S$ such that $x_n \rightarrow x$. Since $I$, the domain of $\gamma$, is compact, we know that there must exist a subsequence $t_{n_k}$ such that $t_{n_k}\rightarrow t$ for some $t \in I$. Since $x_n$ converges to $x$, we know that the subsequence $x_{n_k}$ also converges to $x$. Thus, we have a sequence $(x_{n_k}, t_{n_k}) \rightarrow (x,t)$, which must be in $S$ due to closure. It follows that $x$ must also be in $B$, and $x_{n_k} \rightarrow x$. Since every subsequence of a convergent sequence converges to the same value, we know that the limit point of $x_{n}$ (which we defined earlier as $\tilde{x}$) is equal to $x$, which is in $B$. Thus, $B$ necessarily contains all of its limit points, and it is therefore closed.  
+
+\qed{}
+
+
+\begin{restatable}[Closure of the singular set has zero Lebesgue measure]{lemma}{} \label{lemma: singular set measure}
+    The closure of the set 
+    \begin{equation}\text{Sing}(\Gamma) = \{x \in \mathbb{R}^d: \Pi(x) \text{ fails to be differentiable}\} \label{eq: singular set}
+    \end{equation}
+    has $d$-dimensional Lebesgue measure $0$. 
+\end{restatable}
+\noindent \textit{Proof.} Let $d(x, \Gamma)$ be the distance from $x$ to the set $\Gamma$. We will first show that the closure of the set where $d^2(x,\Gamma)$ fails to be differentiable has measure zero. Call this set $\text{Sing}'(\Gamma)$. To show this, observe that the image of the curve $\Gamma$ forms a 1-dimensional $C^3$ submanifold of $\mathbb{R}^d$ with boundary
+\[\partial\Gamma = \{\gamma(0), \gamma(\text{len}_{\gamma})\}.\]
+Since the boundary consists of a union of two disjoint points, it forms a smooth $0$-dimensional submanifold of $\mathbb{R^d}$. This allows us to apply Remark 4.2 and Corollary 4.12 of \citet{mantegazza2002hamilton} to conclude that the Hausdorff dimension of $\overline{\text{Sing}'(\Gamma)}$ is at most $d-1$. This implies that its $d$-dimensional Hausdorff measure is $0$, which in turn implies that its $d$-dimensional Lebesgue outer measure is $0$. Since the set $\overline{\text{Sing}'(\Gamma)}$ is closed, it is necessarily Borel. It follows that the set is Lebesgue measurable with measure $0$. 
+
+Now we will show that $\Pi(x)$ failing to be differentiable implies $d^2(x, \Gamma)$ fails to be differentiable. To see this observe that
+\begin{align}
+    d^2(x, \Gamma) &= \inf_{p \in \Gamma}\|x - p\|_2^2 \\ \label{eq: distance to Gamma}
+    &= \|x - \gamma(t')\|_2^2
+\end{align}
+for any $t' \in \Pi(x)$. If $\Pi(x)$ is a singleton, then $d^2(x,\Gamma) = \|x - \gamma(\Pi(x))\|_2^2$ and we have that $d^2(x,\Gamma)$ is not differentiable at $x$ if $\Pi$ is not differentiable at $x$. Now suppose $\Pi(x)$ is not a singleton. We will show that this implies $d^2(x,\Gamma)$ is not differentiable by contradiction. When $\Pi(x)$ is not a singleton then $x$ has at least two distinct nearest points -- pick any two and call them $p$ and $q$. If $d^2(x,\Gamma)$ were differentiable at $x$ then its gradient would be unique and equal to $(x-p')$ where $p'$ realizes the infimum above. Since $p$ and $q$ both realize the infimum, the uniqueness of the gradient of $d^2(x, \Gamma)$ implies that $(x - p) = (x-q)$, which is a contradiction.
+
+This establishes that if $\Pi$ fails to be differentiable at $x$, then $d^2(x, \Gamma)$ must also fail to be differentiable at $x$. This implies $\text{Sing}(\Gamma) \subseteq \text{Sing}'(\Gamma)$, which in turn implies the closure of the former is contained in the closure of the latter. Earlier we established that $\overline{\text{Sing}'(\Gamma)}$ has measure zero -- the Lemma statement therefore follows from monotonicity of the Lebesgue measure.
+
+\qed{}
+
+
+
+% \begin{restatable}[Medial axis is closed]{lemma}{}
+%     The medial axis of the curve $\gamma$ is closed. 
+% \end{restatable}
+% \noindent \textit{Proof.} The medial axis $M(\Gamma)$ of $\Gamma = \text{Im}(\gamma)$ can be expressed as
+% \[M(\Gamma) = \{x \in \mathbb{R}^d : |\{y \in \Gamma : \|x-y\|_2 = d(x,\Gamma)\}| > 1\}.\]
+% To show that $M(\Gamma)$ is closed, we will show that it contains all of its limit points. Consider any sequence $x_n \in M(\Gamma)$ and suppose $x_n \rightarrow x$. We will show that $x$ is necessarily in $M(\Gamma)$. To do so, observe that $\Gamma \times \Gamma$ is compact as $\Gamma$ is compact. Since each $x_n$ is in $M(\Gamma)$, we know it has at least two closest points; we'll pick any two and call them $q_n$ and $p_n$ - this defines two separate sequences $\{q_n\}_{n \in \mathbb{N}}$ and $\{p_n\}_{n \in \mathbb{N}}$, but it also defines the joint sequence $\{(q_n, p_n)\}_{n\in \mathbb{N}} \subset \Gamma\times \Gamma$. By the compactness of this product space, there must exist a convergent subsequence $(q_{n_k}, p_{n_k}) \rightarrow (q,p) \in \Gamma \times \Gamma$. This, in turn, induces a subsequence $x_{n_k}$, which necessarily converges to $x$ since we assume that $x_n$ is a convergent sequence. Now we'll consider two cases. 
+% \begin{enumerate}
+%     \item \textbf{Case 1:} $(p \neq q)$. Observe that we have the equalities
+%     \[d(x_{n_k}, \Gamma) = \|x_{n_k} - p_{n_k}\|_2 = \|x_{n_k} - q_{n_k}\|_2\]
+%     by definition. By continuity, this implies that as $k \rightarrow \infty$,
+%     \[d(x,\Gamma) = \|x - p\|_2 = \|x - q\|_2\]
+%     with $p \neq q$. This directly implies that $x \in M(\Gamma)$. 
+%     \item \textbf{Case 2:} $(p = q)$. We will show that, under the hypothesis of positive reach, this cannot happen. Since $x_{n_k} \in M(\Gamma)$, we know that $d(x_{n_k}, \Gamma) \geq \tau_{\gamma}$ for all $k$. This implies that $d(x, \Gamma) \geq \tau_{\gamma}$ as well. 
+%     \begin{enumerate}
+%         \item $[]$
+%     \end{enumerate}
+% \end{enumerate}
+
+
+% Let $f:\mathbb{R}^d\times I\rightarrow \mathbb{R}$ be defined as $f(x,t) = \|x-\gamma(t)\|_2^2$. Then the medial axis $M$ can be expressed as
+% \[M = \{x \in \mathbb{R}^d : |\arg\min_{t}f(x,t)| > 1\}.\]
+% To show that $M$ is closed, consider the set 
+% \[P = \{(x,t,s) \in \mathbb{R}^d \times I \times I: t\neq s, f(x,t) = f(x,s) \leq f(x,u) \, \forall \, u \in I\}.\]
+% Observe that $(x,t,s) \in P$ if and only if $t$ and $s$ are distinct parameters of minimal distance points to $x$. Now consider the set
+% \[U_{1,u} = \{(x,t,s): f(x,t) - f(x,u) \leq 0\}.\]
+% For a fixed $u$, the map $(x,t,s) \mapsto f(x,t) - f(x,u)$ is continuous since $\gamma \in C^3(I)$, rendering the sublevel set closed. Now observe that
+% \begin{align}
+% U_1 &= \bigcap_{u \in I}U_{1,u} \\
+% &= \left\{(x,t,s) : f(x,t) \leq f(x,u) \, \forall \, u \in I\right\}
+% \end{align}
+% is closed, since uncountable intersections of closed sets are closed. By a similar argument, one can show that the set 
+% \[U_2 = \{(x,t,s): f(x,s) \leq f(x,u) \, \forall \, u \in I \}\]
+% is also closed. Finally, define 
+% \[U_3 = \{(x,t,s): f(x,t) = f(x,s)\}\]
+% which is also closed, as it consists of the zero level set of a continuous function. 
+
+% \qed{}
+
+% \begin{restatable}[Continuous differentiability of $\Pi$]{lemma}{}
+%     For any $x$ such that $\Pi(x)$ is differentiable in a neighborhood about $x$, $\Pi(x)$ must also be \textit{continuously} differentiable on that neighborhood.
+% \end{restatable}
+% \noindent \textit{Proof.} Let $d^2(x,\Gamma)$ be defined as in \cref{eq: distance to Gamma}. Under the hypothesis that $\Pi(x)$ is differentiable in a neighborhood $U$ about $x$, we know that it must also be unique and well defined on $U$. It follows that
+% \begin{align}
+%     d^2(x,\Gamma) = \|x - \gamma(\Pi(x))\|_2^2 \text{ for all }x \in U.
+% \end{align}
+% The hypothesis of the lemma coupled with the fact that $\gamma \in C^3(I)$ implies that $d^2(x,\Gamma)$ is differentiable on $U$. 
+
+
+\begin{restatable}[Covariance of $\text{Unif}(\mathcal{B}(0,\epsilon))$]{prop}{} \label{prop: spherical cov}
+    Suppose we have $x$ distributed according to a uniform probability measure over $\mathcal{B}(0,\epsilon)$ in $\mathbb{R}^d$. Then the covariance matrix of $x$ is $\frac{\epsilon^2}{d+2}I_d$. 
+\end{restatable}
+\noindent \textit{Proof.} By symmetry, the covariance matrix must be a multiple of $I_d$. To find the constant, we need to understand the distribution of $\mathbb{E}\|x\|_2$ - thus we will compute the radial pdf. Note that the cdf of $\|x\|_2$ can be written as
+\begin{align*}
+    \mathbb{P}(\|x\|_2 \leq r) &= \frac{\mu(\mathcal{B}(0,r))}{\mu(\mathcal{B}(0,\epsilon))} \\
+    &= \left(\frac{r}{\epsilon }\right)^d
+\end{align*}
+where $\mu$ denotes the $d$-dimensional Lebesgue measure on $\mathbb{R}^d$. The radial pdf can be obtained by differentiating the cdf with respect to $r$,
+\begin{align*}
+    f_r(r) &= \frac{d}{dr}\mathbb{P}(\|x\|_2\leq r) \\
+    &= \frac{dr^{d-1}}{\epsilon^d}.
+\end{align*}
+Now we can compute the covariance scaling factor as 
+\begin{align*}
+    \mathbb{E}[x_i^2] &= \frac{1}{d}\mathbb{E}\|x\|_2^2 \\
+    &=\frac{1}{\epsilon^d}\int_{0}^{\epsilon}r^2r^{d-1}dr \\
+    &= \frac{1}{\epsilon^d}\frac{1}{d+2}r^{d+2} \Bigg|^{r=\epsilon}_{r=0} \\
+    &= \frac{\epsilon^2}{d+2}.
+\end{align*}
+\qed{}
+
+
+\bibliography{main}
+
+\end{document}
