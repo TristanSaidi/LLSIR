@@ -370,7 +370,7 @@ The proof of \Cref{thm: population prop} is provided in \Cref{sec: proof of popu
 
 \begin{restatable}[Velocity error expansion]{lemma}{} \label{thm: decomposition for beta}
     Suppose that \cref{assumption: kernel smoothness} and \cref{assumption: lce and covariate density} are satisfied, and suppose that the density kernel bandwidth satisfies $h \rightarrow 0$ and $nh^d \rightarrow \infty$, and $\epsilon \rightarrow 0, n\epsilon^d \rightarrow \infty$. Finally, suppose that $p_0$ is bounded away from zero on $\mathcal{B}(0, \epsilon)$ (where $p_0$ is the density of $x - x_0$), and $Q = \mathbb{E}[wXX^T]$. Then it holds that
-    \[\hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon} = -\frac{2}{n}VQ^{-1}\sum_{i = 1}^nw_iX_i\mathbb{E}[u_i\,|\,X_i] +o_p\left(\frac{1}{\sqrt{n\epsilon^{d}}}\right)\]
+    \[\hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon} = \frac{1}{n}VQ^{-1}\sum_{i = 1}^nw_iX_i(u_i - \mathbb{E}[u_i\,|\,X_i]) +o_p\left(\frac{1}{\sqrt{n\epsilon^{d}}}\right)\]
     where $u = y - X^T\beta_{x_0, \epsilon}^*$.
 \end{restatable}
 The proof of \Cref{thm: decomposition for beta} is provided in \Cref{sec: proof of velocity decomp}. Having established this influence function expansion, we will now use it to characterize the limiting distribution of $\hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon}.$ To do this, we will appeal to the multivariate Lyapunov central limit theorem, described in \Cref{thm: lyapunov clt}.
@@ -590,22 +590,59 @@ where $\xi_i$ is some value between $p_0(x_i)$ and $\hat{p}_0(x_i)$. Now note th
     &= \frac{1}{n}\sum_{i = 1}^n w_i X_i u_i.
 \end{align*}
 Now we'll consider the first remainder term. By \Cref{lemma: remainder term}
-\[R_1 = \frac{1}{n}\sum_{i = 1}^n \frac{a(z_i) - 2\mathbb{E}[a(Z)\,|\,x_i]}{p_0(x_i)} + O(\epsilon^dh^s) + O_p\left( \sqrt{\frac{\epsilon^d}{n^2h^d}}\right) .\]
-\tls{need to propagate this change!}
+\[R_1 = \frac{1}{n}\sum_{i = 1}^n \frac{\mathbb{E}[a(Z)\,| \,x_i]}{p_0(x_i)} + O_p\left( \epsilon^dh^s + \sqrt{\frac{\epsilon^d}{n^2h^d}}\right).\]
+Since $wXu$ is mean zero, \Cref{lemma: Lambda trace bound} guarantees that $\|\mathbb{P}_nwXu\|_2 = O_p(\sqrt{\epsilon^d/n})$. Moreover, \Cref{lemma: uniform convergence of kde} indicates that $\sup_{x\in \mathcal{B}(0, \epsilon)} \left|\Delta(x)\right| = o_p(1)$ when $h \rightarrow 0$ and $nh^d \rightarrow \infty$. Thus, 
+\begin{align*}
+    \|R_2\|_2 &= \left\|\mathbb{P}_n\left[\frac{a(z)}{p_0(x)}p_0(x)g''(\xi)\Delta(x)^2\right]\right\|_2\\
+    &\leq \mathbb{P}_n[\left\|wXu\right\|_2(1/2)|g''(\xi)|]\sup_{\mathcal{B}(0, \epsilon)}|p_0(x)|\cdot \sup_{\mathcal{B}(0, \epsilon)}|\Delta(x)|^2. 
+\end{align*}
+Now note that $g''(t) = 2/t^3$  -- since $\sup_{x\in \mathcal{B}(0, \epsilon)} \left|\Delta(x)\right| = o_p(1)$ we know that $\hat{p}_0 > m/2$ for all $x \in \mathcal{B}(0, \epsilon)$ with probability approaching $1$. It follows that $\xi_i > m/2$ with probability approaching $1$ as well. Thus,
+\begin{align*}
+    \|R_2\|_2 &\leq \mathbb{P}_n\left\|wXu\right\|_2\cdot (8/m^3)\cdot \sup_{\mathcal{B}(0, \epsilon)}|p_0(x)|\cdot \sup_{\mathcal{B}(0, \epsilon)}|\Delta(x)|^2 \\
+    &= \mathbb{P}_n\left\|wXu\right\|_2 \cdot o_p(1) \\
+    &= o_p\left(\sqrt{\frac{\epsilon^d}{n}}\right)
+\end{align*}
+with probability approaching $1$, which implies
+\begin{align*}
+    \hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon} &= V\hat{Q}^{-1}\left(\frac{1}{n}\sum_{i = 1}^n\frac{a(z_i) - \mathbb{E}[a(Z)\,|\, x_i]}{p_0(x_i)}+ o_p\left(\sqrt{\frac{\epsilon^d}{n}}\right) + O(\epsilon^dh^s) + O_p\left( \sqrt{\frac{\epsilon^d}{n^2h^d}}\right)\right).
+\end{align*}
+Now we will introduce $Q$ as follows,
+\begin{equation*}
+    \hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon} = VQ^{-1}\psi_n + V(\hat{Q}^{-1} - Q^{-1})\psi_n
+\end{equation*}
+with
+\begin{align*}
+    \psi_n &= \frac{1}{n}\sum_{i = 1}^n\frac{a(z_i) -\mathbb{E}[a(Z)\,|\, x_i]}{p_0(x_i)} + o_p\left(\sqrt{\frac{\epsilon^d}{n}}\right) +   O(\epsilon^dh^s) + O_p\left( \sqrt{\frac{\epsilon^d}{n^2h^d}}\right) \\
+    &= O_p\left(\sqrt{\frac{\epsilon^d}{n}} + \sqrt{\epsilon ^d} \cdot n^{-\frac{s}{s+d}}\right) \\
+    &= O_p\left(\sqrt{\frac{\epsilon^d}{n}}\right)
+\end{align*} 
+if $s > d/2$ and $h \asymp n^{-\frac{s}{d+s}}$. By \Cref{lemma: Q convergence} we know that 
+\[\|\hat{Q}^{-1} - Q^{-1}\|_{\text{op}} = O_p\left(\frac{1}{\epsilon^{3d/2}\sqrt{n}} + \frac{1}{n\epsilon^{2d}}\right) + o_p\left(\frac{1}{\epsilon^d}\right).\]
+It follows that 
+\begin{align*}
+    (\hat{Q}^{-1} - Q^{-1})\psi_n &= O_p\left(\frac{1}{n\epsilon^{d}} + \frac{1}{n^{3/2}\epsilon^{3d/2}}\right) + o_p\left(\frac{1}{\sqrt{n\epsilon^d}}\right) \\
+    &= o_p\left(\frac{1}{\sqrt{n\epsilon^d}}\right)
+\end{align*}
+when $n\epsilon^d \rightarrow \infty$. Furthermore, $\|Q^{-1}\|_{\text{op}} \lesssim \epsilon^{-d}$ as derived in \Cref{lemma: Q op norm}. Thus,
+\[VQ^{-1}\psi_n = \frac{1}{n}VQ^{-1}\sum_{i = 1}^n\frac{a(z_i) - \mathbb{E}[a(Z)\,|\, x_i]}{p_0(x_i)} + o_p\left(\frac{1}{\sqrt{n\epsilon^d}}\right).\]
+Putting it together, we obtain
+\begin{equation}
+    \hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon} = \frac{1}{n}VQ^{-1}\sum_{i = 1}^n w_iX_i(u_i - \mathbb{E}[u_i\,|\,X_i]) \\
+    + o_p\left(\frac{1}{\sqrt{n\epsilon^{d}}}\right).
+\end{equation}
 
+\qed{}
 
 
 \begin{restatable}{lemma}{} \label{lemma: remainder term}
     We have
-    \[R_1 = \frac{1}{n}\sum_{i = 1}^n \frac{a(z_i) - 2\mathbb{E}[a(Z)\,|\,x_i]}{p_0(x_i)} + O(\epsilon^dh^s) + O_p\left( \sqrt{\frac{\epsilon^d}{n^2h^d}}\right) \]
-    where $g(w_i) = \mathbb{E}[t(w_i, W_2)] - \mathbb{E}[t(W_1, W_2)]$ and 
-    \[t(w_i, w_j) = \left(\frac{a(z_i)}{p_0(x_i)^2} + \frac{a(z_j)}{p_0(x_j)^2}\right)\frac{1}{h^d}K\left(\frac{x_j - x_i}{h}\right).\]
+    \[R_1 = \frac{1}{n}\sum_{i = 1}^n \frac{\mathbb{E}[a(Z)\,| \,x_i]}{p_0(x_i)} + O_p\left( \epsilon^dh^s + \sqrt{\frac{\epsilon^d}{n^2h^d}}\right).\]
 \end{restatable}
 \noindent \textit{Proof.} Expand the $\Delta(x)$ as follows,
 \begin{align*}
     R_1&= \frac{1}{n}\sum_{i = 1}^n \frac{a(z_i)}{p_0(x_i)^2}\left(\frac{1}{n}\sum_{j = 1}^n\left\{\frac{1}{h^d}K\left(\frac{x_j - x_i}{h}\right) - p_0(x_i)\right\}\right) \\
     &= \frac{1}{n^2}\sum_{i, j} \frac{a(z_i)}{p_0(x_i)^2} \frac{1}{h^d}K\left(\frac{x_j - x_i}{h}\right) - \frac{1}{n}\sum_{i = 1}^n \frac{a(z_i)}{p_0(x_i)} \\
-    &= \frac{1}{n^2} \sum_{i < j} \left(\frac{a(z_i)}{p_0(x_i)^2} + \frac{a(z_j)}{p_0(x_j)^2}\right)\frac{1}{h^d}K\left(\frac{x_j - x_i}{h}\right) + \frac{1}{n^2}\sum_{i = 1}^n\frac{a(z_i)}{p_0(x_i)}\frac{K(0)}{h^d} - \frac{1}{n}\sum_{i = 1}^n \frac{a(z_i)}{p_0(x_i)}.
+    &= \frac{1}{n^2} \sum_{i < j} \left(\frac{a(z_i)}{p_0(x_i)^2} + \frac{a(z_j)}{p_0(x_j)^2}\right)\frac{1}{h^d}K\left(\frac{x_j - x_i}{h}\right) + \frac{1}{n^2}\sum_{i = 1}^n\frac{a(z_i)}{p_0^2(x_i)}\frac{K(0)}{h^d} - \frac{1}{n}\sum_{i = 1}^n \frac{a(z_i)}{p_0(x_i)}.
 \end{align*}
 Let 
 \[R_{11} \triangleq \frac{1}{n^2} \sum_{i < j} \left(\frac{a(z_i)}{p_0(x_i)^2} + \frac{a(z_j)}{p_0(x_j)^2}\right)\frac{1}{h^d}K\left(\frac{x_j - x_i}{h}\right).\]
@@ -613,7 +650,7 @@ Then,
 \begin{align*}
     R_{11} &= \frac{1}{n^2} \sum_{i < j} \underbrace{\left(\frac{a(z_i)}{p_0(x_i)^2} + \frac{a(z_j)}{p_0(x_j)^2}\right)\frac{1}{h^d}K\left(\frac{x_j - x_i}{h}\right)}_{\triangleq t(w_i, w_j)} \\
     &= \frac{1}{n^2} \begin{pmatrix}
-        n \\
+        n \\ 
         2
     \end{pmatrix} \left[\begin{pmatrix}
         n \\2
@@ -632,17 +669,25 @@ Now let $g(w_i) = \mathbb{E}[t(w_i, W_2)] - \mathbb{E}[t(W_1, W_2)]$. Then let $
         n \\
         2
     \end{pmatrix}^{-1}\sum_{i < j}h(w_i, w_j) \\
-    &= \mathbb{E}[t(W_1, W_2)] + \frac{1}{n}\sum_{i = 1}^n g(w_i) + \begin{pmatrix}
+    &= \mathbb{E}[t(W_1, W_2)] + \frac{2}{n}\sum_{i = 1}^n g(w_i) + \begin{pmatrix}
         n \\
         2
     \end{pmatrix}^{-1}\sum_{i < j}h(w_i, w_j)
 \end{align*}
-since $\sum_{i < j} (g(w_i) + g(w_j)) = (n-1)\sum_{i}g(w_i)$. Now we will obtain the stochastic order of each term. In particular, we have 
+since $\sum_{i < j} (g(w_i) + g(w_j)) = (n-1)\sum_{i}g(w_i)$. Thus,
 \begin{align*}
-    \begin{pmatrix}
+    R_{11} &= \frac{1}{n^2}\begin{pmatrix}
         n \\
         2
-    \end{pmatrix}^{-1}\sum_{i < j}h(w_i, w_j) &= O_p\left(\sqrt{\frac{\mathbb{E}[h(W_1, W_2)^2]}{n^2}}\right) = O_p\left(\sqrt{\frac{\epsilon^d}{n^2h^d}}\right). \tag{\nts} \\
+    \end{pmatrix}\left[\mathbb{E}[t(W_1, W_2)] + \frac{2}{n}\sum_{i = 1}^n g(w_i) + \begin{pmatrix}
+        n \\
+        2
+    \end{pmatrix}^{-1}\sum_{i < j}h(w_i, w_j)\right] \\
+    &= \frac{n-1}{2n}\mathbb{E}[t(W_1, W_2)] + \frac{n-1}{n^2}\sum_{i = 1}^n g(w_i) + \frac{1}{n^2}\sum_{i < j}h(w_i, w_j).
+\end{align*}
+Now we will obtain the stochastic order of each term. In particular, we have 
+\begin{align*}
+    \frac{1}{n^2}\sum_{i < j}h(w_i, w_j) &= O_p\left(\sqrt{\frac{\mathbb{E}[h(W_1, W_2)^2]}{n^2}}\right) = O_p\left(\sqrt{\frac{\epsilon^d}{n^2h^d}}\right). \tag{\nts} \\
 \end{align*}
 Moreover,
 \begin{align*}
@@ -660,9 +705,7 @@ Continuing yields
     \mathbb{E}[t(W_1, W_2)] &= \mathbb{E}\left[\frac{a(z_1)}{p_0(x_1)}\right] + \mathbb{E}\left[\frac{a(z_1)}{p_0(x_1)^2}\sum_{|\alpha| \leq s}\frac{\text{D}^\alpha p_0(x_1)}{\alpha!}h^\alpha \underbrace{\int K\left(u\right) u^\alpha \,du}_{0}\right]  + O(\epsilon ^dh^s) \\
     &= 0 + O(\epsilon^d h^s)
 \end{align*}
-by first order population optimality conditions. Thus,
-\[S_n = \frac{1}{n} \sum_{i = 1}^n g(w_i ) + O(\epsilon^dh^s) + O_p\left( \sqrt{\frac{\epsilon^d}{n^2h^d}}\right)\]
-Now we'll simplify $g(w_i)$ slightly. We have
+by first order population optimality conditions. Now we'll simplify $g(w_i)$ slightly. We have
 \begin{align*}
     \mathbb{E}[t(w_i, W)] &=  
     \frac{a(z_i)}{p_0(x_i)^2}\mathbb{E}\left[K_h(X - x_i)\right] + \mathbb{E}\left[\frac{a(Z)}{p_0(X)^2}K_h(X - x_i)\right] \\
@@ -671,59 +714,50 @@ Now we'll simplify $g(w_i)$ slightly. We have
 \end{align*}
 Since $\mathbb{E}[t(W_1, W_2)] = O(\epsilon^dh^s)$ we have
 \begin{align*}
-    R_{11} &= \frac{1}{n^2}\begin{pmatrix}
-        n \\
-        2
-    \end{pmatrix}\left[\frac{1}{n} \sum_{i = 1}^n \frac{a(z_i) + \mathbb{E}[a(Z)\,| \,x_i]}{p_0(x_i)} + O(\epsilon^dh^s) + O_p\left( \sqrt{\frac{\epsilon^d}{n^2h^d}}\right)\right]\\& \hspace{80mm} + \frac{1}{n^2}\sum_{i = 1}^n\frac{a(z_i)}{p_0(x_i)}\frac{K(0)}{h^d} - \frac{1}{n}\sum_{i = 1}^n \frac{a(z_i)}{p_0(x_i)}
+    R_{11} &= \frac{n-1}{2n}\mathbb{E}[t(W_1, W_2)] + \frac{n-1}{n^2}\sum_{i = 1}^n g(w_i) + \frac{1}{n^2}\sum_{i < j}h(w_i, w_j) \\
+    &= O(\epsilon^d h^s) + \frac{n-1}{n^2} \sum_{i = 1}^n \left(\frac{a(z_i) + \mathbb{E}[a(Z)\,| \,x_i]}{p_0(x_i)} + O(\epsilon^dh^s)\right) + O_p\left( \sqrt{\frac{\epsilon^d}{n^2h^d}}\right) \\
+    &= \frac{1}{n}\sum_{i = 1}^n \frac{a(z_i) + \mathbb{E}[a(Z)\,| \,x_i]}{p_0(x_i)} + O(\epsilon^dh^s) + O_p\left( \sqrt{\frac{\epsilon^d}{n^2h^d}}\right).
 \end{align*}
-
+Plugging this back into the expression for $R_1$ yields
+It follows that
 \begin{align*}
-    R_1 = \frac{1}{n}\sum_{i = 1}^n \frac{a(z_i) - 2\mathbb{E}[a(Z)\,|\,x_i]}{p_0(x_i)} + O(\epsilon^dh^s) + O_p\left( \sqrt{\frac{\epsilon^d}{n^2h^d}}\right) .
+    R_1
+    &= R_{11} + \frac{1}{n^2}\sum_{i = 1}^n \frac{a(z_i)}{p_0(x_i)^2}\frac{K(0)}{h^d}
+    - \frac{1}{n}\sum_{i = 1}^n \frac{a(z_i)}{p_0(x_i)} \\
+    &= \frac{1}{n}\sum_{i = 1}^n \frac{a(z_i) + \mathbb{E}[a(Z)\mid X = x_i]}{p_0(x_i)}
+    + O(\epsilon^d h^s) + O_p\left(\sqrt{\frac{\epsilon^d}{n^2 h^d}}\right) \\
+    &\qquad + \frac{1}{n^2}\sum_{i = 1}^n \frac{a(z_i)}{p_0(x_i)^2}\frac{K(0)}{h^d}
+    - \frac{1}{n}\sum_{i = 1}^n \frac{a(z_i)}{p_0(x_i)} \\
+    &= \frac{1}{n}\sum_{i = 1}^n \frac{\mathbb{E}[a(Z)\mid X = x_i]}{p_0(x_i)}
+    + \frac{1}{n^2}\sum_{i = 1}^n \frac{a(z_i)}{p_0(x_i)^2}\frac{K(0)}{h^d}
+    + O(\epsilon^d h^s) + O_p\left(\sqrt{\frac{\epsilon^d}{n^2 h^d}}\right).
+\end{align*}
+The diagonal term is of smaller order:
+\[
+\frac{1}{n^2}\sum_{i = 1}^n \frac{a(z_i)}{p_0(x_i)^2}\frac{K(0)}{h^d}
+=
+\frac{K(0)}{n h^d} \cdot \mathbb{P}_n\left[\frac{a(z)}{p_0(x)^2}\right]
+=
+O_p\left(\frac{1}{n h^d}\right)
+=
+o_p\left(\sqrt{\frac{\epsilon^d}{n^2 h^d}}\right),
+\]
+since \(n h^d \to \infty\). Therefore,
+\begin{align*}
+    R_1
+    &= \frac{1}{n}\sum_{i = 1}^n \frac{\mathbb{E}[a(Z)\mid X = x_i]}{p_0(x_i)}
+    + O(\epsilon^d h^s) + O_p\left(\sqrt{\frac{\epsilon^d}{n^2 h^d}}\right).
 \end{align*}
 
+% \begin{align*}
+%     R_1 &= \frac{1}{n}\sum_{i = 1}^n \frac{a(z_i) + \mathbb{E}[a(Z)\,| \,x_i]}{p_0(x_i)} + O(\epsilon^dh^s) + O_p\left( \sqrt{\frac{\epsilon^d}{n^2h^d}}\right) + \frac{1}{n^2}\sum_{i = 1}^n\frac{a(z_i)}{p_0(x_i)}\frac{K(0)}{h^d} - \frac{1}{n}\sum_{i = 1}^n \frac{a(z_i)}{p_0(x_i)} \\
+%     &= \frac{1}{n}\sum_{i = 1}^n \frac{\mathbb{E}[a(Z)\,| \,x_i]}{p_0(x_i)} + \frac{1}{n^2}\sum_{i = 1}^n\frac{a(z_i)}{p_0(x_i)}\frac{K(0)}{h^d} + O_p\left( \epsilon^dh^s + \sqrt{\frac{\epsilon^d}{n^2h^d}}\right).
+% \end{align*}
 \qed{}
 
-Since $wXu$ is mean zero, \Cref{lemma: Lambda trace bound} guarantees that $\|\mathbb{P}_nwXu\|_2 = O_p(\sqrt{\epsilon^d/n})$. Moreover, \Cref{lemma: uniform convergence of kde} indicates that $\sup_{x\in \mathcal{B}(0, \epsilon)} \left|\Delta(x)\right| = o_p(1)$ when $h \rightarrow 0$ and $nh^d \rightarrow \infty$. Thus, 
-\begin{align*}
-    \|R_2\|_2 &= \left\|\mathbb{P}_n\left[\frac{a(z)}{p_0(x)}p_0(x)g''(\xi)\Delta(x)^2\right]\right\|_2\\
-    &\leq \mathbb{P}_n[\left\|wXu\right\|_2(1/2)|g''(\xi)|]\sup_{\mathcal{B}(0, \epsilon)}|p_0(x)|\cdot \sup_{\mathcal{B}(0, \epsilon)}|\Delta(x)|^2. 
-\end{align*}
-Now note that $g''(t) = 2/t^3$  -- since $\sup_{x\in \mathcal{B}(0, \epsilon)} \left|\Delta(x)\right| = o_p(1)$ we know that $\hat{p}_0 > m/2$ for all $x \in \mathcal{B}(0, \epsilon)$ with probability approaching $1$. It follows that $\xi_i > m/2$ with probability approaching $1$ as well. Thus,
-\begin{align*}
-    \|R_2\|_2 &\leq \mathbb{P}_n\left\|wXu\right\|_2\cdot (8/m^3)\cdot \sup_{\mathcal{B}(0, \epsilon)}|p_0(x)|\cdot \sup_{\mathcal{B}(0, \epsilon)}|\Delta(x)|^2 \\
-    &= \mathbb{P}_n\left\|wXu\right\|_2 \cdot o_p(1) \\
-    &= o_p\left(\sqrt{\frac{\epsilon^d}{n}}\right)
-\end{align*}
-with probability approaching $1$, which implies
-\begin{align*}
-    \hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon} &= V\hat{Q}^{-1}\left(-\frac{2}{n}\sum_{i = 1}^n\frac{\mathbb{E}[a(Z)\,|\, x_i]}{p_0(x_i)}+ o_p\left(\sqrt{\frac{\epsilon^d}{n}}\right) + O(\epsilon^dh^s) + O_p\left( \sqrt{\frac{\epsilon^d}{n^2h^d}}\right)\right).
-\end{align*}
-Now we will introduce $Q$ as follows,
-\begin{equation*}
-    \hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon} = VQ^{-1}\psi_n + V(\hat{Q}^{-1} - Q^{-1})\psi_n
-\end{equation*}
-with
-\begin{align*}
-    \psi_n &= -\frac{2}{n}\sum_{i = 1}^n\frac{\mathbb{E}[a(Z)\,|\, x_i]}{p_0(x_i)} + o_p\left(\sqrt{\frac{\epsilon^d}{n}}\right) +   O(\epsilon^dh^s) + O_p\left( \sqrt{\frac{\epsilon^d}{n^2h^d}}\right) \\
-    &= O_p\left(\sqrt{\frac{\epsilon^d}{n}} + \sqrt{\epsilon ^d} \cdot n^{-\frac{s}{s+d}}\right) \\
-    &= O_p\left(\sqrt{\frac{\epsilon^d}{n}}\right)
-\end{align*} 
-if $s > d/2$ and $h \asymp n^{-\frac{s}{d+s}}$. By \Cref{lemma: Q convergence} we know that 
-\[\|\hat{Q}^{-1} - Q^{-1}\|_{\text{op}} = O_p\left(\frac{1}{\epsilon^{3d/2}\sqrt{n}} + \frac{1}{n\epsilon^{2d}}\right) + o_p\left(\frac{1}{\epsilon^d}\right).\]
-It follows that 
-\begin{align*}
-    (\hat{Q}^{-1} - Q^{-1})\psi_n &= O_p\left(\frac{1}{n\epsilon^{d}} + \frac{1}{n^{3/2}\epsilon^{3d/2}}\right) + o_p\left(\frac{1}{\sqrt{n\epsilon^d}}\right) \\
-    &= o_p\left(\frac{1}{\sqrt{n\epsilon^d}}\right)
-\end{align*}
-when $n\epsilon^d \rightarrow \infty$. Furthermore, $\|Q^{-1}\|_{\text{op}} \lesssim \epsilon^{-d}$ as derived in \Cref{lemma: Q op norm}. Thus,
-\[VQ^{-1}\psi_n = -\frac{2}{n}VQ^{-1}\sum_{i = 1}^n\frac{\mathbb{E}[a(Z)\,|\, x_i]}{p_0(x_i)} + o_p\left(\frac{1}{\sqrt{n\epsilon^d}}\right).\]
-Putting it together, we obtain
-\begin{equation}
-    \hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon} = -\frac{2}{n}VQ^{-1}\sum_{i = 1}^nw_iX_i\mathbb{E}[u_i\,|\,X_i] \\
-    + o_p\left(\frac{1}{\sqrt{n\epsilon^{d}}}\right).
-\end{equation}
+\break
 
-\qed{}
+
 
 \subsection{Proof of \Cref{corr: central limit for v}} \label{sec: proof of central limit for v}
 From \Cref{thm: decomposition for beta} we have, 
