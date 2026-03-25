@@ -638,16 +638,16 @@ Putting it together, we obtain
 \subsection{Proof of \Cref{corr: central limit for v}} \label{sec: proof of central limit for v}
 From \Cref{thm: decomposition for beta} we have, 
 \begin{align*}
-    \hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon} = \frac{1}{n}VQ^{-1}\sum_{i = 1}^nw_iX_iu_i 
+    \hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon} = \frac{1}{n}VQ^{-1}\sum_{i = 1}^nw_iX_i(u_i - \mathbb{E}[u_i|X_i]) 
     + o_p\left(\frac{1}{\sqrt{n\epsilon^d}}\right).
 \end{align*}
 Multiplying through by $\sqrt{n\epsilon^{d}}$ yields
 \begin{align*}
-    \sqrt{n\epsilon^{d}}(\hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon}) = \sqrt{\frac{\epsilon^{d}}{n}}VQ^{-1}\sum_{i = 1}^nw_iX_iu_i 
+    \sqrt{n\epsilon^{d}}(\hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon}) = \sqrt{\frac{\epsilon^{d}}{n}}VQ^{-1}\sum_{i = 1}^nw_iX_i(u_i - \mathbb{E}[u_i|X_i]) 
     + o_p\left(1\right).
 \end{align*}
 Now we'll appeal to the Lyapunov central limit theorem described in \Cref{thm: lyapunov clt}. To do this, we will define the triangular array
-\[U_{n, i} = \sqrt{\frac{\epsilon^{d}}{n}}VQ^{-1}w_iX_iu_i.\]
+\[U_{n, i} = \sqrt{\frac{\epsilon^{d}}{n}}VQ^{-1}w_iX_i(u_i - \mathbb{E}[u_i|X_i]).\]
 Now we have
 \begin{align*}
     V_n &= \sum_{i = 1}^n\text{Var}(U_{n, i}) \\
@@ -660,11 +660,11 @@ where
 \[c_* = \frac{(d+2)\sigma^2}{p_0(0)\mathcal{L}(\mathcal{B}(0,1))}\]
 independent of $\epsilon$ and $n$. It follows that $v_n^2 \rightarrow c_*$. Now we will check the Lyapunov condition of \Cref{thm: lyapunov clt} with $\delta = 1$,
 \begin{align*}
-     \frac{1}{v_n^{3}}\sum_{i = 1}^n\mathbb{E}\left\|\sqrt{\frac{\epsilon^{d}}{n}}VQ^{-1}w_iX_iu_i\right\|_2^3 &= \frac{\epsilon^{3d/2}}{v_n^3\sqrt{n}}\mathbb{E}\left\|VQ^{-1}wXu\right\|_2^3 \\
-     &\leq \frac{\epsilon^{3d/2}}{v_n^3\sqrt{n}}\left\|VQ^{-1}\right\|_{\text{op}}^3\mathbb{E}\left\|wXu\right\|_2^3.
+     \frac{1}{v_n^{3}}\sum_{i = 1}^n\mathbb{E}\left\|\sqrt{\frac{\epsilon^{d}}{n}}VQ^{-1}w_iX_i(u_i - \mathbb{E}[u_i|X_i])\right\|_2^3 &= \frac{\epsilon^{3d/2}}{v_n^3\sqrt{n}}\mathbb{E}\left\|VQ^{-1}wX(u - \mathbb{E}[u|X])\right\|_2^3 \\
+     &\leq \frac{\epsilon^{3d/2}}{v_n^3\sqrt{n}}\left\|VQ^{-1}\right\|_{\text{op}}^3\mathbb{E}\left\|wX(u - \mathbb{E}[u|X])\right\|_2^3.
 \end{align*}
 Note that \Cref{lemma: Q op norm} indicates that $\|Q^{-1}\|_{\text{op}} \lesssim \epsilon^{-d}$. We also have that 
-\[\mathbb{E}\|wXu\|_2^3 \leq 2^{3/2}w^3_{\max}\mathbb{E}[\mathbbm{1}_{\{x \in \mathcal{B}(0, \epsilon)\}}|u|^3].\] 
+\[\mathbb{E}\|wX(u - \mathbb{E}[u|X])\|_2^3 \leq 2^{3/2}w^3_{\max}\mathbb{E}[\mathbbm{1}_{\{x \in \mathcal{B}(0, \epsilon)\}}|u|^3].\] 
 Note that $|u| \leq |f(\Pi(x))| + |\varepsilon| + |X^T\beta^*_{x_0, \epsilon}| \leq |\varepsilon| + \|f\|_{\infty} + \|f\|_\infty\sqrt{2}$ on $\mathcal{B}(0, \epsilon)$ since $\|\beta^*_{x_0, \epsilon}\|_2 \leq \|f\|_{\infty}$ (\Cref{corollary: population beta norm bound}). Note that for $a, b, c \geq 0$ it holds that $(a + b + c)^3 \leq 27(a^3 + b^3 + c^3)$. Applying this inequality implies that $|u|^3 \lesssim \|f\|^{3}_{\infty} + |\varepsilon|^3$, further implying
 \begin{align*}
     \mathbb{E}\|wXu\|_2^3 &\lesssim  2^{3/2}w^3_{\max}\epsilon^d(\|f\|_{\infty}^3+ \mathbb{E}[|\varepsilon|^3]) \\
