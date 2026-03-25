@@ -104,7 +104,7 @@
 
 In this work we consider the problem where we are given samples $\{(x_1, y_1), \dots, (x_n, y_n)\} \sim \nu$ from some distribution over $\mathbb{R}^d\times \mathbb{R}$ with density $p_{x,y}$ and we want to model the conditional mean of $y$ given $x$. The only assumption on the covariates the we impose is that the $x$-marginal of $p_{x,y}$ has bounded support. Furthermore, we assume that the conditional mean of the responses $y$ are related to the covariates $x$ through the following composition,
 \begin{equation}
-    y_i = f(\Pi(x_i)) + \varepsilon_i \qquad \text{with } \qquad \mathbb{E}[\varepsilon_i \, | \, x_i] = 0, \text{Var}(\varepsilon_i) = \sigma^2_i,\, \mathbb{E}[|\varepsilon_i|^3 \, |\, x_i] < \infty \label{eq: the model}
+    y_i = f(\Pi(x_i)) + \varepsilon_i \qquad \text{with } \qquad \mathbb{E}[\varepsilon_i \, | \, x_i] = 0, \text{Var}(\varepsilon_i \,| \, x_i) = \sigma^2(x_i),\, \mathbb{E}[|\varepsilon_i|^3 \, |\, x_i] < \infty \label{eq: the model}
 \end{equation}
 where $\Pi$ is a particular map from $\mathbb{R}^d \rightarrow \mathbb{R}$. One can regard such a model as a generalization of the \textit{single-index} model from classical semi-parametric statistics \cite{gyorfi2002distribution}. In such a model the conditional mean of $y$ given $x$ is modeled by $f(b^Tx)$ for an arbitrary $b\in \mathbb{R}^d$. Under appropriate rescaling, $b^Tx$ can be interpreted as a projection onto a $1$-dimensional linear subspace of $\mathbb{R}^d$. In this work, we consider the general setting where $\Pi$ is a closest-point projection onto a compact regular $C^3$ curve $\gamma$.
 
@@ -378,10 +378,10 @@ The proof of \Cref{thm: decomposition for beta} is provided in \Cref{sec: proof 
 \begin{restatable}[Central limit for $\hat{v}_{x_0, \epsilon}$]{thm}{} \label{corr: central limit for v}
     Suppose \cref{assumption: kernel smoothness} and \cref{assumption: lce and covariate density} hold, suppose that the assumptions of \Cref{thm: decomposition for beta} are satisfied. Further let $V = \begin{bmatrix}
         0 & I_d
-    \end{bmatrix}$, $\Lambda = \text{Var}(wXu)$ and $u = y - X^T\beta_{x_0, \epsilon}^*$. Then we have asymptotic normality of the velocity vector estimate $\hat{v}_{x_0, \epsilon}$,
+    \end{bmatrix}$, $\Lambda = \text{Var}(wX(u - \mathbb{E}[u\,|\,X]))$ and $u = y - X^T\beta_{x_0, \epsilon}^*$. Then we have asymptotic normality of the velocity vector estimate $\hat{v}_{x_0, \epsilon}$,
     \[\sqrt{n\epsilon^{d}}(\hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon}) \overset{d}{\rightarrow}N(0, \Sigma)\]
     where 
-    \[\Sigma = \frac{(d+2)\sigma^2}{p_0(0)\mathcal{L}(\mathcal{B}(0,1))} I_d.\]
+    \[\Sigma = \frac{(d+2)\sigma^2(0)}{p_0(0)\mathcal{L}(\mathcal{B}(0,1))} I_d.\]
 \end{restatable}
 We provide the proof of \Cref{corr: central limit for v} in \Cref{sec: proof of central limit for v}. This result characterizes the limiting distribution of the velocity vector estimate $\hat v_{x_0, \epsilon}$ centered at its biased population counterpart $v^*_{x_0, \epsilon}$. The proof involves verifying that the random variables in the influence function expansion derived in \Cref{thm: decomposition for beta} satisfy the Lyapunov condition of \Cref{thm: lyapunov clt}.
 
@@ -651,10 +651,10 @@ Now we'll appeal to the Lyapunov central limit theorem described in \Cref{thm: l
 Now we have
 \begin{align*}
     V_n &= \sum_{i = 1}^n\text{Var}(U_{n, i}) \\
-    &= \frac{\epsilon^d}{n}\sum_{i = 1}^nVQ^{-1}\text{Var}(w_iX_iu_i)Q^{-1}V^T \tag{independence} \\
+    &= \frac{\epsilon^d}{n}\sum_{i = 1}^nVQ^{-1}\text{Var}(w_iX_i(u_i - \mathbb{E}[u_i|X_i]))Q^{-1}V^T \tag{independence} \\
     &= \epsilon^dVQ^{-1}\Lambda Q^{-1}V^T \tag{identically distributed for fixed $n$}
 \end{align*}
-where $\Lambda = \text{Var}(wXu)$. Note that \Cref{lemma: asymptotic var bound} indicates that
+where $\Lambda = \text{Var}(wX(u - \mathbb{E}[u|X]))$. Note that \Cref{lemma: asymptotic var bound} indicates that
 \[\epsilon^dVQ^{-1}\Lambda Q^{-1}V^T \rightarrow  c_*I_d \Sigma\]
 where
 \[c_* = \frac{(d+2)\sigma^2}{p_0(0)\mathcal{L}(\mathcal{B}(0,1))}\]
@@ -664,16 +664,16 @@ independent of $\epsilon$ and $n$. It follows that $v_n^2 \rightarrow c_*$. Now 
      &\leq \frac{\epsilon^{3d/2}}{v_n^3\sqrt{n}}\left\|VQ^{-1}\right\|_{\text{op}}^3\mathbb{E}\left\|wX(u - \mathbb{E}[u|X])\right\|_2^3.
 \end{align*}
 Note that \Cref{lemma: Q op norm} indicates that $\|Q^{-1}\|_{\text{op}} \lesssim \epsilon^{-d}$. We also have that 
-\[\mathbb{E}\|wX(u - \mathbb{E}[u|X])\|_2^3 \leq 2^{3/2}w^3_{\max}\mathbb{E}[\mathbbm{1}_{\{x \in \mathcal{B}(0, \epsilon)\}}|u|^3].\] 
+\[\mathbb{E}\|wX(u - \mathbb{E}[u|X])\|_2^3 \leq 2^{3/2}w^3_{\max}\mathbb{E}[\mathbbm{1}_{\{x \in \mathcal{B}(0, \epsilon)\}}\left|u - \mathbb{E}[u|X]\right|^3].\] 
 Note that $|u| \leq |f(\Pi(x))| + |\varepsilon| + |X^T\beta^*_{x_0, \epsilon}| \leq |\varepsilon| + \|f\|_{\infty} + \|f\|_\infty\sqrt{2}$ on $\mathcal{B}(0, \epsilon)$ since $\|\beta^*_{x_0, \epsilon}\|_2 \leq \|f\|_{\infty}$ (\Cref{corollary: population beta norm bound}). Note that for $a, b, c \geq 0$ it holds that $(a + b + c)^3 \leq 27(a^3 + b^3 + c^3)$. Applying this inequality implies that $|u|^3 \lesssim \|f\|^{3}_{\infty} + |\varepsilon|^3$, further implying
 \begin{align*}
-    \mathbb{E}\|wXu\|_2^3 &\lesssim  2^{3/2}w^3_{\max}\epsilon^d(\|f\|_{\infty}^3+ \mathbb{E}[|\varepsilon|^3]) \\
+    \mathbb{E}\|wX(u - \mathbb{E}[u|X])\|_2^3 &\lesssim  2^{3/2}w^3_{\max}\epsilon^d(\|f\|_{\infty}^3+ \mathbb{E}[|\varepsilon|^3]) \\
     &\lesssim \epsilon^d.
 \end{align*}
 Thus
 \begin{align*}
-     \frac{1}{v_n^{3}}\sum_{i = 1}^n\mathbb{E}\left\|\sqrt{\frac{\epsilon^{d}}{n}}VQ^{-1}w_iX_iu_i\right\|_{\text{op}}^3 
-     &\leq  \frac{\epsilon^{3d/2}}{v_n^3\sqrt{n}}\left\|VQ^{-1}\right\|_2^3\mathbb{E}\left\|wXu\right\|_2^3 \\
+     \frac{1}{v_n^{3}}\sum_{i = 1}^n\mathbb{E}\left\|\sqrt{\frac{\epsilon^{d}}{n}}VQ^{-1}w_iX_i(u_i - \mathbb{E}[u_i|X_i])\right\|_{\text{op}}^3 
+     &\leq  \frac{\epsilon^{3d/2}}{v_n^3\sqrt{n}}\left\|VQ^{-1}\right\|_2^3\mathbb{E}\left\|wX(u - \mathbb{E}[u|X])\right\|_2^3 \\
      &\lesssim \frac{\epsilon^{3d/2}}{v_n^3\sqrt{n}}\epsilon^{-3d}\epsilon^d \\
      &= \frac{1}{v_n^3\sqrt{n\epsilon^d}} \\
      &= o(1)
@@ -701,7 +701,7 @@ By \Cref{lemma: fhat minus ftilde} we have
     \hat{f}(x_0) - \tilde{f}(x_0) = \frac{1}{n}\sum_{j = 1}^n\langle\mu_{\psi}, \varphi_{\epsilon, j}\rangle + o_p\left(\frac{1}{\sqrt{n\epsilon^d}}\right)
 \end{align}
 where $\mu_{\psi} = \mathbb{E}[\psi_{\epsilon}]$,  
-\[\varphi_{\epsilon, j} = \frac{1}{\epsilon f'(\Pi(x_0))}P_{\epsilon}VQ^{-1}w_jX_ju_j\]
+\[\varphi_{\epsilon, j} = \frac{1}{\epsilon f'(\Pi(x_0))}P_{\epsilon}VQ^{-1}w_jX_j(u_j - \mathbb{E}[u_j|X_j])\]
 and
 \[\psi_{\epsilon, i} = \frac{\mathbbm{1}_{\{x_i \in \mathcal{B}(0, \epsilon)\}}(y_i - \bar{f}(x_0))\partial_{z_i}K_r(\frac{z_i}{h_r})x_i}{\mathbb{E}\left[\mathbbm{1}_{\{x \in \mathcal{B}(0, \epsilon)\}}K_r(z/h_r)\right]}.\]
 Now \Cref{lemma: ftilde minus fbar} applies a similar decomposition to obtain an expression for $\tilde{f}(x) - \bar{f}(x)$. In particular,
@@ -1240,6 +1240,7 @@ since \(n h^d \to \infty\). Therefore,
     \[\text{tr}\left(\Lambda\right) \lesssim \epsilon^{d} \]
     if $p_0$ is bounded away from zero on $\mathcal{B}(0, \epsilon)$.
 \end{restatable}
+This lemma uses the uncentered covariance $\text{Var}(wXu)$ for a trace bound; the CLT sections use the centered covariance $\text{Var}(wX(u - \mathbb{E}[u\,|\,X]))$.
 \noindent \textit{Proof.} Note that population first order conditions for the optimization in \cref{eq: population estimator} indicate that $\mathbb{E}[wXu] = 0$. Thus,
 \begin{align*}
     \Lambda &= \mathbb{E}\left[w^2u^2XX^T\right].
@@ -1267,7 +1268,7 @@ Now since $\|X\|_2^2 \leq 2$ on $\mathcal{B}(0, \epsilon)$, $\beta^*_{x_0, \epsi
 \begin{restatable}[Normalized velocity decomposition]{lemma}{} \label{lemma: norm velocity decomp}
     Under the assumptions of \Cref{thm: decomposition for beta} and assuming $f'(\Pi(x_0)) \neq 0$, we have
     \begin{equation}
-        \hat{v}_{x_0, \epsilon}' - v'^*_{x_0, \epsilon} = \frac{1}{n\epsilon f'(\Pi(x_0))}P_\epsilon VQ^{-1}\sum_{i = 1}^nw_iX_iu_i +O_p\left(\frac{1}{\sqrt{n\epsilon^{d+2}}}\right)
+        \hat{v}_{x_0, \epsilon}' - v'^*_{x_0, \epsilon} = \frac{1}{n\epsilon f'(\Pi(x_0))}P_\epsilon VQ^{-1}\sum_{i = 1}^nw_iX_i(u_i - \mathbb{E}[u_i|X_i]) +O_p\left(\frac{1}{\sqrt{n\epsilon^{d+2}}}\right)
     \end{equation}
     where $\hat{v}'_{x_0, \epsilon} = \hat{v}_{x_0, \epsilon}/\|\hat{v}_{x_0, \epsilon}\|_2$, $v'^*_{x_0, \epsilon} = v^*_{x_0, \epsilon}/\|v^*_{x_0, \epsilon}\|_2$ and $P_\epsilon = I_d - v_{x_0, \epsilon}'^{*}v_{x_0, \epsilon}'^{*T}$ is an orthogonal projection matrix dependent on $\epsilon$ but independent of $n$.
 \end{restatable}
@@ -1290,14 +1291,14 @@ with probability approaching $1$. Moreover, \Cref{lemma: constant of prop} indic
 \end{align*}
 Plugging in the influence function expansion from \Cref{thm: decomposition for beta} gives
 \begin{align*}
-    \hat{v}'_{x_0, \epsilon} - v'^*_{x_0, \epsilon} &= \frac{1}{\epsilon n f'(\Pi(x_0))}VQ^{-1}\sum_{i = 1}^nw_iX_iu_i + O_p\left(\frac{1}{\sqrt{n\epsilon^{d+2}}}\right).
+    \hat{v}'_{x_0, \epsilon} - v'^*_{x_0, \epsilon} &= \frac{1}{\epsilon n f'(\Pi(x_0))}VQ^{-1}\sum_{i = 1}^nw_iX_i(u_i - \mathbb{E}[u_i|X_i]) + O_p\left(\frac{1}{\sqrt{n\epsilon^{d+2}}}\right).
 \end{align*}
 Now define $P_{\epsilon} = I_d - v_{x_0, \epsilon}'^{*}v_{x_0, \epsilon}'^{*T}$. Inserting it, we obtain
 \begin{align*}
-    \hat{v}'_{x_0, \epsilon} - v'^*_{x_0, \epsilon} &= \frac{1}{\epsilon n f'(\Pi(x_0))}P_{\epsilon}VQ^{-1}\sum_{i = 1}^nw_iX_iu_i + (I- P_{\epsilon})O_p\left(\frac{1}{\sqrt{n\epsilon^{d+2}}}\right) +  O_p\left(\frac{1}{\sqrt{n\epsilon^{d+2}}}\right) \\
-    &= \frac{1}{\epsilon n f'(\Pi(x_0))}P_{\epsilon}VQ^{-1}\sum_{i = 1}^nw_iX_iu_i + O_p\left(\frac{1}{\sqrt{n\epsilon^{d+2}}}\right)
+    \hat{v}'_{x_0, \epsilon} - v'^*_{x_0, \epsilon} &= \frac{1}{\epsilon n f'(\Pi(x_0))}P_{\epsilon}VQ^{-1}\sum_{i = 1}^nw_iX_i(u_i - \mathbb{E}[u_i|X_i]) + (I- P_{\epsilon})O_p\left(\frac{1}{\sqrt{n\epsilon^{d+2}}}\right) +  O_p\left(\frac{1}{\sqrt{n\epsilon^{d+2}}}\right) \\
+    &= \frac{1}{\epsilon n f'(\Pi(x_0))}P_{\epsilon}VQ^{-1}\sum_{i = 1}^nw_iX_i(u_i - \mathbb{E}[u_i|X_i]) + O_p\left(\frac{1}{\sqrt{n\epsilon^{d+2}}}\right)
 \end{align*}
-where the first step follows from the fact that $\frac{1}{n}VQ^{-1}\sum_{i = 1}^nw_iX_iu_i = O_p(1/\sqrt{n\epsilon^d})$ as shown in the early steps of \Cref{lemma: scaled high prob bound for velocity}. 
+where the first step follows from the fact that $\frac{1}{n}VQ^{-1}\sum_{i = 1}^nw_iX_i(u_i - \mathbb{E}[u_i|X_i]) = O_p(1/\sqrt{n\epsilon^d})$ as shown in the early steps of \Cref{lemma: scaled high prob bound for velocity}. 
 
 \qed{}
 
@@ -1307,7 +1308,7 @@ where the first step follows from the fact that $\frac{1}{n}VQ^{-1}\sum_{i = 1}^
 
 \begin{restatable}{lemma}{} \label{lemma: asymptotic var bound}
     Suppose the matrices $V, Q, \Lambda$ are defined as in \Cref{corr: central limit for v}. Further suppose that for all $\epsilon$ in the sequence, we have that $p_0, p^*$ are bounded away from $0$ and are finite on $\mathcal{B}(0, \epsilon)$. It then follows that
-    \[ \lim_{\epsilon \rightarrow 0}\epsilon^dVQ^{-1}\Lambda Q^{-1}V^T = \frac{(d+2)\sigma^2}{p_0(0)\mathcal{L}(\mathcal{B}(0,1))}I_d.\]
+    \[ \lim_{\epsilon \rightarrow 0}\epsilon^dVQ^{-1}\Lambda Q^{-1}V^T = \frac{(d+2)\sigma^2(0)}{p_0(0)\mathcal{L}(\mathcal{B}(0,1))}I_d.\]
 \end{restatable}
 \noindent \textit{Proof.} Observe that we can rewrite $Q$ as follows
 \begin{align*}
@@ -1336,16 +1337,15 @@ for any $i \in [d]$. Note that the last two steps follows from the spherical sym
          0 & (\epsilon/\nu)^{2}I_d
     \end{bmatrix}.
 \end{align}
-Pivoting, we have $\Lambda = \mathbb{E}[w^2u^2XX^T]$ since it has mean zero. From the definition of $V$ we know that applying it in the manner above will select the bottom right $d\times d$ entries of the block diagonal matrix $Q^{-1}\Lambda Q^{-1}$. Therefore, after performing the matrix multiplications one obtains
+Pivoting, we have $\Lambda = \mathbb{E}[w^2(u - \mathbb{E}[u|X])^2XX^T]$ since it has mean zero. From the definition of $V$ we know that applying it in the manner above will select the bottom right $d\times d$ entries of the block diagonal matrix $Q^{-1}\Lambda Q^{-1}$. Therefore, after performing the matrix multiplications one obtains
 \begin{align*}
-    VQ^{-1}\Lambda Q^{-1}V^T&= (1/\epsilon^2)(\epsilon/\nu)^{4} \cdot \mathbb{E}\left[w^2u^2xx^T\right] \\
-    &= (1/\epsilon^2)(\epsilon/\nu)^{4} \cdot \mathbb{E}\left[w^2\mathbb{E}[u^2|x]xx^T\right]\\
+    VQ^{-1}\Lambda Q^{-1}V^T&= (1/\epsilon^2)(\epsilon/\nu)^{4} \cdot \mathbb{E}\left[w^2(u - \mathbb{E}[u|X])^2xx^T\right] \\
+    &= (1/\epsilon^2)(\epsilon/\nu)^{4} \cdot \mathbb{E}\left[w^2\mathbb{E}[(u - \mathbb{E}[u|x])^2|x]xx^T\right]\\
     &= (1/\epsilon^2)(\epsilon/\nu)^{4}\int_{\mathcal{B}(0, \epsilon)} \frac{p^*(x; \theta_0)^2}{p_0(x)}m_u(x)xx^T dx
 \end{align*}
-with $m_u(x) = \mathbb{E}[u^2|x]$. Expanding this out results in
+with $m_u(x) = \mathbb{E}[(u - \mathbb{E}[u|x])^2|x]$. Expanding this out results in
 \begin{align*}
-    m_u(x) &= \mathbb{E}\left[(y - X^T \beta^*_{x_0, \epsilon})^2 \big| \,x\right] \\
-    &= \sigma^2 + \left(f(\Pi(x)) - X^T\beta^*_{x_0, \epsilon}\right)^2.
+    m_u(x) &= \text{Var}(u|x) = \sigma^2(x).
 \end{align*}
 Now apply the change of variables $x = z\epsilon$ to the expression for the matrix product above, which means $dz = \epsilon^ddx$ (since $x \in \mathbb{R}^d$). It follows that
 \begin{align*}
@@ -1360,34 +1360,11 @@ and thus,
 \begin{align}
     \epsilon^dVQ^{-1}\Lambda Q^{-1}V^T &= \frac{\int_{\mathcal{B}(0, 1)} \frac{p^*(z\epsilon; \theta_0)^2}{p_0(z\epsilon)}m_u(\epsilon z)zz^T dz}{\left[\int_{\mathcal{B}(0, 1)}z_i^2p^*(z\epsilon; \theta_0) dz\right]^2}. \label{eq: asymp var intermediate}
 \end{align}
-Now we'll take a detour to obtain a more desirable expression for $m_u(\tilde x)$ where $\tilde{x}$ is an arbitrary element of $\mathcal{B}(0, \epsilon)$. Due to our characterization of $Q^{-1}$ above and the definition of $\beta^*_{x_0, \epsilon}$ we have
-\begin{align*}
-    (\beta^*_{x_0, \epsilon})^T \tilde X &= \begin{bmatrix}
-        P_{\epsilon}^{-1}\mathbb{E}_{p^*}[\mathbbm{1}_{\epsilon}r(x)] \\ \frac{\epsilon}{\nu^2}\mathbb{E}_{p^*}[\mathbbm{1}_{\epsilon}xr(x)]
-    \end{bmatrix}^T \tilde X \\
-    &= P_{\epsilon}^{-1}\mathbb{E}_{p^*}[\mathbbm{1}_{\epsilon}r(x)] + \frac{1}{\nu^2}\mathbb{E}_{p^*}[\mathbbm{1}_{\epsilon}xr(x)]^T \tilde x
-\end{align*}
-where $P_{\epsilon} = \mathbb{P}_{p^*}(x \in \mathcal{B}(0, \epsilon))$, $\mathbbm{1}_\epsilon = \mathbbm{1}_{\{x \in \mathcal{B}(0, \epsilon)\}}$ and $r(x) = f(\Pi(x))$. Now we'll expand $r(x)$ via a Taylor expansion of the first order for the first term and a Taylor expansion of the second order for the second term. Note that on $\mathcal{B}(0, \epsilon)$ \Cref{thm: differentiability of pi} guarantees that $\Pi$ is twice differentiable. Beginning with the first term,
-\begin{align*}
-    (\beta^*_{x_0, \epsilon})^T \tilde X &= P_{\epsilon}^{-1}\mathbb{E}_{p^*}[\mathbbm{1}_{\epsilon}] r(\tilde x) + P_{\epsilon}^{-1}\underbrace{\mathbb{E}_{p^*}[\mathbbm{1}_{\epsilon}x]^T}_{0}\nabla r(\tilde x) - \tilde x^T\nabla r(\tilde x) +\frac{1}{\nu^2}\mathbb{E}_{p^*}[\mathbbm{1}_{\epsilon}xr(x)]^T \tilde x \\
-    &= r(\tilde x) - \tilde x^T\nabla r(\tilde x) + \frac{1}{\nu^2}\mathbb{E}_{p^*}[\mathbbm{1}_{\epsilon}xr(x)]^T \tilde x.
-\end{align*}
-For the second term
-\begin{align*}
-    \mathbb{E}_{p^*}[\mathbbm{1}_{\epsilon}xr(x)] &= \underbrace{\mathbb{E}_{p^*}[\mathbbm{1}_{\epsilon}x]}_{0}r(\tilde x) + \mathbb{E}_{p^*}[\mathbbm{1}_{\epsilon}x(x -\tilde x)^T]\nabla r(\tilde{x}) + (1/2)\mathbb{E}_{p^*}[\mathbbm{1}_\epsilon((x-\tilde x)^T\nabla^2r(\xi)(x-\tilde x))x] \\
-    &= \nu^2\nabla r(\tilde x) + (1/2)\mathbb{E}_{p^*}[\mathbbm{1}_\epsilon((x-\tilde x)^T\nabla^2r(\xi)(x-\tilde x))x]
-\end{align*}
-where $\xi = tx + (1-t)\tilde x$ for some $t \in [0,1]$. Note that we have stipulated that $f$ is twice continuously differentiable, and a consequence of \Cref{thm: differentiability of pi} is that $\Pi$ has a continuous second derivative on the closed set $\mathcal{B}(0, \epsilon)$. It follows that $x^T\nabla^2r(\xi)x \leq M\|x\|_2^2 \leq M\epsilon^2$ for some $M < \infty$ and for all $x \in \mathcal{B}(0, \epsilon)$. It follows $\|(x-\tilde x)^T\nabla^2r(\xi)(x-\tilde x)x\|_2 \leq M\epsilon^3$ and $\mathbb{E}_{p^*}[\mathbbm{1}_{\epsilon}xr(x)] = \nu^2\nabla r(\tilde x) + O(MP_{\epsilon}\epsilon^3)$. Plugging into the original inner product yields
-\begin{align*}
-    (\beta^*_{x_0, \epsilon})^T \tilde X &= r(\tilde x) - \nabla r(\tilde x)^T \tilde x + \nabla r(\tilde x)^T \tilde x + O\left(\frac{MP_{\epsilon}\epsilon^4}{\nu^2}\right) \\
-    &= r(\tilde x) + O\left(\frac{MP_{\epsilon}\epsilon^4}{\epsilon^{d+2}}\right) \\
-    &= r(\tilde x) + O(\epsilon^2).
-\end{align*}
-Thus, $(f(\Pi(x))  - X^T\beta^*_{x_0, \epsilon})^2 = O(\epsilon^4)$, which implies that $m_u(x) = \sigma^2 + O(\epsilon^4)$. We'll soon come back to this result, but for now we'll take the limit of \Cref{eq: asymp var intermediate} and show that the numerator and denominator converge to nonzero and finite values. Note that since terms in the numerator and denominator consist of integrals of bounded functions over a compact domain, we can apply the dominated convergence theorem in the numerator and denominator. For the numerator,
+Now we'll take the limit of \Cref{eq: asymp var intermediate} and show that the numerator and denominator converge to nonzero and finite values. Note that since terms in the numerator and denominator consist of integrals of bounded functions over a compact domain, we can apply the dominated convergence theorem in the numerator and denominator. For the numerator,
 \begin{align*}
     \lim_{\epsilon \rightarrow 0} \int_{\mathcal{B}(0, 1)} \frac{p^*(z\epsilon; \theta_0)^2}{p_0(z\epsilon)}m_u(\epsilon z)zz^T dz &= \int_{\mathcal{B}(0, 1)} \lim_{\epsilon \rightarrow 0}\frac{p^*(z\epsilon; \theta_0)^2}{p_0(z\epsilon)}m_u(\epsilon z)zz^T dz \tag{DCT} \\
     &= \frac{p^*(0; \theta_0)^2}{p_0(0)} \mathcal{L}(\mathcal{B}(0, 1))\int_{\mathcal{B}(0, 1)} \lim_{\epsilon \rightarrow 0}m_u(\epsilon z)(1/\mathcal{L}(\mathcal{B}(0, 1)))zz^T dz \\
-    &= \frac{p^*(0; \theta_0)^2\sigma^2}{p_0(0)(d+2)} \mathcal{L}(\mathcal{B}(0, 1))I_d. \tag{\Cref{prop: spherical cov}}
+    &= \frac{p^*(0; \theta_0)^2\sigma^2(0)}{p_0(0)(d+2)} \mathcal{L}(\mathcal{B}(0, 1))I_d. \tag{\Cref{prop: spherical cov}}
 \end{align*}
 Now for the denominator we have,
 \begin{align*}
@@ -1396,7 +1373,7 @@ Now for the denominator we have,
     &= \frac{p^*(0; \theta_0)\mathcal{L}(\mathcal{B}(0,1))}{d+2}. \tag{\Cref{prop: spherical cov}}
 \end{align*}
 Plugging back in yields,
-\[\lim_{\epsilon \rightarrow 0}\epsilon^dVQ^{-1}\Lambda Q^{-1}V^T = \frac{(d+2)\sigma^2}{p_0(0)\mathcal{L}(\mathcal{B}(0,1))}I_d.\]
+\[\lim_{\epsilon \rightarrow 0}\epsilon^dVQ^{-1}\Lambda Q^{-1}V^T = \frac{(d+2)\sigma^2(0)}{p_0(0)\mathcal{L}(\mathcal{B}(0,1))}I_d.\]
 
 \qed{}
 
@@ -1409,7 +1386,7 @@ Plugging back in yields,
         \hat{f}(x_0) - \tilde{f}(x_0) = \frac{1}{n}\sum_{j = 1}^n\langle\mu_{\psi}, \varphi_{\epsilon, j}\rangle + o_p\left(\frac{1}{\sqrt{n\epsilon^d}}\right)
     \end{align}
     where $\mu_{\psi} = \mathbb{E}[\psi_{\epsilon}]$,  
-    \[\varphi_{\epsilon, j} = \frac{1}{\epsilon f'(\Pi(x_0))}P_{\epsilon}VQ^{-1}w_jX_ju_j\]
+    \[\varphi_{\epsilon, j} = \frac{1}{\epsilon f'(\Pi(x_0))}P_{\epsilon}VQ^{-1}w_jX_j(u_j - \mathbb{E}[u_j \,|\, x_j])\]
     and
     \[\psi_{\epsilon, i} = \frac{\mathbbm{1}_{\{x_i \in \mathcal{B}(0, \epsilon)\}}(y_i - \bar{f}(x_0))\partial_{z_i}K_r(\frac{z_i}{h_r})x_i}{\mathbb{E}\left[\mathbbm{1}_{\{x \in \mathcal{B}(0, \epsilon)\}}K_r(z/h_r)\right]}.\]
 \end{restatable}
@@ -1445,7 +1422,7 @@ Note that \Cref{lemma: psi asymptotics} indicates that $\|T_1\|_2 = O_p(\epsilon
     &= \frac{1}{n}\sum_{j = 1}^n\langle T_{1}, \varphi_{\epsilon, j}\rangle + o_p\left(\frac{1}{\sqrt{n\epsilon^{d}}}\right)
 \end{align*}
 where 
-\[\varphi_{\epsilon, j} = \frac{1}{\epsilon f'(\Pi(x_0))}P_{\epsilon}VQ^{-1}w_jX_ju_j\]
+\[\varphi_{\epsilon, j} = \frac{1}{\epsilon f'(\Pi(x_0))}P_{\epsilon}VQ^{-1}w_jX_j(u_j - \mathbb{E}[u_j \,|\, x_j])\]
 where $P_{\epsilon}$ is a projection onto the orthogonal complement of $v_{x_0, \epsilon}'^{*}$.  Now we'll consider $(\tilde{B} - \widehat{B})/\tilde{B}$ by applying the same Taylor expansion as above,
 \begin{align*}
     \frac{\tilde{B} - \widehat{B}}{\tilde{B}} &= -\left\langle\underbrace{\frac{\frac{1}{n}\sum_{i = 1}\mathbbm{1}_{\{x_i \in \mathcal{B}(0, \epsilon)\}}\partial_{z_i}K_r(\frac{z_i}{h_r})x_i}{\frac{1}{n}\sum_{i = 1}^n\mathbbm{1}_{\{x_i \in \mathcal{B}(0, \epsilon)\}}K_r(z_i/h_r)}}_{\triangleq T_2}, \hat{v}'_{x, \epsilon} -v'^*_{x, \epsilon}\right\rangle + O_p\left(\frac{1}{n\epsilon^{d}}\right)\\
@@ -1560,10 +1537,10 @@ for some $C > 0$ by the same proof technique applied for $\widehat{B}$. It then 
 \end{restatable}
 \noindent \textit{Proof.} By \Cref{thm: decomposition for beta} we have
 \begin{align*}
-\|\hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon}\|_2 &= \left\|\frac{1}{n}VQ^{-1}\sum_{i = 1}^nw_iX_iu_i\right\|_2 +o_p\left(\frac{1}{\sqrt{n\epsilon^{d}}}\right) \\
-&\leq \left\|V\right\|_{\text{op}}\left\|Q^{-1}\right\|_{\text{op}}\left\|\frac{1}{n}\sum_{i = 1}^nw_iX_iu_i\right\|_2+o_p\left(\frac{1}{\sqrt{n\epsilon^{d}}}\right).
+\|\hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon}\|_2 &= \left\|\frac{1}{n}VQ^{-1}\sum_{i = 1}^nw_iX_i(u_i - \mathbb{E}[u_i \,|\, x_i])\right\|_2 +o_p\left(\frac{1}{\sqrt{n\epsilon^{d}}}\right) \\
+&\leq \left\|V\right\|_{\text{op}}\left\|Q^{-1}\right\|_{\text{op}}\left\|\frac{1}{n}\sum_{i = 1}^nw_iX_i(u_i - \mathbb{E}[u_i \,|\, x_i])\right\|_2+o_p\left(\frac{1}{\sqrt{n\epsilon^{d}}}\right).
 \end{align*}
-\Cref{lemma: Q op norm} indicates that $\|Q^{-1}\|_{\text{op}}\lesssim \epsilon^{-d}$ and \Cref{lemma: Lambda trace bound} guarantees that $\left\|\frac{1}{n}\sum_{i = 1}^nw_iX_iu_i\right\|_2 = O_p(\sqrt{\epsilon^d/n})$. Together, this implies
+\Cref{lemma: Q op norm} indicates that $\|Q^{-1}\|_{\text{op}}\lesssim \epsilon^{-d}$ and \Cref{lemma: Lambda trace bound} guarantees that \[\left\|\frac{1}{n}\sum_{i = 1}^nw_iX_i(u_i - \mathbb{E}[u_i \,|\, x_i])\right\|_2 = O_p\left(\sqrt{\epsilon^d/n}\right).\] Together, this implies
 \[\|\hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon}\|_2 = O_p\left(\frac{1}{\sqrt{n\epsilon^d}}\right).\]
 For the second result, recall \Cref{thm: population prop} guarantees that $\|v^*_{x_0, \epsilon} - \Theta(\epsilon)\gamma'(s_0)\|_2 \lesssim \epsilon^2$, with $s_0 = \Pi(x_0)$. This then yields the bound
 \begin{align*}
@@ -1650,7 +1627,7 @@ Plugging in the definition of $\varphi_{\epsilon}$ we obtain
 &\leq \frac{\|\mu_\psi\|_2^2}{\epsilon^2f'(\Pi(x_0))^2}\text{tr}(VQ^{-1}\Lambda Q^{-1}V^T) \\
 &= \frac{\|\mu_\psi\|_2^2}{\epsilon^2f'(\Pi(x_0))^2}O(\epsilon^{-d}) \tag{by \Cref{lemma: asymptotic var bound}}
 \end{align*}
-where $\Lambda = \text{Var}(wXu)$. Now \Cref{lemma: psi asymptotics} indicates that $\|\mu_\psi\|_2 = \Theta(\epsilon^2)$, which implies $\mathbb{E}[\langle \mu_{\psi}, \varphi_{\epsilon}\rangle^2] = O(\epsilon^{2-d}) = o(\epsilon^{-d})$. For the second term, we'll apply Cauchy-Schwartz and Jensen's inequality to say
+where $\Lambda = \text{Var}(wX(u - \mathbb{E}[u \,|\, x]))$. Now \Cref{lemma: psi asymptotics} indicates that $\|\mu_\psi\|_2 = \Theta(\epsilon^2)$, which implies $\mathbb{E}[\langle \mu_{\psi}, \varphi_{\epsilon}\rangle^2] = O(\epsilon^{2-d}) = o(\epsilon^{-d})$. For the second term, we'll apply Cauchy-Schwartz and Jensen's inequality to say
 \begin{align*}
     |2\langle \mu_{\psi}, \mathbb{E}[\zeta \varphi_{ \epsilon}]\rangle| & \lesssim \|\mu_\psi\|_2\|\mathbb{E}[\zeta \varphi_{\epsilon}]\|_2 \tag{Cauchy-Schwartz} \\
     &\leq\|\mu_\psi\|_2\|\mathbb{E}[\|\zeta\|_2 \|\varphi_{\epsilon}\|_2] \tag{Jensen's Inequality}\\
@@ -1670,8 +1647,8 @@ since $(a + b)^3 \leq 4(a^3 + b^3)$ for nonnegative $a, b$. By \Cref{corr: zeta 
 \end{align*}
 Now we have
 \begin{align*}
-    \|\varphi_{\epsilon}\|_2 &\leq \frac{1}{\epsilon|f'(\Pi(x_0))|}\|P_{\epsilon}\|_{\text{op}} \|VQ^{-1}wXu\|_2  \\
-    \implies \mathbb{E}[\|\varphi_{\epsilon}\|_2^3] &\leq \frac{1}{\epsilon^3|f'(\Pi(x_0))|^3}\|P_{\epsilon}\|_{\text{op}}^3 \mathbb{E}[\|VQ^{-1}wXu\|_2^3].
+    \|\varphi_{\epsilon}\|_2 &\leq \frac{1}{\epsilon|f'(\Pi(x_0))|}\|P_{\epsilon}\|_{\text{op}} \|VQ^{-1}wX(u - \mathbb{E}[u \,|\, X])\|_2  \\
+    \implies \mathbb{E}[\|\varphi_{\epsilon}\|_2^3] &\leq \frac{1}{\epsilon^3|f'(\Pi(x_0))|^3}\|P_{\epsilon}\|_{\text{op}}^3 \mathbb{E}[\|VQ^{-1}wX(u - \mathbb{E}[u \,|\, X])\|_2^3].
 \end{align*}
 Since $P_{\epsilon}$ is an orthogonal projection, $\|P_{\epsilon}\|_{\text{op}} = 1$, and \Cref{corr: central limit for v} establishes that $\mathbb{E}[\|VQ^{-1}wXu\|_2^3] = O(\epsilon^{-2d})$.  Putting it together, we have $\mathbb{E}\left[|\langle \mu_{\psi}, \varphi_{\epsilon}\rangle|^3 \right] = O(\epsilon^{3-2d})$, which means $\mathbb{E}[|\text{IF}_{i, \epsilon}|^3] \leq O(\epsilon^{-2d})$. 
 
