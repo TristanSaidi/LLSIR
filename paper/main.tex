@@ -634,130 +634,6 @@ Putting it together, we obtain
 \qed{}
 
 
-\begin{restatable}{lemma}{} \label{lemma: remainder term}
-    We have
-    \[R_1 = \frac{1}{n}\sum_{i = 1}^n \frac{\mathbb{E}[a(Z)\,| \,x_i]}{p_0(x_i)} + O_p\left( \epsilon^dh^s + \sqrt{\frac{\epsilon^d}{n^2h^d}}\right).\]
-\end{restatable}
-\noindent \textit{Proof.} Expand the $\Delta(x)$ as follows,
-\begin{align*}
-    R_1&= \frac{1}{n}\sum_{i = 1}^n \frac{a(z_i)}{p_0(x_i)^2}\left(\frac{1}{n}\sum_{j = 1}^n\left\{\frac{1}{h^d}K\left(\frac{x_j - x_i}{h}\right) - p_0(x_i)\right\}\right) \\
-    &= \frac{1}{n^2}\sum_{i, j} \frac{a(z_i)}{p_0(x_i)^2} \frac{1}{h^d}K\left(\frac{x_j - x_i}{h}\right) - \frac{1}{n}\sum_{i = 1}^n \frac{a(z_i)}{p_0(x_i)} \\
-    &= \frac{1}{n^2} \sum_{i < j} \left(\frac{a(z_i)}{p_0(x_i)^2} + \frac{a(z_j)}{p_0(x_j)^2}\right)\frac{1}{h^d}K\left(\frac{x_j - x_i}{h}\right) + \frac{1}{n^2}\sum_{i = 1}^n\frac{a(z_i)}{p_0^2(x_i)}\frac{K(0)}{h^d} - \frac{1}{n}\sum_{i = 1}^n \frac{a(z_i)}{p_0(x_i)}.
-\end{align*}
-Let 
-\[R_{11} \triangleq \frac{1}{n^2} \sum_{i < j} \left(\frac{a(z_i)}{p_0(x_i)^2} + \frac{a(z_j)}{p_0(x_j)^2}\right)\frac{1}{h^d}K\left(\frac{x_j - x_i}{h}\right).\]
-Then, 
-\begin{align*}
-    R_{11} &= \frac{1}{n^2} \sum_{i < j} \underbrace{\left(\frac{a(z_i)}{p_0(x_i)^2} + \frac{a(z_j)}{p_0(x_j)^2}\right)\frac{1}{h^d}K\left(\frac{x_j - x_i}{h}\right)}_{\triangleq t(w_i, w_j)} \\
-    &= \frac{1}{n^2} \begin{pmatrix}
-        n \\ 
-        2
-    \end{pmatrix} \left[\begin{pmatrix}
-        n \\2
-    \end{pmatrix}^{-1}\sum_{i < j}\left\{t(w_i, w_j) - \mathbb{E} t(W_1, W_2)\right\} + \mathbb{E}t(W_1 , W_2 )\right] \\
-    &\triangleq \frac{1}{n^2}\begin{pmatrix}
-        n \\
-        2
-    \end{pmatrix} S_n. 
-\end{align*}
-Now let $g(w_i) = \mathbb{E}[t(w_i, W_2)] - \mathbb{E}[t(W_1, W_2)]$. Then let $h(w_1, w_2) \triangleq t(w_1, w_2) - \mathbb{E}[t(W_1, W_2)] - g(w_1) - g(w_2), $ and observe that for any fixed $w$, $\mathbb{E}[h(w, W)] = 0.$ Then
-\begin{align*}
-    S_n &=  \mathbb{E}[t(W_1, W_2)] + \begin{pmatrix}
-        n \\
-        2
-    \end{pmatrix}^{-1}\sum_{i < j} (g(w_i) + g(w_j)) + \begin{pmatrix}
-        n \\
-        2
-    \end{pmatrix}^{-1}\sum_{i < j}h(w_i, w_j) \\
-    &= \mathbb{E}[t(W_1, W_2)] + \frac{2}{n}\sum_{i = 1}^n g(w_i) + \begin{pmatrix}
-        n \\
-        2
-    \end{pmatrix}^{-1}\sum_{i < j}h(w_i, w_j)
-\end{align*}
-since $\sum_{i < j} (g(w_i) + g(w_j)) = (n-1)\sum_{i}g(w_i)$. Thus,
-\begin{align*}
-    R_{11} &= \frac{1}{n^2}\begin{pmatrix}
-        n \\
-        2
-    \end{pmatrix}\left[\mathbb{E}[t(W_1, W_2)] + \frac{2}{n}\sum_{i = 1}^n g(w_i) + \begin{pmatrix}
-        n \\
-        2
-    \end{pmatrix}^{-1}\sum_{i < j}h(w_i, w_j)\right] \\
-    &= \frac{n-1}{2n}\mathbb{E}[t(W_1, W_2)] + \frac{n-1}{n^2}\sum_{i = 1}^n g(w_i) + \frac{1}{n^2}\sum_{i < j}h(w_i, w_j).
-\end{align*}
-Now we will obtain the stochastic order of each term. In particular, we have 
-\begin{align*}
-    \frac{1}{n^2}\sum_{i < j}h(w_i, w_j) &= O_p\left(\sqrt{\frac{\mathbb{E}[h(W_1, W_2)^2]}{n^2}}\right) = O_p\left(\sqrt{\frac{\epsilon^d}{n^2h^d}}\right). \tag{\nts} \\
-\end{align*}
-Moreover,
-\begin{align*}
-    \mathbb{E}[t(W_1, W_2)] &= \mathbb{E}\left[\frac{a(z_1)}{p_0(x_1)^2}\frac{1}{h^d}K\left(\frac{x_2 - x_1}{h}\right)\right] \\
-    &= \mathbb{E}\left[\frac{a(z_1)}{p_0(x_1)^2}\mathbb{E}\left[\frac{1}{h^d}K\left(\frac{x_2 - x}{h}\right)\,\Bigg|\, x = x_1\right]\right].
-\end{align*}
-By standard manipulations, we obtain 
-\begin{align*}
-    \mathbb{E}[t(W_1, W_2)] &= \mathbb{E}\left[\frac{a(z_1)}{p_0(x_1)^2}\int h^{-d}K\left(\frac{y - x_1}{h}\right)p_0(y) \,dy\right] \\
-    &= \mathbb{E}\left[\frac{a(z_1)}{p_0(x_1)^2}\int K\left(u\right)p_0(hu + x_1) \,du\right] \tag{$u = (y-x_1)/h$} \\
-    &= \mathbb{E}\left[\frac{a(z_1)}{p_0(x_1)^2}\int K\left(u\right)\left(p_0(x_1) + \sum_{|\alpha| \leq s}\frac{\text{D}^\alpha p_0(x_1)}{\alpha!}h^\alpha + O(h^su^s)\right) \,du\right].
-\end{align*}
-Continuing yields
-\begin{align*}
-    \mathbb{E}[t(W_1, W_2)] &= \mathbb{E}\left[\frac{a(z_1)}{p_0(x_1)}\right] + \mathbb{E}\left[\frac{a(z_1)}{p_0(x_1)^2}\sum_{|\alpha| \leq s}\frac{\text{D}^\alpha p_0(x_1)}{\alpha!}h^\alpha \underbrace{\int K\left(u\right) u^\alpha \,du}_{0}\right]  + O(\epsilon ^dh^s) \\
-    &= 0 + O(\epsilon^d h^s)
-\end{align*}
-by first order population optimality conditions. Now we'll simplify $g(w_i)$ slightly. We have
-\begin{align*}
-    \mathbb{E}[t(w_i, W)] &=  
-    \frac{a(z_i)}{p_0(x_i)^2}\mathbb{E}\left[K_h(X - x_i)\right] + \mathbb{E}\left[\frac{a(Z)}{p_0(X)^2}K_h(X - x_i)\right] \\
-    &= \frac{a(z_i)}{p_0(x_i)^2}\left(p_0(x_i) + O(h^s)\right) + \frac{\mathbb{E}[a(Z)\, | \, X = x_i]}{p_0(x_i)} + O(h^s) \tag{\nts} \\
-    &= \frac{a(z_i) + \mathbb{E}[a(Z)\,| \,x_i]}{p_0(x_i)} + O(\epsilon^dh^s). 
-\end{align*}
-Since $\mathbb{E}[t(W_1, W_2)] = O(\epsilon^dh^s)$ we have
-\begin{align*}
-    R_{11} &= \frac{n-1}{2n}\mathbb{E}[t(W_1, W_2)] + \frac{n-1}{n^2}\sum_{i = 1}^n g(w_i) + \frac{1}{n^2}\sum_{i < j}h(w_i, w_j) \\
-    &= O(\epsilon^d h^s) + \frac{n-1}{n^2} \sum_{i = 1}^n \left(\frac{a(z_i) + \mathbb{E}[a(Z)\,| \,x_i]}{p_0(x_i)} + O(\epsilon^dh^s)\right) + O_p\left( \sqrt{\frac{\epsilon^d}{n^2h^d}}\right) \\
-    &= \frac{1}{n}\sum_{i = 1}^n \frac{a(z_i) + \mathbb{E}[a(Z)\,| \,x_i]}{p_0(x_i)} + O(\epsilon^dh^s) + O_p\left( \sqrt{\frac{\epsilon^d}{n^2h^d}}\right).
-\end{align*}
-Plugging this back into the expression for $R_1$ yields
-It follows that
-\begin{align*}
-    R_1
-    &= R_{11} + \frac{1}{n^2}\sum_{i = 1}^n \frac{a(z_i)}{p_0(x_i)^2}\frac{K(0)}{h^d}
-    - \frac{1}{n}\sum_{i = 1}^n \frac{a(z_i)}{p_0(x_i)} \\
-    &= \frac{1}{n}\sum_{i = 1}^n \frac{a(z_i) + \mathbb{E}[a(Z)\mid X = x_i]}{p_0(x_i)}
-    + O(\epsilon^d h^s) + O_p\left(\sqrt{\frac{\epsilon^d}{n^2 h^d}}\right) \\
-    &\qquad + \frac{1}{n^2}\sum_{i = 1}^n \frac{a(z_i)}{p_0(x_i)^2}\frac{K(0)}{h^d}
-    - \frac{1}{n}\sum_{i = 1}^n \frac{a(z_i)}{p_0(x_i)} \\
-    &= \frac{1}{n}\sum_{i = 1}^n \frac{\mathbb{E}[a(Z)\mid X = x_i]}{p_0(x_i)}
-    + \frac{1}{n^2}\sum_{i = 1}^n \frac{a(z_i)}{p_0(x_i)^2}\frac{K(0)}{h^d}
-    + O(\epsilon^d h^s) + O_p\left(\sqrt{\frac{\epsilon^d}{n^2 h^d}}\right).
-\end{align*}
-The diagonal term is of smaller order:
-\[
-\frac{1}{n^2}\sum_{i = 1}^n \frac{a(z_i)}{p_0(x_i)^2}\frac{K(0)}{h^d}
-=
-\frac{K(0)}{n h^d} \cdot \mathbb{P}_n\left[\frac{a(z)}{p_0(x)^2}\right]
-=
-O_p\left(\frac{1}{n h^d}\right)
-=
-o_p\left(\sqrt{\frac{\epsilon^d}{n^2 h^d}}\right),
-\]
-since \(n h^d \to \infty\). Therefore,
-\begin{align*}
-    R_1
-    &= \frac{1}{n}\sum_{i = 1}^n \frac{\mathbb{E}[a(Z)\mid X = x_i]}{p_0(x_i)}
-    + O(\epsilon^d h^s) + O_p\left(\sqrt{\frac{\epsilon^d}{n^2 h^d}}\right).
-\end{align*}
-
-% \begin{align*}
-%     R_1 &= \frac{1}{n}\sum_{i = 1}^n \frac{a(z_i) + \mathbb{E}[a(Z)\,| \,x_i]}{p_0(x_i)} + O(\epsilon^dh^s) + O_p\left( \sqrt{\frac{\epsilon^d}{n^2h^d}}\right) + \frac{1}{n^2}\sum_{i = 1}^n\frac{a(z_i)}{p_0(x_i)}\frac{K(0)}{h^d} - \frac{1}{n}\sum_{i = 1}^n \frac{a(z_i)}{p_0(x_i)} \\
-%     &= \frac{1}{n}\sum_{i = 1}^n \frac{\mathbb{E}[a(Z)\,| \,x_i]}{p_0(x_i)} + \frac{1}{n^2}\sum_{i = 1}^n\frac{a(z_i)}{p_0(x_i)}\frac{K(0)}{h^d} + O_p\left( \epsilon^dh^s + \sqrt{\frac{\epsilon^d}{n^2h^d}}\right).
-% \end{align*}
-\qed{}
-
-\break
-
-
 
 \subsection{Proof of \Cref{corr: central limit for v}} \label{sec: proof of central limit for v}
 From \Cref{thm: decomposition for beta} we have, 
@@ -1213,6 +1089,151 @@ Since $\nabla\Pi(x_0)$ is constant, $\kappa_{\epsilon} = O(\epsilon^{d+4})$. Put
 \qed{}
 
 \subsection{Supplementary results for \Cref{thm: decomposition for beta}}
+
+
+\begin{restatable}{lemma}{} \label{lemma: remainder term}
+    For $R_1$ defined in \Cref{eq: expansion with remainder}, we have
+    \[R_1 = \frac{1}{n}\sum_{i = 1}^n \frac{\mathbb{E}[a(Z)\,| \,x_i]}{p_0(x_i)} + O_p\left( \epsilon^dh^s + \sqrt{\frac{\epsilon^d}{n^2h^d}}\right).\]
+\end{restatable}
+\noindent \textit{Proof.} Expand the $\Delta(x)$ as follows,
+\begin{align*}
+    R_1&= \frac{1}{n}\sum_{i = 1}^n \frac{a(z_i)}{p_0(x_i)^2}\left(\frac{1}{n}\sum_{j = 1}^n\left\{\frac{1}{h^d}K\left(\frac{x_j - x_i}{h}\right) - p_0(x_i)\right\}\right) \\
+    &= \frac{1}{n^2}\sum_{i, j} \frac{a(z_i)}{p_0(x_i)^2} \frac{1}{h^d}K\left(\frac{x_j - x_i}{h}\right) - \frac{1}{n}\sum_{i = 1}^n \frac{a(z_i)}{p_0(x_i)} \\
+    &= \frac{1}{n^2} \sum_{i < j} \left(\frac{a(z_i)}{p_0(x_i)^2} + \frac{a(z_j)}{p_0(x_j)^2}\right)\frac{1}{h^d}K\left(\frac{x_j - x_i}{h}\right) + \frac{1}{n^2}\sum_{i = 1}^n\frac{a(z_i)}{p_0^2(x_i)}\frac{K(0)}{h^d} - \frac{1}{n}\sum_{i = 1}^n \frac{a(z_i)}{p_0(x_i)}.
+\end{align*}
+Let 
+\[R_{11} \triangleq \frac{1}{n^2} \sum_{i < j} \left(\frac{a(z_i)}{p_0(x_i)^2} + \frac{a(z_j)}{p_0(x_j)^2}\right)\frac{1}{h^d}K\left(\frac{x_j - x_i}{h}\right).\]
+Then, 
+\begin{align*}
+    R_{11} &= \frac{1}{n^2} \sum_{i < j} \underbrace{\left(\frac{a(z_i)}{p_0(x_i)^2} + \frac{a(z_j)}{p_0(x_j)^2}\right)\frac{1}{h^d}K\left(\frac{x_j - x_i}{h}\right)}_{\triangleq t(w_i, w_j)} \\
+    &= \frac{1}{n^2} \begin{pmatrix}
+        n \\ 
+        2
+    \end{pmatrix} \left[\begin{pmatrix}
+        n \\2
+    \end{pmatrix}^{-1}\sum_{i < j}\left\{t(w_i, w_j) - \mathbb{E} t(W_1, W_2)\right\} + \mathbb{E}t(W_1 , W_2 )\right] \\
+    &\triangleq \frac{1}{n^2}\begin{pmatrix}
+        n \\
+        2
+    \end{pmatrix} S_n. 
+\end{align*}
+Now let $g(w_i) = \mathbb{E}[t(w_i, W_2)] - \mathbb{E}[t(W_1, W_2)]$. Then let $m(w_1, w_2) \triangleq t(w_1, w_2) - \mathbb{E}[t(W_1, W_2)] - g(w_1) - g(w_2), $ and observe that for any fixed $w$, $\mathbb{E}[m(w, W)] = 0.$ Then
+\begin{align*}
+    S_n &=  \mathbb{E}[t(W_1, W_2)] + \begin{pmatrix}
+        n \\
+        2
+    \end{pmatrix}^{-1}\sum_{i < j} (g(w_i) + g(w_j)) + \begin{pmatrix}
+        n \\
+        2
+    \end{pmatrix}^{-1}\sum_{i < j}m(w_i, w_j) \\
+    &= \mathbb{E}[t(W_1, W_2)] + \frac{2}{n}\sum_{i = 1}^n g(w_i) + \begin{pmatrix}
+        n \\
+        2
+    \end{pmatrix}^{-1}\sum_{i < j}m(w_i, w_j)
+\end{align*}
+since $\sum_{i < j} (g(w_i) + g(w_j)) = (n-1)\sum_{i}g(w_i)$. Thus,
+\begin{align*}
+    R_{11} &= \frac{1}{n^2}\begin{pmatrix}
+        n \\
+        2
+    \end{pmatrix}\left[\mathbb{E}[t(W_1, W_2)] + \frac{2}{n}\sum_{i = 1}^n g(w_i) + \begin{pmatrix}
+        n \\
+        2
+    \end{pmatrix}^{-1}\sum_{i < j}m(w_i, w_j)\right] \\
+    &= \frac{n-1}{2n}\mathbb{E}[t(W_1, W_2)] + \frac{n-1}{n^2}\sum_{i = 1}^n g(w_i) + \frac{1}{n^2}\sum_{i < j}m(w_i, w_j).
+\end{align*}
+Now we will obtain the stochastic order of each term. In particular, we have 
+\begin{align*}
+    \frac{1}{n^2}\sum_{i < j}m(w_i, w_j) &= O_p\left(\sqrt{\frac{\mathbb{E}[m(W_1, W_2)^2]}{n^2}}\right) = O_p\left(\sqrt{\frac{\epsilon^d}{n^2h^d}}\right). 
+\end{align*}
+Since $m$ is degenerate in the sense that $\mathbb{E}[m(w,W)] = 0$ for every fixed $w$, the U-statistic variance formula implies
+\[
+\operatorname{Var}\left(\frac{1}{n^2}\sum_{i<j}m(W_i,W_j)\right)
+= O\left(\frac{\mathbb{E}[m(W_1,W_2)^2]}{n^2}\right).
+\]
+Indeed, covariance terms between disjoint pairs vanish by independence, and covariance terms between overlapping pairs vanish by degeneracy. Hence
+\[
+\frac{1}{n^2}\sum_{i<j}m(W_i,W_j)
+= O_p\left(\sqrt{\frac{\mathbb{E}[m(W_1,W_2)^2]}{n^2}}\right).
+\]
+Moreover, $\mathbb{E}[m(W_1,W_2)^2] \lesssim \mathbb{E}[t(W_1,W_2)^2]$, and conditioning on $X_1$ gives
+\[
+\mathbb{E}[K_h(X_2-X_1)^2\mid X_1] = O(h^{-d}),
+\]
+while the localization implies $\mathbb{E}[a(Z_1)^2/p_0(X_1)^4] = O(\epsilon^d)$. Therefore
+\[
+\mathbb{E}[m(W_1,W_2)^2] = O\left(\frac{\epsilon^d}{h^d}\right),
+\]
+which yields
+\[
+\frac{1}{n^2}\sum_{i<j}m(W_i,W_j)
+= O_p\left(\sqrt{\frac{\epsilon^d}{n^2h^d}}\right).
+\]
+Moreover,
+\begin{align*}
+    \mathbb{E}[t(W_1, W_2)] &= \mathbb{E}\left[\frac{a(z_1)}{p_0(x_1)^2}\frac{1}{h^d}K\left(\frac{x_2 - x_1}{h}\right)\right] \\
+    &= \mathbb{E}\left[\frac{a(z_1)}{p_0(x_1)^2}\mathbb{E}\left[\frac{1}{h^d}K\left(\frac{x_2 - x}{h}\right)\,\Bigg|\, x = x_1\right]\right].
+\end{align*}
+By standard manipulations, we obtain 
+\begin{align*}
+    \mathbb{E}[t(W_1, W_2)] &= \mathbb{E}\left[\frac{a(z_1)}{p_0(x_1)^2}\int h^{-d}K\left(\frac{y - x_1}{h}\right)p_0(y) \,dy\right] \\
+    &= \mathbb{E}\left[\frac{a(z_1)}{p_0(x_1)^2}\int K\left(u\right)p_0(hu + x_1) \,du\right] \tag{$u = (y-x_1)/h$} \\
+    &= \mathbb{E}\left[\frac{a(z_1)}{p_0(x_1)^2}\int K\left(u\right)\left(p_0(x_1) + \sum_{|\alpha| \leq s}\frac{\text{D}^\alpha p_0(x_1)}{\alpha!}h^\alpha + O(h^su^s)\right) \,du\right].
+\end{align*}
+Continuing yields
+\begin{align*}
+    \mathbb{E}[t(W_1, W_2)] &= \mathbb{E}\left[\frac{a(z_1)}{p_0(x_1)}\right] + \mathbb{E}\left[\frac{a(z_1)}{p_0(x_1)^2}\sum_{|\alpha| \leq s}\frac{\text{D}^\alpha p_0(x_1)}{\alpha!}h^\alpha \underbrace{\int K\left(u\right) u^\alpha \,du}_{0}\right]  + O(\epsilon ^dh^s) \\
+    &= 0 + O(\epsilon^d h^s)
+\end{align*}
+by first order population optimality conditions. Now we'll simplify $g(w_i)$ slightly. We have
+\begin{align*}
+    \mathbb{E}[t(w_i, W)] &=  
+    \frac{a(z_i)}{p_0(x_i)^2}\mathbb{E}\left[K_h(X - x_i)\right] + \mathbb{E}\left[\frac{a(Z)}{p_0(X)^2}K_h(X - x_i)\right] \\
+    &= \frac{a(z_i)}{p_0(x_i)^2}\left(p_0(x_i) + O(h^s)\right) + \frac{\mathbb{E}[a(Z)\, | \, X = x_i]}{p_0(x_i)} + O(h^s)\\
+    &= \frac{a(z_i) + \mathbb{E}[a(Z)\,| \,x_i]}{p_0(x_i)} + O(\epsilon^dh^s). 
+\end{align*}
+In the second line we used the standard kernel-bias expansion
+\[
+\int K_h(x-x_i)q(x)\,dx = q(x_i)+O(h^s)
+\]
+for $q=p_0$ and for $q(x)=\mathbb{E}[a(Z)\mid X=x]/p_0(x)$. Since $\mathbb{E}[t(W_1, W_2)] = O(\epsilon^dh^s)$ we have
+\begin{align*}
+    R_{11} &= \frac{n-1}{2n}\mathbb{E}[t(W_1, W_2)] + \frac{n-1}{n^2}\sum_{i = 1}^n g(w_i) + \frac{1}{n^2}\sum_{i < j}h(w_i, w_j) \\
+    &= O(\epsilon^d h^s) + \frac{n-1}{n^2} \sum_{i = 1}^n \left(\frac{a(z_i) + \mathbb{E}[a(Z)\,| \,x_i]}{p_0(x_i)} + O(\epsilon^dh^s)\right) + O_p\left( \sqrt{\frac{\epsilon^d}{n^2h^d}}\right) \\
+    &= \frac{1}{n}\sum_{i = 1}^n \frac{a(z_i) + \mathbb{E}[a(Z)\,| \,x_i]}{p_0(x_i)} + O(\epsilon^dh^s) + O_p\left( \sqrt{\frac{\epsilon^d}{n^2h^d}}\right).
+\end{align*}
+Plugging this back into the expression for $R_1$ yields
+It follows that
+\begin{align*}
+    R_1
+    &= R_{11} + \frac{1}{n^2}\sum_{i = 1}^n \frac{a(z_i)}{p_0(x_i)^2}\frac{K(0)}{h^d}
+    - \frac{1}{n}\sum_{i = 1}^n \frac{a(z_i)}{p_0(x_i)} \\
+    &= \frac{1}{n}\sum_{i = 1}^n \frac{a(z_i) + \mathbb{E}[a(Z)\mid X = x_i]}{p_0(x_i)}
+    + O(\epsilon^d h^s) + O_p\left(\sqrt{\frac{\epsilon^d}{n^2 h^d}}\right) \\
+    &\qquad + \frac{1}{n^2}\sum_{i = 1}^n \frac{a(z_i)}{p_0(x_i)^2}\frac{K(0)}{h^d}
+    - \frac{1}{n}\sum_{i = 1}^n \frac{a(z_i)}{p_0(x_i)} \\
+    &= \frac{1}{n}\sum_{i = 1}^n \frac{\mathbb{E}[a(Z)\mid X = x_i]}{p_0(x_i)}
+    + \frac{1}{n^2}\sum_{i = 1}^n \frac{a(z_i)}{p_0(x_i)^2}\frac{K(0)}{h^d}
+    + O(\epsilon^d h^s) + O_p\left(\sqrt{\frac{\epsilon^d}{n^2 h^d}}\right).
+\end{align*}
+The diagonal term is of smaller order:
+\[
+\frac{1}{n^2}\sum_{i = 1}^n \frac{a(z_i)}{p_0(x_i)^2}\frac{K(0)}{h^d}
+=
+\frac{K(0)}{n h^d} \cdot \mathbb{P}_n\left[\frac{a(z)}{p_0(x)^2}\right]
+=
+O_p\left(\frac{1}{n h^d}\right)
+=
+o_p\left(\sqrt{\frac{\epsilon^d}{n^2 h^d}}\right),
+\]
+since \(n h^d \to \infty\). Therefore,
+\begin{align*}
+    R_1
+    &= \frac{1}{n}\sum_{i = 1}^n \frac{\mathbb{E}[a(Z)\mid X = x_i]}{p_0(x_i)}
+    + O(\epsilon^d h^s) + O_p\left(\sqrt{\frac{\epsilon^d}{n^2 h^d}}\right).
+\end{align*}
+
+\qed{}
 
 \begin{restatable}{lemma}{} \label{lemma: Lambda trace bound}
     Let $w = \mathbbm{1}_{\{x \in \mathcal{B}(0, \epsilon)\}}\frac{p^*(x; \theta_0)}{p_0(x)}$ where $p_0$ is the density of $x - x_0$ (with $x \sim p_x$), let $u = y - X^T\beta_{x_0, \epsilon}^*$, and finally let $\Lambda = \text{Var}(wXu)$. Then we have
