@@ -369,8 +369,8 @@ To establish that $\hat{v}_{x_0, \epsilon} \overset{p}{\rightarrow} c_*\gamma'(\
 The proof of \Cref{thm: population prop} is provided in \Cref{sec: proof of population vel prop}. This result establishes that the rate with which the bias induced by localization (or rather, lack thereof) shrinks as a function of the localization parameter $\epsilon$. Our next result instead considers the deviation between the population quantity $v^*_{x_0, \epsilon}$ and the sample estimator $\hat v_{x_0, \epsilon}$ -- in particular, we provide an influence function expansion of the difference, which will later allow us to establish a central limit theorem and rates of convergence. This influence function expansion is described in \Cref{thm: decomposition for beta}
 
 \begin{restatable}[Velocity error expansion]{lemma}{} \label{thm: decomposition for beta}
-    Suppose that \cref{assumption: kernel smoothness} and \cref{assumption: lce and covariate density} are satisfied, and suppose that the density kernel bandwidth satisfies $h \rightarrow 0$ and $nh^d \rightarrow \infty$, and $\epsilon \rightarrow 0, n\epsilon^d \rightarrow \infty$. Finally, suppose that $p_0$ is bounded away from zero on $\mathcal{B}(0, \epsilon)$ (where $p_0$ is the density of $x - x_0$), and $Q = \mathbb{E}[wXX^T]$. Then it holds that
-    \[\hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon} = \frac{1}{n}VQ^{-1}\sum_{i = 1}^nw_iX_i(u_i - \mathbb{E}[u_i\,|\,X_i]) + O_p\left(h^s + \frac{1}{nh^{d/2}\epsilon^{d/2}}\right) +o_p\left(\frac{1}{\sqrt{n\epsilon^{d}}}\right)\]
+    Suppose that \cref{assumption: kernel smoothness} and \cref{assumption: lce and covariate density} are satisfied, and suppose that the density kernel bandwidth satisfies $h \asymp n^{-1/(2s+d)}$, and $\epsilon \rightarrow 0, n\epsilon^d \rightarrow \infty$. Finally, suppose that $p_0$ is bounded away from zero on $\mathcal{B}(0, \epsilon)$ (where $p_0$ is the density of $x - x_0$), and $Q = \mathbb{E}[wXX^T]$. Then it holds that
+    \[\hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon} = \frac{1}{n}VQ^{-1}\sum_{i = 1}^nw_iX_i(u_i - \mathbb{E}[u_i\,|\,X_i]) + O_p\left(n^{-\frac{s}{2s+d}}\right) +o_p\left(\frac{1}{\sqrt{n\epsilon^{d}}}\right)\]
     where $u = y - X^T\beta_{x_0, \epsilon}^*$.
 \end{restatable}
 The proof of \Cref{thm: decomposition for beta} is provided in \Cref{sec: proof of velocity decomp}. Having established this influence function expansion, we will now use it to characterize the limiting distribution of $\hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon}.$ To do this, we will appeal to the multivariate Lyapunov central limit theorem, described in \Cref{thm: lyapunov clt}.
@@ -631,11 +631,9 @@ when $n\epsilon^d \rightarrow \infty$. Furthermore, $\|Q^{-1}\|_{\text{op}} \les
 Putting it together, we obtain
 \begin{equation}
     \hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon} = \frac{1}{n}VQ^{-1}\sum_{i = 1}^n w_iX_i(u_i - \mathbb{E}[u_i\,|\,X_i]) \\
-    + O_p\left(h^s + \frac{1}{nh^{d/2}\epsilon^{d/2}}\right) + o_p\left(\frac{1}{\sqrt{n\epsilon^{d}}}\right).
+    + O_p\left(n^{-\frac{s}{2s+d}}\right) + o_p\left(\frac{1}{\sqrt{n\epsilon^{d}}}\right).
 \end{equation}
-In particular, if one chooses $h \asymp n^{-1/(2s+d)}$, then
-\[h^s \asymp n^{-\frac{s}{2s+d}} \qquad \text{and} \qquad \frac{1}{nh^{d/2}\epsilon^{d/2}} \asymp \frac{n^{-\frac{s}{2s+d}}}{\sqrt{n\epsilon^d}},\]
-so the density-estimation contribution decays at the explicit $s$-dependent rate $n^{-s/(2s+d)}$.
+Here we used $h \asymp n^{-1/(2s+d)}$, which implies $h^s \asymp n^{-\frac{s}{2s+d}}$.
 
 \qed{}
 
@@ -645,7 +643,7 @@ so the density-estimation contribution decays at the explicit $s$-dependent rate
 From \Cref{thm: decomposition for beta} we have, 
 \begin{align*}
     \hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon} = \frac{1}{n}VQ^{-1}\sum_{i = 1}^nw_iX_i(u_i - \mathbb{E}[u_i|X_i]) 
-    + O_p\left(h^s + \frac{1}{nh^{d/2}\epsilon^{d/2}}\right) + o_p\left(\frac{1}{\sqrt{n\epsilon^d}}\right).
+    + O_p\left(n^{-\frac{s}{2s+d}}\right) + o_p\left(\frac{1}{\sqrt{n\epsilon^d}}\right).
 \end{align*}
 Multiplying through by $\sqrt{n\epsilon^{d}}$ yields
 \begin{align*}
