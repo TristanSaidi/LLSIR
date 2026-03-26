@@ -370,7 +370,7 @@ The proof of \Cref{thm: population prop} is provided in \Cref{sec: proof of popu
 
 \begin{restatable}[Velocity error expansion]{lemma}{} \label{thm: decomposition for beta}
     Suppose that \cref{assumption: kernel smoothness} and \cref{assumption: lce and covariate density} are satisfied, and suppose that the density kernel bandwidth satisfies $h \rightarrow 0$ and $nh^d \rightarrow \infty$, and $\epsilon \rightarrow 0, n\epsilon^d \rightarrow \infty$. Finally, suppose that $p_0$ is bounded away from zero on $\mathcal{B}(0, \epsilon)$ (where $p_0$ is the density of $x - x_0$), and $Q = \mathbb{E}[wXX^T]$. Then it holds that
-    \[\hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon} = \frac{1}{n}VQ^{-1}\sum_{i = 1}^nw_iX_i(u_i - \mathbb{E}[u_i\,|\,X_i]) +o_p\left(\frac{1}{\sqrt{n\epsilon^{d}}}\right)\]
+    \[\hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon} = \frac{1}{n}VQ^{-1}\sum_{i = 1}^nw_iX_i(u_i - \mathbb{E}[u_i\,|\,X_i]) + O_p\left(h^s + \frac{1}{nh^{d/2}\epsilon^{d/2}}\right) +o_p\left(\frac{1}{\sqrt{n\epsilon^{d}}}\right)\]
     where $u = y - X^T\beta_{x_0, \epsilon}^*$.
 \end{restatable}
 The proof of \Cref{thm: decomposition for beta} is provided in \Cref{sec: proof of velocity decomp}. Having established this influence function expansion, we will now use it to characterize the limiting distribution of $\hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon}.$ To do this, we will appeal to the multivariate Lyapunov central limit theorem, described in \Cref{thm: lyapunov clt}.
@@ -613,23 +613,29 @@ Now we will introduce $Q$ as follows,
 with
 \begin{align*}
     \psi_n &= \frac{1}{n}\sum_{i = 1}^n\frac{a(z_i) -\mathbb{E}[a(Z)\,|\, x_i]}{p_0(x_i)} + o_p\left(\sqrt{\frac{\epsilon^d}{n}}\right) +   O(\epsilon^dh^s) + O_p\left( \sqrt{\frac{\epsilon^d}{n^2h^d}}\right) \\
-    &= O_p\left(\sqrt{\frac{\epsilon^d}{n}} + \sqrt{\epsilon ^d} \cdot n^{-\frac{s}{s+d}}\right) \\
-    &= O_p\left(\sqrt{\frac{\epsilon^d}{n}}\right)
-\end{align*} 
-if $s > d/2$ and $h \asymp n^{-\frac{s}{d+s}}$. By \Cref{lemma: Q convergence} we know that 
+    &= O_p\left(\sqrt{\frac{\epsilon^d}{n}} + \epsilon^dh^s + \sqrt{\frac{\epsilon^d}{n^2h^d}}\right).
+\end{align*}
+By \Cref{lemma: Q convergence} we know that 
 \[\|\hat{Q}^{-1} - Q^{-1}\|_{\text{op}} = O_p\left(\frac{1}{\epsilon^{3d/2}\sqrt{n}} + \frac{1}{n\epsilon^{2d}}\right) + o_p\left(\frac{1}{\epsilon^d}\right).\]
 It follows that 
 \begin{align*}
-    (\hat{Q}^{-1} - Q^{-1})\psi_n &= O_p\left(\frac{1}{n\epsilon^{d}} + \frac{1}{n^{3/2}\epsilon^{3d/2}}\right) + o_p\left(\frac{1}{\sqrt{n\epsilon^d}}\right) \\
+    (\hat{Q}^{-1} - Q^{-1})\psi_n &= O_p\left(\frac{1}{n\epsilon^{d}} + \frac{1}{n^{3/2}\epsilon^{3d/2}}\right) + o_p\left(\frac{1}{\sqrt{n\epsilon^d}} + h^s + \frac{1}{nh^{d/2}\epsilon^{d/2}}\right) \\
     &= o_p\left(\frac{1}{\sqrt{n\epsilon^d}}\right)
 \end{align*}
 when $n\epsilon^d \rightarrow \infty$. Furthermore, $\|Q^{-1}\|_{\text{op}} \lesssim \epsilon^{-d}$ as derived in \Cref{lemma: Q op norm}. Thus,
-\[VQ^{-1}\psi_n = \frac{1}{n}VQ^{-1}\sum_{i = 1}^n\frac{a(z_i) - \mathbb{E}[a(Z)\,|\, x_i]}{p_0(x_i)} + o_p\left(\frac{1}{\sqrt{n\epsilon^d}}\right).\]
+\begin{align*}
+    \|Q^{-1}\psi_n\|_2 &\leq \|Q^{-1}\|_{\text{op}}\|\psi_n\|_2 \\
+    &\leq O(\epsilon^{-d})O_p\left(\sqrt{\frac{\epsilon^d}{n}} + \epsilon^dh^s + \sqrt{\frac{\epsilon^d}{n^2h^d}}\right) \\
+    &= O_p\left(\frac{1}{\sqrt{n\epsilon^d}} + h^s + \frac{1}{nh^{d/2}\epsilon^{d/2}}\right).
+\end{align*}
 Putting it together, we obtain
 \begin{equation}
     \hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon} = \frac{1}{n}VQ^{-1}\sum_{i = 1}^n w_iX_i(u_i - \mathbb{E}[u_i\,|\,X_i]) \\
-    + o_p\left(\frac{1}{\sqrt{n\epsilon^{d}}}\right).
+    + O_p\left(h^s + \frac{1}{nh^{d/2}\epsilon^{d/2}}\right) + o_p\left(\frac{1}{\sqrt{n\epsilon^{d}}}\right).
 \end{equation}
+In particular, if one chooses $h \asymp n^{-1/(2s+d)}$, then
+\[h^s \asymp n^{-\frac{s}{2s+d}} \qquad \text{and} \qquad \frac{1}{nh^{d/2}\epsilon^{d/2}} \asymp \frac{n^{-\frac{s}{2s+d}}}{\sqrt{n\epsilon^d}},\]
+so the density-estimation contribution decays at the explicit $s$-dependent rate $n^{-s/(2s+d)}$.
 
 \qed{}
 
@@ -639,7 +645,7 @@ Putting it together, we obtain
 From \Cref{thm: decomposition for beta} we have, 
 \begin{align*}
     \hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon} = \frac{1}{n}VQ^{-1}\sum_{i = 1}^nw_iX_i(u_i - \mathbb{E}[u_i|X_i]) 
-    + o_p\left(\frac{1}{\sqrt{n\epsilon^d}}\right).
+    + O_p\left(h^s + \frac{1}{nh^{d/2}\epsilon^{d/2}}\right) + o_p\left(\frac{1}{\sqrt{n\epsilon^d}}\right).
 \end{align*}
 Multiplying through by $\sqrt{n\epsilon^{d}}$ yields
 \begin{align*}
