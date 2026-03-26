@@ -650,14 +650,14 @@ Now we'll appeal to the Lyapunov central limit theorem described in \Cref{thm: l
 \[U_{n, i} = \sqrt{\frac{\epsilon^{d}}{n}}VQ^{-1}w_iX_i(u_i - \mathbb{E}[u_i|X_i]).\]
 Now we have
 \begin{align*}
-    V_n &= \sum_{i = 1}^n\text{Var}(U_{n, i}) \\
+    v_n &= \sum_{i = 1}^n\text{Var}(U_{n, i}) \\
     &= \frac{\epsilon^d}{n}\sum_{i = 1}^nVQ^{-1}\text{Var}(w_iX_i(u_i - \mathbb{E}[u_i|X_i]))Q^{-1}V^T \tag{independence} \\
     &= \epsilon^dVQ^{-1}\Lambda Q^{-1}V^T \tag{identically distributed for fixed $n$}
 \end{align*}
 where $\Lambda = \text{Var}(wX(u - \mathbb{E}[u|X]))$. Note that \Cref{lemma: asymptotic var bound} indicates that
-\[\epsilon^dVQ^{-1}\Lambda Q^{-1}V^T \rightarrow  c_*I_d \Sigma\]
+\[\epsilon^dVQ^{-1}\Lambda Q^{-1}V^T \rightarrow  c_*I_d \]
 where
-\[c_* = \frac{(d+2)\sigma^2}{p_0(0)\mathcal{L}(\mathcal{B}(0,1))}\]
+\[c_* = \frac{(d+2)\sigma(0)^2}{p_0(0)\mathcal{L}(\mathcal{B}(0,1))}\]
 independent of $\epsilon$ and $n$. It follows that $v_n^2 \rightarrow c_*$. Now we will check the Lyapunov condition of \Cref{thm: lyapunov clt} with $\delta = 1$,
 \begin{align*}
      \frac{1}{v_n^{3}}\sum_{i = 1}^n\mathbb{E}\left\|\sqrt{\frac{\epsilon^{d}}{n}}VQ^{-1}w_iX_i(u_i - \mathbb{E}[u_i|X_i])\right\|_2^3 &= \frac{\epsilon^{3d/2}}{v_n^3\sqrt{n}}\mathbb{E}\left\|VQ^{-1}wX(u - \mathbb{E}[u|X])\right\|_2^3 \\
