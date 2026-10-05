@@ -2,6 +2,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage[margin=1in]{geometry}
 \usepackage{graphicx} % Required for inserting images
+\usepackage{placeins}
 \usepackage{amsfonts}
 \usepackage{amsmath}
 \usepackage{dirtytalk}
@@ -557,9 +558,9 @@ The proof, which is nearly identical to that of \Cref{thm: population prop}, is 
 
 
 
-\section{Simulations}\label{sec: simulations}
+\section{Experiments}\label{sec: simulations}
 
-Having analyzed the statistical properties of the LLSIR procedure, we now evaluate it through simulation in the \emph{single-variable model} setting described in \Cref{sec: single variable model}. We first compare velocity and prediction errors for four choices of $\gamma$ in a planar experiment and its lifted counterpart, then report performance across ambient dimensions.
+Having analyzed the statistical properties of the LLSIR procedure, we now evaluate it through simulation in the \emph{single-variable model} setting described in \Cref{sec: single variable model}. We first compare velocity and prediction errors for four choices of $\gamma$ in a planar experiment and its lifted counterpart, then report performance across ambient dimensions. We also illustrate collection-time prediction and estimated increasing-time directions on single-cell reprogramming data.
 
 \subsection{Fixed-point comparisons}
 
@@ -570,100 +571,52 @@ Each method uses one frozen hyperparameter configuration per curve and ambient d
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=\linewidth]{figures/error_fixed_point.pdf}
-    \caption{Planar fixed-point experiment ($d=2$). The top row shows mean squared velocity error, using unit directions and the smaller error over the two possible signs; the bottom row shows mean squared prediction error. Columns correspond to Identity, Circle, Sinusoid, and Polygon. Each node averages $B=100$ nested training trials, and error bars show one Monte Carlo standard error. Red dashed lines indicate the theoretical guides.}
+    \caption{Planar fixed-point experiment ($d=2$). The top row shows mean squared velocity error between unit directions, minimizing over signs; the bottom row shows mean squared prediction error. Columns are Identity, Circle, Sinusoid, and Polygon. Nodes average $B=100$ nested training trials, with one Monte Carlo standard error as error bars. Red dashed lines show the theoretical guides. Unweighted least-squares fits of $\log$ Monte Carlo mean squared error against $\log n$ over all five sample sizes give, in column order, velocity slopes $(-1.037, -0.805, -2.533, -1.919)$ for LLSIR and $(-1.047, -0.808, -0.512, -0.997)$ for NSVM; prediction slopes are $(-0.281, -1.230, -2.160, -1.980)$ and $(-0.830, -0.515, -0.750, -1.123)$, respectively. DWLLS (Identity) has velocity slope $-1.038$ and prediction slope $-0.279$. The theoretical slopes are $-2/(d+4)=-0.333$ for velocity and $-4/(d+4)=-0.667$ for prediction. More negative fitted slopes indicate faster decay than the theoretical guide; less negative slopes indicate slower decay.}
     \label{fig:fixed-point-planar}
 \end{figure}
 
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=\linewidth]{figures/error_lifted_fixed_point.pdf}
-    \caption{Lifted fixed-point experiment ($d=3$), using the same design as \Cref{fig:fixed-point-planar}. The planar covariates are embedded in three dimensions and perturbed only in the third coordinate by independent $\mathcal{N}(0,10^{-6})$ noise (standard deviation $10^{-3}$). The curves and fixed inference locations remain at $z=0$. Velocity errors are measured in three dimensions; means and standard-error bars again use $B=100$ nested training trials.}
+    \caption{Lifted fixed-point experiment ($d=3$), with rows and columns as in \Cref{fig:fixed-point-planar}. Planar covariates are embedded in three dimensions with independent $\mathcal{N}(0,10^{-6})$ noise only in the third coordinate (standard deviation $10^{-3}$); curves and fixed inference locations remain at $z=0$. Velocity errors use three dimensions. Nodes average $B=100$ nested training trials, with one Monte Carlo standard error as error bars. Unweighted least-squares fits of $\log$ Monte Carlo mean squared error against $\log n$ over all five sample sizes give, in column order, velocity slopes $(-0.571, -0.178, -0.277, -0.110)$ for LLSIR and $(0.002, 0.000, 0.001, 0.006)$ for NSVM; prediction slopes are $(-0.269, -0.588, -1.518, -0.585)$ and $(-0.678, -0.891, -0.527, -1.263)$, respectively. DWLLS (Identity) has velocity slope $-0.576$ and prediction slope $-0.267$. The theoretical slopes are $-2/(d+4)=-0.286$ for velocity and $-4/(d+4)=-0.571$ for prediction. More negative fitted slopes indicate faster decay than the theoretical guide; less negative slopes indicate slower decay.}
     \label{fig:fixed-point-lifted}
 \end{figure}
 
 
 \subsection{Asymptotic performance}
 
-\begin{table*}[h]
-\small
-\centering
- \begin{tabular}{l | >{\centering\arraybackslash}p{0.15\textwidth}  >{\centering\arraybackslash}p{0.15\textwidth}  >{\centering\arraybackslash}p{0.15\textwidth} >{\centering\arraybackslash}p{0.15\textwidth} }
-  \toprule  & Identity &  Circle & Sinusoid & Polygon \\
-\midrule
- \hline
- $d = 2$ & $-0.85$ & $-0.48$ & $-1.53$ & $-0.10$ \\
- $d = 4$ & $-0.51$ & $-0.85$ & $-0.55$ & $-0.07$ \\
- $d = 6$ & $-0.45$ & $-0.11$ & $-0.56$ & $-0.23$ \\
- $d = 8$ & $-0.29$ & $-0.14$ & $-0.05$ & $-0.00$ \\
- $d = 10$ & $-0.14$ & $-0.13$ & $-0.13$ & $-0.02$ \\
-\bottomrule
- \end{tabular}
- \caption{Log-log slope for velocity error (projection)}
- \label{tab:vel}
-\end{table*}
+\input{tables/slopes_projection_vel.tex}
 
-\begin{table*}[h]
-\small
-\centering
- \begin{tabular}{l | >{\centering\arraybackslash}p{0.15\textwidth}  >{\centering\arraybackslash}p{0.15\textwidth}  >{\centering\arraybackslash}p{0.15\textwidth} >{\centering\arraybackslash}p{0.15\textwidth} }
-  \toprule  & Identity &  Circle & Sinusoid & Polygon \\
-\midrule
- \hline
- $d = 2$ & $-1.10$ & $-0.96$ & $-1.02$ & $-0.27$ \\
- $d = 4$ & $-0.65$ & $-0.59$ & $-1.03$ & $-0.24$ \\
- $d = 6$ & $-0.53$ & $-0.96$ & $-0.25$ & $-0.42$ \\
- $d = 8$ & $-0.46$ & $-0.48$ & $-0.06$ & $-0.00$ \\
- $d = 10$ & $-0.48$ & $-0.52$ & $-0.06$ & $-0.01$ \\
-\bottomrule
- \end{tabular}
- \caption{Log-log slope for regression error (projection)}
- \label{tab:reg}
-\end{table*}
+\input{tables/slopes_projection_reg.tex}
 
-\begin{table*}[h]
-\small
-\centering
- \begin{tabular}{l | >{\centering\arraybackslash}p{0.15\textwidth} >{\centering\arraybackslash}p{0.15\textwidth} >{\centering\arraybackslash}p{0.15\textwidth} }
-  \toprule  & $\sin(\pi x_1)$ & $\|x\|^2$ & $x_1 x_2$ \\
-\midrule
- \hline
- $d = 2$ & $-0.94$ & $-1.02$ & $-0.66$ \\
- $d = 4$ & $-0.82$ & $-0.84$ & $-0.55$ \\
- $d = 6$ & $-0.84$ & $-0.74$ & $-0.63$ \\
- $d = 8$ & $-0.64$ & $-0.39$ & $-0.45$ \\
- $d = 10$ & $-0.36$ & $-0.31$ & $-0.37$ \\
-\bottomrule
- \end{tabular}
- \caption{Log-log slope for velocity error (general)}
- \label{tab:vel-general}
-\end{table*}
+\input{tables/slopes_general_vel.tex}
 
-\begin{table*}[h]
-\small
-\centering
- \begin{tabular}{l | >{\centering\arraybackslash}p{0.15\textwidth} >{\centering\arraybackslash}p{0.15\textwidth} >{\centering\arraybackslash}p{0.15\textwidth} }
-  \toprule  & $\sin(\pi x_1)$ & $\|x\|^2$ & $x_1 x_2$ \\
-\midrule
- \hline
- $d = 2$ & $-0.86$ & $-1.02$ & $-0.98$ \\
- $d = 4$ & $-0.60$ & $-0.66$ & $-0.61$ \\
- $d = 6$ & $-0.52$ & $-0.49$ & $-0.58$ \\
- $d = 8$ & $-0.32$ & $-0.37$ & $-0.40$ \\
- $d = 10$ & $-0.40$ & $-0.34$ & $-0.37$ \\
-\bottomrule
- \end{tabular}
- \caption{Log-log slope for regression error (general)}
- \label{tab:reg-general}
-\end{table*}
+\input{tables/slopes_general_reg.tex}
 
-For the dimension-sweep experiments summarized in the tables, we generate data from the model $Y_i = f(g(X_i)) + \varepsilon_i$ with $f$ the identity link, $X_1, \dots, X_N \sim \mathcal{U}([0,1]^d)$, and $\varepsilon_i \sim \mathcal{N}(0, 0.01^2)$. We vary the ambient dimension over $d \in \{2, 4, 6, 8, 10\}$ and consider two families of index functions $g$ described below.
+For the dimension-sweep experiments summarized in the tables, we generate data from the model $Y_i = f(g(X_i)) + \varepsilon_i$ with $f$ the identity link, $X_1, \dots, X_N \sim \mathcal{U}([0,1]^d)$, and $\varepsilon_i \sim \mathcal{N}(0, 0.01^2)$. We vary the ambient dimension over $d \in \{2, 3, 4, 5, 6\}$ and consider two families of index functions $g$ described below.
 
-\paragraph{Experimental setup.} For every $(d, g)$ pair, we select five query points $x_0$ and set the base localization radius to $\varepsilon_0 = \max\bigl(\varepsilon_0^{\mathrm{model}},\, (50 / N_0 V_d)^{1/d}\bigr)$, where $V_d = \pi^{d/2} / \Gamma(d/2 + 1)$ is the volume of the unit ball in $\mathbb{R}^d$ and $N_0$ is the smallest sample size. For each sample size $N$, the radius is scaled to $\varepsilon(N) = \varepsilon_0 \,(N/N_0)^{-1/(d+4)}$ for velocity estimation and $\varepsilon(N) = \varepsilon_0\,(N/N_0)^{-1/(d+2)}$ for regression. We vary $N$ over six geometrically spaced values from 5K to 30K and run 50 independent Monte Carlo trials per configuration. For each trial we fit a least-squares line of $\log N$ against $\log \text{error}$ and record the slope.
+\paragraph{Experimental setup.} For each $(d,g)$ pair we fix five query points and run $B=200$ independent Monte Carlo training trials. Each trial uses nested training samples at six geometrically spaced sizes, $N \in \{5000,7155,10238,14651,20965,30000\}$. The queries are held fixed across all trials and sample sizes. For each trial and $N$, we average squared error over the five queries, then fit a least-squares line with $\log N$ as the predictor and the logarithm of this mean squared error as the response. Tables~\ref{tab:vel}, \ref{tab:reg}, \ref{tab:vel-general}, and~\ref{tab:reg-general} report the mean and sample standard deviation of the 200 trial-specific slopes. Every trial includes all five queries at every sample size; no failed or partial trials are discarded.
 
-\paragraph{Projection.} We first take $g = \Pi$, the closest-point projection onto a curve $\gamma \colon [0,1] \to \mathbb{R}^2$ embedded in $\mathbb{R}^d$ by setting the remaining $d - 2$ coordinates to zero. Concretely, $\Pi(x) = \arg\min_{t \in [0,1]} |x - \gamma(t)|$ returns the curve parameter of the nearest point. We consider four curves, (i) Identity, $\gamma(t) = (t,\, t)$, (ii) Circle, $\gamma(t) = (0.5 + 0.4\cos 2\pi t,\; 0.5 + 0.4\sin 2\pi t)$, (iii) Sinusoid, $\gamma(t) = (t,\; 0.5 + 0.4\sin 2\pi t)$, and (iv) Polygon, the piecewise-linear path joining $(0.15, 0.20) \to (0.85, 0.25) \to (0.75, 0.80) \to (0.35, 0.90) \to (0.10, 0.55)$, parametrized by arc length. To avoid discontinuity at the medial axis, we evaluate $|x_0 - \gamma(t)|$ on a grid of 5K values of $t$ and identify local minima corresponding to distinct curve segments separated by $\Delta_t \ge 0.1$ in parameter space, and if multiple segments are nearby, shrink the base radius $\varepsilon_0$ to $0.45(d_2 - d_1)$, where $d_1, d_2$ are the distances to the nearest and second-nearest segments. Tables~\ref{tab:vel} and~\ref{tab:reg} report the slope averaged over all 50 trials.
+Velocity and regression use the same LLSIR fits and hyperparameters. With $V_d=\pi^{d/2}/\Gamma(d/2+1)$ and $N_0=5000$, the uncapped base localization radius is $\varepsilon_0=\max(0.1,(50/(N_0V_d))^{1/d})$, and its nominal value scales as $\varepsilon(N)=\varepsilon_0(N/N_0)^{-1/(d+4)}$. The actual radius is bounded below by the distance to the $k_d$-th nearest training observation, with $k_d=2(d+1)$: $\varepsilon_{\mathrm{actual}}(N)=\max\{\varepsilon(N),(1+10^{-12})r_{k_d}(N)\}$. This retains at least 6, 8, 10, 12, and 14 observations for dimensions 2 through 6, respectively. The constant 50 calibrates the initial nominal radius only. All fits must succeed before results are published. The physical Gaussian weight standard deviation is half the actual radius, and the projected regression uses a Gaussian local linear estimator with bandwidth $0.5$ in radius-scaled coordinates. No hyperparameter search or NSVM fitting is performed for these tables.
 
-\paragraph{General.} We next take $g$ to be a smooth, explicitly defined function, for which no medial axis complications arise. The three choices are (i) $g(x) = \sin(\pi x_1)$, (ii) $g(x) = \|x\|^2$, and (iii) $g(x) = x_1 x_2$. Tables~\ref{tab:vel-general} and~\ref{tab:reg-general} report the slope averaged over all 50 trials.
+\paragraph{Projection.} We first take $g = \Pi$, the closest-point projection onto a curve $\gamma \colon [0,1] \to \mathbb{R}^2$ embedded in $\mathbb{R}^d$ by setting the remaining $d - 2$ coordinates to zero. Concretely, $\Pi(x) = \arg\min_{t \in [0,1]} |x - \gamma(t)|$ returns the curve parameter of the nearest point. We consider four curves, (i) Identity, $\gamma(t) = (t,\, t)$, (ii) Circle, $\gamma(t) = (0.5 + 0.4\cos 2\pi t,\; 0.5 + 0.4\sin 2\pi t)$, (iii) Sinusoid, $\gamma(t) = (t,\; 0.5 + 0.4\sin 2\pi t)$, and (iv) Polygon, the piecewise-linear path joining $(0.15, 0.20) \to (0.85, 0.25) \to (0.75, 0.80) \to (0.35, 0.90) \to (0.10, 0.55)$, parametrized by arc length. We place the five planar query coordinates at $\gamma(t)+0.02\,\nu(t)$ for equally spaced $t$ between $0.12$ and $0.82$, where $\nu(t)$ is a unit planar normal, and set each remaining coordinate to $0.5$. For Sinusoid, training covariates are conditioned on interior closest-point projection to exclude endpoint projections. Projection labels use a grid of 5000 curve parameters. For the nominal radius, we identify competing local distance minima separated by at least $0.1$ in curve parameter and cap the base radius at $0.45(d_2-d_1)$, where $d_1,d_2$ are the planar distances to the nearest and second-nearest competing minima. Distances are computed in the first two coordinates because the remaining coordinates do not change the projection parameter. The nearest-neighbor radius lower bound can override this nominal cap when its neighborhood is too sparse. Thus the actual neighborhoods are not guaranteed to stay within a smooth projection branch. Both nominal and actual radii, neighborhood counts, and errors are saved with the trial results.
 
+\paragraph{General.} We next take $g$ to be a smooth, explicitly defined function, for which no medial axis complications arise. The three choices are (i) $g(x) = \sin(\pi x_1)$, (ii) $g(x) = \|x\|^2$, and (iii) $g(x) = x_1 x_2$. The five query points are generated once per dimension from a fixed seed in $[0.25,0.75]^d$, with the first coordinate adjusted for the sine model to avoid $x_1=1/2$, where its gradient vanishes. Velocity error compares unit estimated directions with the normalized analytic gradient, minimizing over the two possible signs. Tables~\ref{tab:vel-general} and~\ref{tab:reg-general} report mean $\pm$ standard deviation over all 200 trial-specific slopes.
+
+\subsection{Cellular reprogramming}
+
+We apply LLSIR to the single-cell reprogramming data of \citet{schiebinger2019reprogramming}. The processed Waddington-OT release contains 251,203 cells and 1,479 log-normalized variable genes across the serum and 2i conditions. Collection-day labels are available for 236,285 cells; the remaining 14,918 DiPSC reference cells are retained for prediction and visualization. A split stratified by collection day assigns 177,213 labeled cells to training and 59,072 to evaluation. We fit PCA on training expression only, retain ten components, and rescale these coordinates by their common training root-mean-square value. LLSIR uses collection day as the response, a nominal localization radius of $0.881$, expanded where necessary to retain at least 128 training neighbors, Gaussian weight standard deviation $0.440$, and projected local linear regression bandwidth $0.5$ in radius-scaled coordinates.
+
+The held-out mean absolute prediction error is $0.805$ days, with root-mean-square error $1.183$ days; predicting the training mean gives mean absolute error $4.799$ days. This evaluation holds out cells within observed collection days. In \Cref{fig:reprogramming-umap}, we visualize all cells using an unsupervised UMAP embedding \citep{mcinnes2018umap} of the saved PCA coordinates, with 60 neighbors, minimum distance $0.4$, and random seed 42. Estimated directions are mapped to UMAP using local ridge fits between PCA and embedding displacements over 60 expression-space neighbors; the penalty is $0.01$ times the mean local covariance eigenvalue. UMAP is used only for visualization, and its parameters do not change the time predictions. The two experimental conditions are pooled, so these time-associated directions may also reflect treatment effects.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\linewidth]{figures/reprogramming_umap.pdf}
+    \caption{Cellular reprogramming with LLSIR on all 251,203 cells in the processed release. Panels show (a) observed collection day, (b) predicted day, and (c) observed day with approximately projected LLSIR directions. Gray points have no observed collection-day label. All panels share the same unsupervised UMAP (60 neighbors, minimum distance $0.4$). Red arrows point toward increasing estimated time and have equal display length; they represent a direction field rather than calibrated physical speed. Constant-time neighborhoods have an undefined direction and are omitted from the arrows. Accuracy is evaluated only on held-out labeled cells.}
+    \label{fig:reprogramming-umap}
+\end{figure}
+
+\FloatBarrier
 \section{Proofs of key results}
 
 
