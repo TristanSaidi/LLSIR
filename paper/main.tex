@@ -612,6 +612,13 @@ Note that, for the velocity stage, the theoretical slopes $-2/(d+4)$ are ($-0.33
 \end{figure}
 
 
+\clearpage
+\section{Conclusion}\label{sec: conclusion}
+
+In this work we proposed and analyzed LLSIR, a conceptually simple and computationally tractable procedure for generalized single-index regression. Through localization, the procedure estimates the spatially varying direction $\nabla g(x_0)$ up to scale and then performs projected kernel regression, avoiding the need to jointly optimize over the link and index functions. We derived influence function expansions, central limit theorems, and pointwise rates of convergence for both stages. In particular, when $g$ is $2$-H\"older, the regression rate coincides with the minimax rate for the corresponding composition class.
+
+We also instantiated this procedure in the nonlinear single-variable model, where the index is a closest-point projection onto a curve. A key aspect of this application is that it does not require the covariates to be concentrated near the curve, allowing estimation under the bounded-support and density regularity assumptions of our general framework. Our simulations and cellular reprogramming example demonstrate the utility of the procedure for estimating both local directions and regression responses. Finally, characterizing the minimax rate for the curve-projection model under these milder covariate assumptions remains an open question and a fruitful direction of future research.
+
 \break
 
 \begin{appendices}
