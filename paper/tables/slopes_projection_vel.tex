@@ -1,0 +1,17 @@
+\begin{table*}[htbp]
+\small
+\centering
+\begin{tabular}{lcccc}
+\toprule
+ & Identity & Circle & Sinusoid & Polygon \\
+\midrule
+$d=2$ & $-0.32 \pm 0.49$ & $-0.35 \pm 0.53$ & $-0.77 \pm 0.18$ & $-0.23 \pm 0.10$ \\
+$d=3$ & $-0.29 \pm 0.36$ & $-0.33 \pm 0.37$ & $-0.52 \pm 0.22$ & $-0.17 \pm 0.20$ \\
+$d=4$ & $-0.27 \pm 0.32$ & $0.01 \pm 0.53$ & $-0.27 \pm 0.12$ & $-0.05 \pm 0.19$ \\
+$d=5$ & $-0.30 \pm 0.28$ & $0.14 \pm 0.44$ & $-0.17 \pm 0.13$ & $-0.04 \pm 0.19$ \\
+$d=6$ & $-0.31 \pm 0.29$ & $-0.07 \pm 0.32$ & $-0.16 \pm 0.11$ & $-0.14 \pm 0.26$ \\
+\bottomrule
+\end{tabular}
+\caption{LLSIR log-log slopes for velocity error (projection): mean $\pm$ standard deviation from $B=200$ Monte Carlo trials. Each trial's least-squares slope is fitted after averaging squared error over 5 fixed query points. For comparison, the theoretical slopes $-2/(d+4)$ are $(-0.333, -0.286, -0.250, -0.222, -0.200)$ for $d=(2,3,4,5,6)$, respectively. The actual radius is bounded below by the distance to the $2(d+1)$-th nearest training neighbor, even when this exceeds the projection-radius cap. Every entry uses all 200 valid trials.}
+\label{tab:vel}
+\end{table*}
