@@ -564,6 +564,15 @@ Having analyzed the statistical properties of the LLSIR procedure, we now evalua
 
 % . We first compare velocity and prediction errors for four choices of $\gamma$ in a planar experiment and its lifted counterpart, then report performance across ambient dimensions.
 
+The four choices of $\gamma$ are shown in \Cref{fig:simulation-curves}.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\linewidth]{figures/gamma_shapes.pdf}
+    \caption{The four planar curves $\gamma([0,1])$ used in the synthetic experiments: Identity, Circle, Sinusoid, and Polygon, from left to right. All panels use the same coordinate scale and limits. For $d>2$, the curves are embedded by setting the remaining coordinates to zero.}
+    \label{fig:simulation-curves}
+\end{figure}
+
 We compare LLSIR and NSVM at fixed inference locations for the Identity, Circle, Sinusoid, and Polygon curves, with DWLLS included for Identity. The response is $Y_i = \Pi_\gamma(X_i) + \varepsilon_i$, where $\varepsilon_i \sim \mathcal{N}(0,0.01^2)$. Planar covariates are uniform on $[0,1]^2$; for Sinusoid, this measure is conditioned on the closest-point projection lying in the interior of the curve, excluding endpoint projections. For each curve we run $B=100$ independent training trials at $n \in \{500,1000,2500,5000,10000\}$. Training samples are nested within each trial: increasing $n$ adds observations while preserving all previous covariates, responses, and noise. Both methods and both error metrics use the same training samples.
 
 Each method uses one frozen hyperparameter configuration per curve and ambient dimension, shared by velocity and prediction. For LLSIR, the localization radius and finite Gaussian weight standard deviation scale as $n^{-1/(d+4)}$, with the remaining settings fixed. NSVM's slice count is capped at $\lfloor n/8\rfloor$ for small training samples. These settings were selected in a preceding smoothing comparison on 50 of the seeded training trials at $n \in \{5000,7500,10000\}$; the plotted averages include those trials. The dashed theoretical guides have exponents $-2/(d+4)$ for velocity and $-4/(d+4)$ for prediction, and serve as heuristic comparisons in these simulation settings.
