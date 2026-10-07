@@ -254,23 +254,23 @@ This creates a local and, critically, \textit{linear} \say{surrogate} single-ind
 \begin{align} 
 \widehat{\beta}_{x_0,\epsilon}, \widehat{\alpha}_{x_0, \epsilon} &= \arg\min_{\beta \in \mathbb{R}^d,\, \alpha \in \mathbb{R}} \sum_{i = 1}^{n}\mathbbm{1}_{\{x_i \in \mathcal{B}(x_0, \epsilon)\}}\frac{p^*(x_i - x_0)}{\hat{p}(x_i)}\left(y_i - (x_i - x_0)^{\top}\beta - \alpha\right)^2 
 \end{align}
-where $\hat{p}$ is some consistent estimate of the density of $P_x$ and $p^*$ is some spherically symmetric reference density, as defined in \Cref{def: spherical symmetry}. The density ratio re-weights each observation's contribution so that $x$ has a limiting spherically symmetric (and thus LCE) density. This means the solution to the population ordinary least squares optimization recovers the index vector of the linear surrogate problem, $\nabla g(x_0)$. We prove this formally in \Cref{lemma: surrogate problem}. By a slight abuse of notation, we'll redefine each $x_i$ to have $x_0$ subtracted off and we'll let $X_i = \begin{bmatrix}
+where $\hat{p}$ is some consistent estimate of the density of $P_x$ and $p^*$ is some spherically symmetric reference density, as defined in \Cref{def: spherical symmetry}. The density ratio re-weights each observation's contribution so that $x$ has a limiting spherically symmetric (and thus LCE) density. This means the solution to the population ordinary least squares optimization recovers the index vector of the linear surrogate problem, $\nabla g(x_0)$. We prove this formally in \Cref{lemma: surrogate problem}. By a slight abuse of notation, we'll redefine each $x_i$ to have $x_0$ subtracted off and we'll let $\boldsymbol{x}_i = \begin{bmatrix}
     1 & x_i/\epsilon
 \end{bmatrix}^{\top}$ to handle the intercept -- note that rescaling simplifies following calculations and provides numerical stability. The optimization problem above then becomes 
 \begin{align} 
-\widehat{\beta}_{x_0,\epsilon} &= \arg\min_{\beta \in \mathbb{R}^{d+1}} \sum_{i = 1}^{n}\hat{w}_i\left(y_i - X_i^{\top}\beta\right)^2 \qquad \text{with }\qquad \hat{w}_i = \mathbbm{1}_{\{x_i \in \mathcal{B}(0, \epsilon)\}}\frac{p^*(x_i)}{\hat{p}_{x}(x_i)}
+\widehat{\beta}_{x_0,\epsilon} &= \arg\min_{\beta \in \mathbb{R}^{d+1}} \sum_{i = 1}^{n}\hat{w}_i\left(y_i - \boldsymbol{x}_i^{\top}\beta\right)^2 \qquad \text{with }\qquad \hat{w}_i = \mathbbm{1}_{\{x_i \in \mathcal{B}(0, \epsilon)\}}\frac{p^*(x_i)}{\hat{p}(x_i)}
 \end{align}
-where $\hat{p}_{x}$ is now a consistent estimate of the density of $x - \,x_0$. Through a straightforward calculation one would find that
+where $\hat{p}$ is now a consistent estimate of the density of $x - \,x_0$. Through a straightforward calculation one would find that
 \begin{align}
-    \widehat{\beta}_{x_0,\epsilon} &= \left(\sum_{i = 1}^n\hat{w}_iX_iX_i^{\top}\right)^{-1}\left(\sum_{i = 1}^n\hat{w}_iX_iy_i\right). \label{eq: sample est closed form}
+    \widehat{\beta}_{x_0,\epsilon} &= \left(\sum_{i = 1}^n\hat{w}_i\boldsymbol{x}_i\boldsymbol{x}_i^{\top}\right)^{-1}\left(\sum_{i = 1}^n\hat{w}_i\boldsymbol{x}_iy_i\right). \label{eq: sample est closed form}
 \end{align}
 A similar set of calculations leads to the population quantity. We will again abuse notation and assume that $x$ has had $x_0$ subtracted off. The population optimization problem then looks like
 \begin{align}
-\beta^*_{x_0, \epsilon} &= \arg\min_{\beta \in \mathbb{R}^{d+1}} \mathbb{E}_{p_{x}} \Big[w\Big(f(g(x + x_0)) - X^{\top}\beta \Big)^2\Big] \qquad \text{with }\qquad w = \mathbbm{1}_{\{x \in \mathcal{B}(0, \epsilon)\}}\frac{p^*(x)}{p_{x}(x)}\label{eq: population estimator}
+\beta^*_{x_0, \epsilon} &= \arg\min_{\beta \in \mathbb{R}^{d+1}} \mathbb{E}_{p} \Big[w\Big(f(g(x + x_0)) - \boldsymbol{x}^{\top}\beta \Big)^2\Big] \qquad \text{with }\qquad w = \mathbbm{1}_{\{x \in \mathcal{B}(0, \epsilon)\}}\frac{p^*(x)}{p(x)}\label{eq: population estimator}
 \end{align}
-where $p_{x}$ is the density of the random variable $x - x_0$. Solving for $\beta^*_{x_0, \epsilon}$ yields
+where $p$ is the density of the random variable $x - x_0$. Solving for $\beta^*_{x_0, \epsilon}$ yields
 \begin{align}
-    \beta^*_{x_0, \epsilon} = \mathbb{E}_{p^*}\left[\mathbbm{1}_{\{x \in \mathcal{B}(0,\epsilon)\}}XX^{\top}\right]^{-1}\mathbb{E}_{p^*}\left[\mathbbm{1}_{\{x \in \mathcal{B}(0,\epsilon)\}}Xf(g(x+x_0))\right]. \label{eq: population estimator closed form}
+    \beta^*_{x_0, \epsilon} = \mathbb{E}_{p^*}\left[\mathbbm{1}_{\{x \in \mathcal{B}(0,\epsilon)\}}\boldsymbol{x}\boldsymbol{x}^{\top}\right]^{-1}\mathbb{E}_{p^*}\left[\mathbbm{1}_{\{x \in \mathcal{B}(0,\epsilon)\}}\boldsymbol{x}f(g(x+x_0))\right]. \label{eq: population estimator closed form}
 \end{align}
 We will show that the last $d$ entries of $\widehat{\beta}_{x_0,\epsilon}$ are a consistent estimate of $\nabla g(x_0)$ up to scale, and admit a Gaussian limit centered at the population value. To formalize this, let $V = \begin{bmatrix} 0 & I_d\end{bmatrix}$ and define the population and sample approximation of $\nabla g(x_0)$ as
 \begin{equation}
@@ -278,18 +278,18 @@ We will show that the last $d$ entries of $\widehat{\beta}_{x_0,\epsilon}$ are a
 \end{equation}
 
 
-\emph{Density Estimation}. Note that the estimator in \cref{eq: sample est closed form} requires an estimate of the density ratio $p^*(x_i)/p_{x}(x_i)$. In the subsequent paragraphs we will discuss kernel density estimation, and we will impose some sufficient assumptions on the form of kernel that ensures a sufficient rate of convergence for the density estimator $\hat{p}_{x}\to p_{x}$. We begin with some standard definitions.
+\emph{Density Estimation}. Note that the estimator in \cref{eq: sample est closed form} requires an estimate of the density ratio $p^*(x_i)/p(x_i)$. In the subsequent paragraphs we will discuss kernel density estimation, and we will impose some sufficient assumptions on the form of kernel that ensures a sufficient rate of convergence for the density estimator $\hat{p}\to p$. We begin with some standard definitions.
 \begin{restatable}[Kernel order]{defn}{}
     A kernel $K$ is of order $s \in \mathbb N$ if 
     \[\int_{\mathbb{R}^d}\|u\|_2^jK(u)du < \infty, \quad \text{and}\quad \int_{\mathbb{R}^d}u_1^{j_1}\dots u_d^{j_d}K(u) du = 0, \text{where } \sum_kj_k = j\]
     for all $1 \leq j \leq s$ and 
     $\int_{\mathbb{R}^d}K(u)du = 1.$
 \end{restatable}
-A sufficiently high order kernel ensures that the bias $h^s$ of the density estimate has a dependence on the H\"older smoothness $s$ of the population density instead of the ambient dimension $d$ \citep[Proposition 1.2]{tsybakov2009introduction}. Let $K:\mathbb{R}^d \rightarrow \mathbb{R}$ denote a $s^{\text{th}}$ order kernel and define the kernel density estimate of $p_{x}$ as
+A sufficiently high order kernel ensures that the bias $h^s$ of the density estimate has a dependence on the H\"older smoothness $s$ of the population density instead of the ambient dimension $d$ \citep[Proposition 1.2]{tsybakov2009introduction}. Let $K:\mathbb{R}^d \rightarrow \mathbb{R}$ denote a $s^{\text{th}}$ order kernel and define the kernel density estimate of $p$ as
 \begin{equation}
-    \hat{p}_{x}(x) = \frac{1}{nh^d}\sum_{i = 1}^nK\left(\frac{x -x_i}{h}\right). \label{eq: kde}
+    \hat{p}(x) = \frac{1}{nh^d}\sum_{i = 1}^nK\left(\frac{x -x_i}{h}\right). \label{eq: kde}
 \end{equation}
-We will impose the following further assumptions on the kernel in order to guarantee \emph{uniform} convergence in probability of $\hat{p}_{x}$ to the true density $p_{x}$.
+We will impose the following further assumptions on the kernel in order to guarantee \emph{uniform} convergence in probability of $\hat{p}$ to the true density $p$.
 
 
 \begin{restatable}[Further kernel assumptions, \cite{hansen2008uniform}]{asmpt}{} \label{further kernel assumptions}
@@ -299,9 +299,9 @@ We will impose the following further assumptions on the kernel in order to guara
 \end{restatable}
 Under these assumptions, we can invoke a uniform convergence in probability result from \citet{hansen2008uniform}. This will be used heavily in our influence function expansion in the proof of \Cref{thm: decomposition for beta}.
 \begin{restatable}[Uniform convergence over a bounded set, \citet{hansen2008uniform}]{lemma}{} \label{lemma: uniform convergence of kde}
-    Suppose that $\|p_{x}\|_{\infty}< \infty$ and the $s^{\text{th}}$ derivative of $p_{x}$ is uniformly continuous, where $s$ is the order of the kernel $K$. Moreover, suppose that \Cref{further kernel assumptions} holds. Then for any sequence $\epsilon_n  = O(1)$ we have
-    \[\sup_{x \in \mathcal{B}(0, \epsilon_n)}\left|\hat{p}_{x}(x) - p_{x}(x)\right| = O_p\left(\sqrt{\frac{\log n}{nh^d}} +h^s \right)\]
-    when $h \to 0$ and $nh^d/\log n \to \infty$. \tls{get rid of subscript x in the density est}
+    Suppose that $\|p\|_{\infty}< \infty$ and the $s^{\text{th}}$ derivative of $p$ is uniformly continuous, where $s$ is the order of the kernel $K$. Moreover, suppose that \Cref{further kernel assumptions} holds. Then for any sequence $\epsilon_n  = O(1)$ we have
+    \[\sup_{x \in \mathcal{B}(0, \epsilon_n)}\left|\hat{p}(x) - p(x)\right| = O_p\left(\sqrt{\frac{\log n}{nh^d}} +h^s \right)\]
+    when $h \to 0$ and $nh^d/\log n \to \infty$.
 \end{restatable}
 
 \subsection{Estimating the regression function} \label{sec: regression est}
@@ -313,12 +313,12 @@ In this section we describe the LLSIR procedure to estimate the conditional mean
         \caption{Locally Linear Single Index Regression (LLSIR)}
         \label{alg: LLSIR}
         \Require New sample $x_0$, samples $\{(x_i, y_i)\}_{i=1}^n \subseteq \mathbb{R}^d \times \mathbb{R}$, a density estimation kernel $K$ and bandwidth $h$, localization parameter $\epsilon$, LCE density $p^*$, nonparametric regression kernel $K_r$ and bandwidth $h_r$.\\
-        Compute localized density ratios \[\hat{w}_i = \mathbbm{1}_{\{x_i - x_0 \in \mathcal{B}(0, \epsilon)\}}\frac{p^*(x_i - x_0)}{\hat p_{x}(x_i) } \qquad \text{where} \qquad \hat p_{x}(x) = \frac{1}{nh^d}\sum_{i = 1}^nK\left(\frac{x -x_i}{h}\right)\]for all $i \in \{1, \dots, n\}$. \\
-        Center and augment data, $X_i = \begin{bmatrix}
+        Compute localized density ratios \[\hat{w}_i = \mathbbm{1}_{\{x_i - x_0 \in \mathcal{B}(0, \epsilon)\}}\frac{p^*(x_i - x_0)}{\hat p(x_i) } \qquad \text{where} \qquad \hat p(x) = \frac{1}{nh^d}\sum_{i = 1}^nK\left(\frac{x -x_i}{h}\right)\]for all $i \in \{1, \dots, n\}$. \\
+        Center and augment data, $\boldsymbol{x}_i = \begin{bmatrix}
             1 & \frac{x_i - x_0}{\epsilon}
         \end{bmatrix}^{\top}$ for all $i \in \{1, \dots , n\}.$ \\
         Compute velocity estimate as 
-        \[ \hat{v}_{x_0, \epsilon} = V\left(\sum_{i = 1}^n\hat{w}_iX_iX_i^{\top}\right)^{-1}\left(\sum_{i = 1}^n\hat{w}_iX_iy_i\right) \qquad \text{with} \qquad V = \begin{bmatrix}
+        \[ \hat{v}_{x_0, \epsilon} = V\left(\sum_{i = 1}^n\hat{w}_i\boldsymbol{x}_i\boldsymbol{x}_i^{\top}\right)^{-1}\left(\sum_{i = 1}^n\hat{w}_i\boldsymbol{x}_iy_i\right) \qquad \text{with} \qquad V = \begin{bmatrix}
             0 & I_d
         \end{bmatrix}.\] \\
         Normalize velocity estimate, $\hat v_{x_0, \epsilon}' = \hat v_{x_0, \epsilon} /\|\hat v_{x_0, \epsilon}\|_2$.\\
@@ -351,7 +351,7 @@ Before presenting our theoretical analyses of the LLSIR procedure, we will brief
     Then if $f$ and $g$ satisfy $\mathcal{L}_1(\mathcal{C}_f) = \mathcal{L}_d(\mathcal{C}_g) = 0$ where $\mathcal{L}_d$ is the $d$-dimensional Lebesgue measure on $\mathbb{R}^d$, then $\operatorname{span}\{\nabla g(x_0)\}$ is identifiable $P_x$-almost-surely.
 \end{prop}
 \begin{proof}
-    The proof of the statement above is quite simple. We seek to show that if $f \circ g \equiv \tilde f \circ \tilde g$, then under the stated assumptions $\operatorname{span}\{\nabla g(x_0)\} = \operatorname{span}\{\nabla \tilde g(x_0)\}$ $P_x$-a.s. To see this, note that since $P_x \ll \mathcal{L}_d$, we have $P_x(\mathcal{C}_g) = 0.$ Moreover, the $\beta \geq 2$ H\"older regularity of $g$ that we have assumed allows us to invoke the coarea formula \citep[Theorem 3.2.22]{federer1959curvature} with $h(x) = p_x\mathbbm{1}\{g^{-1}(\mathcal C_f) \cap \|\nabla g(x)\|_2 > 0\}/\|\nabla g(x)\|_2$, which guarantees that $P_x(g^{-1}(\mathcal{C}_f)) = 0$ because $\mathcal{L}_1(\mathcal{C}_f) = 0.$ Thus, we have shown that for $x \sim P_x$, $f'(g(x)) \neq 0 $ and $\nabla g(x) \neq 0$ almost surely.
+    The proof of the statement above is quite simple. We seek to show that if $f \circ g \equiv \tilde f \circ \tilde g$, then under the stated assumptions $\operatorname{span}\{\nabla g(x_0)\} = \operatorname{span}\{\nabla \tilde g(x_0)\}$ $P_x$-a.s. To see this, note that since $P_x \ll \mathcal{L}_d$, we have $P_x(\mathcal{C}_g) = 0.$ Moreover, the $\beta \geq 2$ H\"older regularity of $g$ that we have assumed allows us to invoke the coarea formula \citep[Theorem 3.2.22]{federer1959curvature} with $h(x) = p\mathbbm{1}\{g^{-1}(\mathcal C_f) \cap \|\nabla g(x)\|_2 > 0\}/\|\nabla g(x)\|_2$, which guarantees that $P_x(g^{-1}(\mathcal{C}_f)) = 0$ because $\mathcal{L}_1(\mathcal{C}_f) = 0.$ Thus, we have shown that for $x \sim P_x$, $f'(g(x)) \neq 0 $ and $\nabla g(x) \neq 0$ almost surely.
 
     Now suppose that $\tilde f \circ \tilde g = f \circ g$. Differentiating both sides at an $x \in \mathbb{R}^d$ such that neither $f(g(x))$ nor $g(x)$ are critical gives
     \begin{align*}
@@ -364,14 +364,14 @@ We remark that the conditions on the critical sets of $f$ and $g$ in \Cref{ident
 
 \section{Convergence} \label{sec: theoretical results}
 
-In this section we present theoretical results regarding the LLSIR procedure. To provide an overview, we prove a central limit theorem for both the gradient $\hat{v}_{x_0, \epsilon}$ (\Cref{corr: central limit for v}) and the response estimate (\Cref{corr: central limit for f}); the limiting normal for the former is indeed centered at its population counterpart, while the limiting normal for the latter has an asymptotic bias that can be eliminated with an undersmoothing condition. As an intermediate result, we derive influence function expansions for the gradient $\hat{v}_{x_0, \epsilon}$ and the response $\hat f$ in \Cref{thm: decomposition for beta} and \Cref{thm: regression ptwise decomp} respectively. Before detailing these results, we will outline our main assumptions on the model, the reference density $p^*$, and the covariate law $p_x \, dx = P_x$.
+In this section we present theoretical results regarding the LLSIR procedure. To provide an overview, we prove a central limit theorem for both the gradient $\hat{v}_{x_0, \epsilon}$ (\Cref{corr: central limit for v}) and the response estimate (\Cref{corr: central limit for f}); the limiting normal for the former is indeed centered at its population counterpart, while the limiting normal for the latter has an asymptotic bias that can be eliminated with an undersmoothing condition. As an intermediate result, we derive influence function expansions for the gradient $\hat{v}_{x_0, \epsilon}$ and the response $\hat f$ in \Cref{thm: decomposition for beta} and \Cref{thm: regression ptwise decomp} respectively. Before detailing these results, we will outline our main assumptions on the model, the reference density $p^*$, and the covariate law $p \, dx = P_x$.
 
 \begin{restatable}{asmpt}{} \label{assumption: lce and covariate density}
     We require that $p^*(x)$ be a zero-mean spherically symmetric density with isotropic covariance. Moreover, we require the following:
     \begin{enumerate}
-        \item (LCE density): the density $p^*(x)$ satisfies $\mathbb{E}_{p^*}[XX^{\top}] \succ 0$, is continuous at $0$, and satisfies $p^*(0)>0$.
-        \item (Covariate support): We assume that the support of the covariates is bounded, i.e.  for some $r > 0$ \[\overline{\{x : p_{x}(x) \neq 0\}} \subseteq \mathcal{B}(0, r).\]
-        \item (Covariate density): there exists a non-negative integer $s > 2$ such that the $s^{\text{th}}$ derivative of the density $p_{x}(x)$ is uniformly continuous.
+        \item (LCE density): the density $p^*(x)$ satisfies $\mathbb{E}_{p^*}[\boldsymbol{x}\boldsymbol{x}^{\top}] \succ 0$, is continuous at $0$, and satisfies $p^*(0)>0$.
+        \item (Covariate support): We assume that the support of the covariates is bounded, i.e.  for some $r > 0$ \[\overline{\{x : p(x) \neq 0\}} \subseteq \mathcal{B}(0, r).\]
+        \item (Covariate density): there exists a non-negative integer $s > 2$ such that the $s^{\text{th}}$ derivative of the density $p(x)$ is uniformly continuous.
         \item (Noise regularity): at the out of sample point $x_0$, $\sigma^2(x)$ is continuous at $x_0$, $\sigma^2(x_0)>0$, and there exists $\delta>0$ such that
         \[
             \sup_{x\in\mathcal{B}(x_0,\delta)}
@@ -397,19 +397,19 @@ In particular, we will first show that the population quantity $v^*_{x_0, \epsil
 The proof of \Cref{thm: population prop} is provided in \Cref{sec: proof of population vel prop}. This result establishes that the rate with which the bias induced by localization (or rather, lack thereof) shrinks as a function of the localization parameter $\epsilon$. Our next result instead considers the deviation between the population quantity $v^*_{x_0, \epsilon}$ and the sample estimator $\hat v_{x_0, \epsilon}$ -- in particular, we provide an influence function expansion of the difference, which will later allow us to establish a central limit theorem and rates of convergence. This influence function expansion is described in \Cref{thm: decomposition for beta}
 
 \begin{restatable}[Velocity error expansion \tls{add citation for newey and ruud}]{lemma}{} \label{thm: decomposition for beta}
-    Suppose that \cref{further kernel assumptions} and \cref{assumption: lce and covariate density} are satisfied, and suppose that the density kernel bandwidth satisfies $h \asymp n^{-1/(2s+d)}$, $\epsilon \rightarrow 0, n\epsilon^d \rightarrow \infty$ and $\sqrt{n\epsilon^d}n^{-s/(2s+d)} \to 0$. Finally, suppose that $p_{x}$ is bounded away from zero on $\mathcal{B}(0, \epsilon)$ (where $p_{x}$ is the density of $x - x_0$). Then it holds that
-    \[\hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon} = \frac{1}{n}VQ^{-1}\sum_{i = 1}^nw_iX_i(u_i - \mathbb{E}[u_i\,|\,X_i]) +o_p\left(\frac{1}{\sqrt{n\epsilon^{d}}}\right)\]
-    where $u = y - X^{\top}\beta_{x_0, \epsilon}^*$ and $Q = \mathbb{E}[wXX^{\top}]$.
+    Suppose that \cref{further kernel assumptions} and \cref{assumption: lce and covariate density} are satisfied, and suppose that the density kernel bandwidth satisfies $h \asymp n^{-1/(2s+d)}$, $\epsilon \rightarrow 0, n\epsilon^d \rightarrow \infty$ and $\sqrt{n\epsilon^d}n^{-s/(2s+d)} \to 0$. Finally, suppose that $p$ is bounded away from zero on $\mathcal{B}(0, \epsilon)$ (where $p$ is the density of $x - x_0$). Then it holds that
+    \[\hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon} = \frac{1}{n}VQ^{-1}\sum_{i = 1}^nw_i\boldsymbol{x}_i(u_i - \mathbb{E}[u_i\,|\,\boldsymbol{x}_i]) +o_p\left(\frac{1}{\sqrt{n\epsilon^{d}}}\right)\]
+    where $u = y - \boldsymbol{x}^{\top}\beta_{x_0, \epsilon}^*$ and $Q = \mathbb{E}[w\boldsymbol{x}\boldsymbol{x}^{\top}]$.
 \end{restatable}
 The proof of \Cref{thm: decomposition for beta} is provided in \Cref{sec: proof of velocity decomp}. Having established this influence function expansion, we will now use it to characterize the limiting distribution of $\hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon}.$ To do this, we will appeal to the multivariate Lyapunov central limit theorem, described in \Cref{thm: lyapunov clt}.
 
 \begin{restatable}[Central limit for $\hat{v}_{x_0, \epsilon}$]{thm}{} \label{corr: central limit for v}
     Suppose \cref{further kernel assumptions} and \cref{assumption: lce and covariate density} hold, suppose that the assumptions of \Cref{thm: decomposition for beta} are satisfied, and suppose that $\epsilon/h \to0 $. Further let $V = \begin{bmatrix}
         0 & I_d
-    \end{bmatrix}$, $\Lambda = \operatorname{Cov}(wX(u - \mathbb{E}[u\,|\,X]))$ and $u = y - X^{\top}\beta_{x_0, \epsilon}^*$. Then we have asymptotic normality of the velocity vector estimate $\hat{v}_{x_0, \epsilon}$,
+    \end{bmatrix}$, $\Lambda = \operatorname{Cov}(w\boldsymbol{x}(u - \mathbb{E}[u\,|\,\boldsymbol{x}]))$ and $u = y - \boldsymbol{x}^{\top}\beta_{x_0, \epsilon}^*$. Then we have asymptotic normality of the velocity vector estimate $\hat{v}_{x_0, \epsilon}$,
     \[\sqrt{n\epsilon^{d}}(\hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon}) \overset{d}{\rightarrow}N(0, \Sigma(x_0))\]
     where 
-    \[\Sigma(x_0) = \frac{(d+2)\sigma^2(x_0)}{p_x(x_0)\mathcal{L}(\mathcal{B}(0,1))} I_d.\]
+    \[\Sigma(x_0) = \frac{(d+2)\sigma^2(x_0)}{p(x_0)\mathcal{L}(\mathcal{B}(0,1))} I_d.\]
 \end{restatable}
 We provide the proof of \Cref{corr: central limit for v} in \Cref{sec: proof of central limit for v}. This result characterizes the limiting distribution of the gradient estimate $\hat v_{x_0, \epsilon}$ centered at its biased population counterpart $v^*_{x_0, \epsilon}$. The proof involves verifying that the random variables in the influence function expansion derived in \Cref{thm: decomposition for beta} satisfy the Lyapunov condition of \Cref{thm: lyapunov clt}. Combining the influence function expansion and the bias rate immediately yields a stochastic convergence rate for the estimator for a fixed out of sample point $x_0$. 
 
@@ -490,7 +490,7 @@ In particular, we consider the setting where $\Pi$ is a closest-point projection
     \begin{enumerate}
         \item $\Gamma$ is compact.
         \item the map $\gamma$ is injective.
-        \item for all $x' \in \operatorname{supp}(p_x) \triangleq \Omega$ we have that $\Pi(x') \in \text{Int}(I)$.
+        \item for all $x' \in \operatorname{supp}(p) \triangleq \Omega$ we have that $\Pi(x') \in \text{Int}(I)$.
     \end{enumerate}
 \end{restatable}
 
@@ -560,7 +560,7 @@ To estimate the gradient $\gamma$ we will estimate its tangent vector $\gamma'(t
 As before, the LLSIR procedure will estimate $\gamma'$ and then use projected kernel regression to estimate $f$. \tls{no need to repeat the formula -- just say the algorithm applies directly}In the subsequent content, we will instantiate our theoretical results from \Cref{sec: theoretical results} in the setting of the nonlinear single variable model. Again, we will operate under \Cref{assumption: lce and covariate density} -- note that, unlike prior work on estimating the nonlinear single variable model, we do not assume that the covariates are concentrated near the curve $\gamma$. Instead, we only require that the support is bounded and the density is sufficiently smooth. We consider this a key aspect of our approach, as any assumption about concentration near $\gamma$ reduces the problem to one of manifold learning. 
 
 \begin{restatable}[Bias shrinkage with localization]{corollary}{}\label{corollary: population prop curve}
-    For some scalar $c_* \in \mathbb{R}$, $p_x$-almost every $x_0 \in \mathcal{B}(0, r)$ and $\epsilon$ sufficiently small we have 
+    For some scalar $c_* \in \mathbb{R}$, $p$-almost every $x_0 \in \mathcal{B}(0, r)$ and $\epsilon$ sufficiently small we have
     \[\|v^*_{x_0, \epsilon} - c_*\gamma'(s_0)\|_2 \lesssim \epsilon^2\]
     with $v^*_{x_0, \epsilon}$ defined in \cref{eq: velocity estimator}, and  $s_0 = \Pi(x_0)$. Moreover, we have the explicit expression
     \[c_* = \frac{\epsilon f'(\Pi(x_0))+ o(\epsilon^2)}{\mathfrak s ^2- \langle \gamma''(s_0), x_0 - \gamma(s_0)\rangle}.\]
@@ -591,7 +591,7 @@ We provide log-log plots of the mean squared velocity error and mean squared reg
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=\linewidth]{figures/error_fixed_point.pdf}
-    \caption{\tls{make legend bigger}Simulation experiment for $d=2$. The top row shows mean squared velocity error between unit directions, (minimizing over signs); the bottom row shows mean squared prediction error. Nodes average $B=100$ nested training trials, with one Monte Carlo standard error as error bars. Red dashed lines show the theoretical guides. More details for this experiment are provided in \Cref{experimental details}.}
+    \caption{Simulation experiment for $d=2$. The top row shows mean squared velocity error between unit directions, (minimizing over signs); the bottom row shows mean squared prediction error. Nodes average $B=100$ nested training trials, with one Monte Carlo standard error as error bars. Red dashed lines show the theoretical guides. More details for this experiment are provided in \Cref{experimental details}.}
     \label{fig:fixed-point-planar}
 \end{figure}
 
@@ -648,15 +648,15 @@ It suffices to show that $\beta^*_{x_0, \epsilon} \rightarrow  \begin{bmatrix}c_
 as described in \Cref{eq: surrogate decomposition colloquial} and the surrogate residual 
 \[\xi(x) = f(g(x)) - m(x).\] Note that \Cref{lemma: proj approx general} implies that $ |\xi(x+x_0)| \leq C_{x_0}\|x\|_2^2$ for all $x\in\mathcal{B}(0,\epsilon)$. Let  
 \begin{align}
-    \tilde{\beta}^*_{x_0, \epsilon} &= \arg\min_{\beta}\mathbb{E}\Big[\mathbbm{1}_{\{x \in \mathcal{B}(0, \epsilon)\}}\frac{p^*(x)}{p_{0}(x)}\Big(m(x+x_0) - X^{\top}\beta\Big)^2\Big] \label{eq: perturbed pop estimator}
+    \tilde{\beta}^*_{x_0, \epsilon} &= \arg\min_{\beta}\mathbb{E}\Big[\mathbbm{1}_{\{x \in \mathcal{B}(0, \epsilon)\}}\frac{p^*(x)}{p(x)}\Big(m(x+x_0) - \boldsymbol{x}^{\top}\beta\Big)^2\Big] \label{eq: perturbed pop estimator}
 \end{align}
-where the expectation is taken with respect to $x \sim p_{x}$. By \Cref{lemma: surrogate problem} we know that for some $c_0, c_* \in \mathbb{R}$ we have $\tilde{\beta}^*_{x_0, \epsilon}  =  \begin{bmatrix}
+where the expectation is taken with respect to $x \sim p$. By \Cref{lemma: surrogate problem} we know that for some $c_0, c_* \in \mathbb{R}$ we have $\tilde{\beta}^*_{x_0, \epsilon}  =  \begin{bmatrix}
     c_0 & c_*\nabla g(x_0)
-\end{bmatrix}^{\top}$, while \Cref{lemma: constant of prop} gives the exact characterization $c_* = \epsilon f'(g(x_0))+ o(\epsilon^2)$. Observe that $\mathbb{E}[wXX^{\top}]$ is positive definite by \Cref{lemma: pd}. Thus, \Cref{lemma: perturbation} and \Cref{beta tilde simplification} give
+\end{bmatrix}^{\top}$, while \Cref{lemma: constant of prop} gives the exact characterization $c_* = \epsilon f'(g(x_0))+ o(\epsilon^2)$. Observe that $\mathbb{E}[w\boldsymbol{x}\boldsymbol{x}^{\top}]$ is positive definite by \Cref{lemma: pd}. Thus, \Cref{lemma: perturbation} and \Cref{beta tilde simplification} give
 \[
     v^*_{x_0,\epsilon}-V\tilde{\beta}_{x_0,\epsilon}^*
     =
-    VQ^{-1}\mathbb{E}[wX\xi(x+x_0)]
+    VQ^{-1}\mathbb{E}[w\boldsymbol{x}\xi(x+x_0)]
     =
     \frac{\epsilon}{\nu_\epsilon^2}
     \mathbb{E}_{p^*}\left[
@@ -687,51 +687,51 @@ where $\nu_\epsilon^2=\mathbb{E}_{p^*}[\mathbbm{1}_{\{x\in\mathcal{B}(0,\epsilon
 \subsection{Proof of \Cref{thm: decomposition for beta}} \label{sec: proof of velocity decomp}
 % This proof will follow closely the argument from \citet{Newey_Ruud_2005}. Let's define the matrices
 % \begin{equation*}
-%     Q = \mathbb{E}_{p_{x}}\left[wXX^{\top}\right] \qquad \text{and} \qquad \hat{Q} = \frac{1}{n}\sum_{i = 1}^n\hat{w}_iX_iX_i^{\top}.
+%     Q = \mathbb{E}_{p}\left[w\boldsymbol{x}\boldsymbol{x}^{\top}\right] \qquad \text{and} \qquad \hat{Q} = \frac{1}{n}\sum_{i = 1}^n\hat{w}_i\boldsymbol{x}_i\boldsymbol{x}_i^{\top}.
 % \end{equation*}
 % We have
 % \begin{align*}
-%     \hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon} &= V\hat{Q}^{-1}\left(\frac{1}{n}\sum_{i = 1}^n\hat{w}_iX_iy_i\right) - \beta^*_{x_0, \epsilon} \\
-%     &= V\hat{Q}^{-1}\left(\frac{1}{n}\sum_{i = 1}^n\hat{w}_iX_iy_i - \hat{Q}\beta^*_{x_0, \epsilon}\right) \\
-%     &= V\hat{Q}^{-1}\left(\frac{1}{n}\sum_{i = 1}^n\hat{w}_iX_i\underbrace{\left(y_i - X_i^{\top}\beta^*_{x_0, \epsilon}\right)}_{u_i}\right) \\
-%     &= V\hat{Q}^{-1}\left(\frac{1}{n}\sum_{i = 1}^n\hat{w}_iX_iu_i\right).
+%     \hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon} &= V\hat{Q}^{-1}\left(\frac{1}{n}\sum_{i = 1}^n\hat{w}_i\boldsymbol{x}_iy_i\right) - \beta^*_{x_0, \epsilon} \\
+%     &= V\hat{Q}^{-1}\left(\frac{1}{n}\sum_{i = 1}^n\hat{w}_i\boldsymbol{x}_iy_i - \hat{Q}\beta^*_{x_0, \epsilon}\right) \\
+%     &= V\hat{Q}^{-1}\left(\frac{1}{n}\sum_{i = 1}^n\hat{w}_i\boldsymbol{x}_i\underbrace{\left(y_i - \boldsymbol{x}_i^{\top}\beta^*_{x_0, \epsilon}\right)}_{u_i}\right) \\
+%     &= V\hat{Q}^{-1}\left(\frac{1}{n}\sum_{i = 1}^n\hat{w}_i\boldsymbol{x}_iu_i\right).
 % \end{align*}
 % Now we'll add and subtract out a term with the true weights $w_i$ to obtain
 % \begin{align*}
-%     \hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon} &= V\hat{Q}^{-1}\left(\frac{1}{n}\sum_{i = 1}^nw_iX_iu_i + \frac{1}{n}\sum_{i = 1}^n(\hat{w}_i - w_i)X_iu_i\right) \\
-%     &= V\hat{Q}^{-1}\Bigg(\frac{1}{n}\sum_{i = 1}^n\frac{\mathbbm{1}_{\{x_i \in \mathcal{B}(0, \epsilon)\}}p^*(x_i)X_iu_i}{p_{x}(x_i)} \\
-%     &\hspace{40mm}+ \frac{1}{n}\sum_{i = 1}^n\left[\frac{1}{\hat{p}_{x}(x_i)} - \frac{1}{p_{x}(x_i)}\right]\mathbbm{1}_{\{x_i \in \mathcal{B}(0, \epsilon)\}}p^*(x_i)X_iu_i\Bigg).
+%     \hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon} &= V\hat{Q}^{-1}\left(\frac{1}{n}\sum_{i = 1}^nw_i\boldsymbol{x}_iu_i + \frac{1}{n}\sum_{i = 1}^n(\hat{w}_i - w_i)\boldsymbol{x}_iu_i\right) \\
+%     &= V\hat{Q}^{-1}\Bigg(\frac{1}{n}\sum_{i = 1}^n\frac{\mathbbm{1}_{\{x_i \in \mathcal{B}(0, \epsilon)\}}p^*(x_i)\boldsymbol{x}_iu_i}{p(x_i)} \\
+%     &\hspace{40mm}+ \frac{1}{n}\sum_{i = 1}^n\left[\frac{1}{\hat{p}(x_i)} - \frac{1}{p(x_i)}\right]\mathbbm{1}_{\{x_i \in \mathcal{B}(0, \epsilon)\}}p^*(x_i)\boldsymbol{x}_iu_i\Bigg).
 % \end{align*}
-% Now if we define $a(z) = \mathbbm{1}_{\{x_i \in \mathcal{B}(0, \epsilon)\}}p^*(x_i)X_iu_i$ then we can write the above expression as
+% Now if we define $a(z) = \mathbbm{1}_{\{x_i \in \mathcal{B}(0, \epsilon)\}}p^*(x_i)\boldsymbol{x}_iu_i$ then we can write the above expression as
 % \begin{align*}
-%     \hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon} &= V\hat{Q}^{-1}\left(\frac{1}{n}\sum_{i = 1}^n\frac{a(z)}{p_{x}(x_i)} + \frac{1}{n}\sum_{i = 1}^n\left[\frac{1}{\hat{p}_{x}(x_i)} - \frac{1}{p_{x}(x_i)}\right]a(z)\right).
+%     \hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon} &= V\hat{Q}^{-1}\left(\frac{1}{n}\sum_{i = 1}^n\frac{a(z)}{p(x_i)} + \frac{1}{n}\sum_{i = 1}^n\left[\frac{1}{\hat{p}(x_i)} - \frac{1}{p(x_i)}\right]a(z)\right).
 % \end{align*}
-% Now we'll apply a first order Taylor expansion of $g(t) = 1/t$ where $\Delta(x_i) = \hat{p}_{x}(x_i) - p_{x}(x_i)$ to say,
+% Now we'll apply a first order Taylor expansion of $g(t) = 1/t$ where $\Delta(x_i) = \hat{p}(x_i) - p(x_i)$ to say,
 % \begin{align}
-%     \hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon} &= V\hat{Q}^{-1}\bigg(\frac{1}{n}\sum_{i = 1}^n\frac{a(z)}{p_{x}(x_i)} - \underbrace{\frac{1}{n}\sum_{i = 1}^n\frac{a(z)\Delta(x_i)}{p_{x}^2(x_i)}}_{R_1} + \underbrace{\frac{1}{n}\sum_{i = 1}^na(z) \frac{1}{2}g''(\xi_i)\Delta(x_i)^2}_{R_2}\bigg) \label{eq: expansion with remainder}
+%     \hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon} &= V\hat{Q}^{-1}\bigg(\frac{1}{n}\sum_{i = 1}^n\frac{a(z)}{p(x_i)} - \underbrace{\frac{1}{n}\sum_{i = 1}^n\frac{a(z)\Delta(x_i)}{p^2(x_i)}}_{R_1} + \underbrace{\frac{1}{n}\sum_{i = 1}^na(z) \frac{1}{2}g''(\xi_i)\Delta(x_i)^2}_{R_2}\bigg) \label{eq: expansion with remainder}
 % \end{align}
-% where $\xi_i$ is some value between $p_{x}(x_i)$ and $\hat{p}_{x}(x_i)$. Now note that $\mathbb{E}[a(z)/p_{x}(x)] = \mathbb{E}[wXu] = 0$ by the population first order conditions. We'll adopt the notation that $\mathbb{P}f = \mathbb{E}_{p_{x}}[f]$ and $\mathbb{P}_nf = \frac{1}{n}\sum_{i = 1}^nf(x_i)$. Thus,
+% where $\xi_i$ is some value between $p(x_i)$ and $\hat{p}(x_i)$. Now note that $\mathbb{E}[a(z)/p(x)] = \mathbb{E}[w\boldsymbol{x}u] = 0$ by the population first order conditions. We'll adopt the notation that $\mathbb{P}f = \mathbb{E}_{p}[f]$ and $\mathbb{P}_nf = \frac{1}{n}\sum_{i = 1}^nf(x_i)$. Thus,
 % \begin{align*}
-%     \frac{1}{n}\sum_{i = 1}^n\frac{a(z)}{p_{x}(x_i)} &= \frac{1}{n}\sum_{i = 1}^n\frac{a(z)}{p_{x}(x_i)} - \mathbb{E}\left[\frac{a(z)}{p_{x}(x)}\right] \\
-%     &= (\mathbb{P}_n -\mathbb{P})\left[\frac{a(z)}{p_{x}(x)}\right] \\
-%     &= \frac{1}{n}\sum_{i = 1}^n w_i X_i u_i.
+%     \frac{1}{n}\sum_{i = 1}^n\frac{a(z)}{p(x_i)} &= \frac{1}{n}\sum_{i = 1}^n\frac{a(z)}{p(x_i)} - \mathbb{E}\left[\frac{a(z)}{p(x)}\right] \\
+%     &= (\mathbb{P}_n -\mathbb{P})\left[\frac{a(z)}{p(x)}\right] \\
+%     &= \frac{1}{n}\sum_{i = 1}^n w_i \boldsymbol{x}_i u_i.
 % \end{align*}
 % Now we'll consider the first remainder term. By \Cref{lemma: remainder term}
-% \[R_1 = \frac{1}{n}\sum_{i = 1}^n \frac{\mathbb{E}[a(Z)\,| \,x_i]}{p_{x}(x_i)} + O_p\left( \epsilon^dh^s + \sqrt{\frac{\epsilon^d}{n^2h^d}}\right).\]
+% \[R_1 = \frac{1}{n}\sum_{i = 1}^n \frac{\mathbb{E}[a(Z)\,| \,x_i]}{p(x_i)} + O_p\left( \epsilon^dh^s + \sqrt{\frac{\epsilon^d}{n^2h^d}}\right).\]
 % Note that \Cref{lemma: uniform convergence of kde} indicates that \[\sup_{x\in \mathcal{B}(0, \epsilon)} \left|\Delta(x)\right| =O_p\left(\sqrt{\frac{\log n}{nh^d}} +h^s \right) =o_p(1)\] when $h \rightarrow 0$ and $nh^d \rightarrow \infty$. Thus, 
 % \begin{align*}
-%     \|R_2\|_2 &= \left\|\mathbb{P}_n\left[\frac{a(z)}{p_{x}(x)}p_{x}(x)\frac{1}{2}g''(\xi)\Delta(x)^2\right]\right\|_2\\
-%     &\leq \mathbb{P}_n[\left\|wXu\right\|_2(1/2)|g''(\xi)|]\sup_{\mathcal{B}(0, \epsilon)}|p_{x}(x)|\cdot \sup_{\mathcal{B}(0, \epsilon)}|\Delta(x)|^2. 
+%     \|R_2\|_2 &= \left\|\mathbb{P}_n\left[\frac{a(z)}{p(x)}p(x)\frac{1}{2}g''(\xi)\Delta(x)^2\right]\right\|_2\\
+%     &\leq \mathbb{P}_n[\left\|w\boldsymbol{x}u\right\|_2(1/2)|g''(\xi)|]\sup_{\mathcal{B}(0, \epsilon)}|p(x)|\cdot \sup_{\mathcal{B}(0, \epsilon)}|\Delta(x)|^2.
 % \end{align*}
-% Now note that $g''(t) = 2/t^3$  -- since $\sup_{x\in \mathcal{B}(0, \epsilon)} \left|\Delta(x)\right| = o_p(1)$ we know that $\hat{p}_{x} > m/2$ for all $x \in \mathcal{B}(0, \epsilon)$ with probability approaching $1$. It follows that $\xi_i > m/2$ with probability approaching $1$ as well. Thus,
+% Now note that $g''(t) = 2/t^3$  -- since $\sup_{x\in \mathcal{B}(0, \epsilon)} \left|\Delta(x)\right| = o_p(1)$ we know that $\hat{p} > m/2$ for all $x \in \mathcal{B}(0, \epsilon)$ with probability approaching $1$. It follows that $\xi_i > m/2$ with probability approaching $1$ as well. Thus,
 % \begin{align*}
-%     \|R_2\|_2 &\leq \mathbb{P}_n\left\|wXu\right\|_2\cdot (8/m^3)\cdot \sup_{\mathcal{B}(0, \epsilon)}|p_{x}(x)|\cdot \sup_{\mathcal{B}(0, \epsilon)}|\Delta(x)|^2 \\
-%     &= \mathbb{P}_n\left\|wXu\right\|_2 \cdot O_p\left(\frac{\log n}{nh^d} +h^{2s} \right) \\
+%     \|R_2\|_2 &\leq \mathbb{P}_n\left\|w\boldsymbol{x}u\right\|_2\cdot (8/m^3)\cdot \sup_{\mathcal{B}(0, \epsilon)}|p(x)|\cdot \sup_{\mathcal{B}(0, \epsilon)}|\Delta(x)|^2 \\
+%     &= \mathbb{P}_n\left\|w\boldsymbol{x}u\right\|_2 \cdot O_p\left(\frac{\log n}{nh^d} +h^{2s} \right) \\
 %     &= O_p\left(\frac{\epsilon^d\log n}{nh^d} +\epsilon^dh^{2s}\right) 
 % \end{align*}
 % with probability approaching $1$. Writing $\mathfrak R_n := \frac{\epsilon^d\log n}{nh^d} +\epsilon^dh^{2s}$, we have
 % \begin{align*}
-%     \hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon} &= V\hat{Q}^{-1}\left(\frac{1}{n}\sum_{i = 1}^n\frac{a(z_i) - \mathbb{E}[a(Z)\,|\, x_i]}{p_{x}(x_i)} + O(\epsilon^dh^s) + O_p\left( \mathfrak R_n + \sqrt{\frac{\epsilon^d}{n^2h^d}}\right)\right).
+%     \hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon} &= V\hat{Q}^{-1}\left(\frac{1}{n}\sum_{i = 1}^n\frac{a(z_i) - \mathbb{E}[a(Z)\,|\, x_i]}{p(x_i)} + O(\epsilon^dh^s) + O_p\left( \mathfrak R_n + \sqrt{\frac{\epsilon^d}{n^2h^d}}\right)\right).
 % \end{align*}
 % Now we will introduce $Q$ as follows,
 % \begin{equation*}
@@ -739,7 +739,7 @@ where $\nu_\epsilon^2=\mathbb{E}_{p^*}[\mathbbm{1}_{\{x\in\mathcal{B}(0,\epsilon
 % \end{equation*}
 % with
 % \begin{align*}
-%     \psi_n &= \frac{1}{n}\sum_{i = 1}^n\frac{a(z_i) -\mathbb{E}[a(Z)\,|\, x_i]}{p_{x}(x_i)} +    \underbrace{O(\epsilon^dh^s) + O_p\left( \mathfrak R_n +  \sqrt{\frac{\epsilon^d}{n^2h^d}}\right)}_{:= r_n} \\
+%     \psi_n &= \frac{1}{n}\sum_{i = 1}^n\frac{a(z_i) -\mathbb{E}[a(Z)\,|\, x_i]}{p(x_i)} +    \underbrace{O(\epsilon^dh^s) + O_p\left( \mathfrak R_n +  \sqrt{\frac{\epsilon^d}{n^2h^d}}\right)}_{:= r_n} \\
 %     &= O_p\left(\sqrt{\frac{\epsilon^d}{n}}+\mathfrak R_n + \epsilon^dh^s + \sqrt{\frac{\epsilon^d}{n^2h^d}}\right).
 % \end{align*}
 % By \Cref{lemma: Q convergence} we know that 
@@ -769,45 +769,45 @@ where $\nu_\epsilon^2=\mathbb{E}_{p^*}[\mathbbm{1}_{\{x\in\mathcal{B}(0,\epsilon
 % \end{align*}
 % Putting it together, we obtain
 % \begin{equation}
-%     \hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon} = \frac{1}{n}VQ^{-1}\sum_{i = 1}^n w_iX_i(u_i - \mathbb{E}[u_i\,|\,X_i]) \\
+%     \hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon} = \frac{1}{n}VQ^{-1}\sum_{i = 1}^n w_i\boldsymbol{x}_i(u_i - \mathbb{E}[u_i\,|\,\boldsymbol{x}_i]) \\
 %     +  o_p\left(\frac{1}{\sqrt{n\epsilon^{d}}}\right).
 % \end{equation}
 % \qed{}
 
 This proof will follow closely the argument from \citet{Newey_Ruud_2005}. Let's define the matrices
 \begin{equation*}
-    Q = \mathbb{E}_{p_{x}}\left[wXX^{\top}\right] \qquad \text{and} \qquad \hat{Q} = \frac{1}{n}\sum_{i = 1}^n\hat{w}_iX_iX_i^{\top}.
+    Q = \mathbb{E}_{p}\left[w\boldsymbol{x}\boldsymbol{x}^{\top}\right] \qquad \text{and} \qquad \hat{Q} = \frac{1}{n}\sum_{i = 1}^n\hat{w}_i\boldsymbol{x}_i\boldsymbol{x}_i^{\top}.
 \end{equation*}
 We have
 \begin{align*}
-    \hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon} &= V\hat{Q}^{-1}\left(\frac{1}{n}\sum_{i = 1}^n\hat{w}_iX_iy_i\right) - V\beta^*_{x_0, \epsilon} \\
-    &= V\hat{Q}^{-1}\left(\frac{1}{n}\sum_{i = 1}^n\hat{w}_iX_iy_i - \hat{Q}\beta^*_{x_0, \epsilon}\right) \\
-    &= V\hat{Q}^{-1}\left(\frac{1}{n}\sum_{i = 1}^n\hat{w}_iX_i\underbrace{\left(y_i - X_i^{\top}\beta^*_{x_0, \epsilon}\right)}_{u_i}\right) \\
-    &= V\hat{Q}^{-1}\left(\frac{1}{n}\sum_{i = 1}^n\hat{w}_iX_iu_i\right).
+    \hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon} &= V\hat{Q}^{-1}\left(\frac{1}{n}\sum_{i = 1}^n\hat{w}_i\boldsymbol{x}_iy_i\right) - V\beta^*_{x_0, \epsilon} \\
+    &= V\hat{Q}^{-1}\left(\frac{1}{n}\sum_{i = 1}^n\hat{w}_i\boldsymbol{x}_iy_i - \hat{Q}\beta^*_{x_0, \epsilon}\right) \\
+    &= V\hat{Q}^{-1}\left(\frac{1}{n}\sum_{i = 1}^n\hat{w}_i\boldsymbol{x}_i\underbrace{\left(y_i - \boldsymbol{x}_i^{\top}\beta^*_{x_0, \epsilon}\right)}_{u_i}\right) \\
+    &= V\hat{Q}^{-1}\left(\frac{1}{n}\sum_{i = 1}^n\hat{w}_i\boldsymbol{x}_iu_i\right).
 \end{align*}
 Now we'll add and subtract out a term with the true weights $w_i$ to obtain
 \begin{align*}
-    \hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon} &= V\hat{Q}^{-1}\left(\frac{1}{n}\sum_{i = 1}^nw_iX_iu_i + \frac{1}{n}\sum_{i = 1}^n(\hat{w}_i - w_i)X_iu_i\right) \\
-    &= V\hat{Q}^{-1}\Bigg(\frac{1}{n}\sum_{i = 1}^n\frac{\mathbbm{1}_{\{x_i \in \mathcal{B}(0, \epsilon)\}}p^*(x_i)X_iu_i}{p_{x}(x_i)} \\
-    &\hspace{40mm}+ \frac{1}{n}\sum_{i = 1}^n\left[\frac{1}{\hat{p}_{x}(x_i)} - \frac{1}{p_{x}(x_i)}\right]\mathbbm{1}_{\{x_i \in \mathcal{B}(0, \epsilon)\}}p^*(x_i)X_iu_i\Bigg).
+    \hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon} &= V\hat{Q}^{-1}\left(\frac{1}{n}\sum_{i = 1}^nw_i\boldsymbol{x}_iu_i + \frac{1}{n}\sum_{i = 1}^n(\hat{w}_i - w_i)\boldsymbol{x}_iu_i\right) \\
+    &= V\hat{Q}^{-1}\Bigg(\frac{1}{n}\sum_{i = 1}^n\frac{\mathbbm{1}_{\{x_i \in \mathcal{B}(0, \epsilon)\}}p^*(x_i)\boldsymbol{x}_iu_i}{p(x_i)} \\
+    &\hspace{40mm}+ \frac{1}{n}\sum_{i = 1}^n\left[\frac{1}{\hat{p}(x_i)} - \frac{1}{p(x_i)}\right]\mathbbm{1}_{\{x_i \in \mathcal{B}(0, \epsilon)\}}p^*(x_i)\boldsymbol{x}_iu_i\Bigg).
 \end{align*}
-Now if we define $a(z_i) = \mathbbm{1}_{\{x_i \in \mathcal{B}(0, \epsilon)\}}p^*(x_i)X_iu_i$ then we can write the above expression as
+Now if we define $a(z_i) = \mathbbm{1}_{\{x_i \in \mathcal{B}(0, \epsilon)\}}p^*(x_i)\boldsymbol{x}_iu_i$ then we can write the above expression as
 \begin{align*}
-    \hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon} &= V\hat{Q}^{-1}\left(\frac{1}{n}\sum_{i = 1}^n\frac{a(z_i)}{p_{x}(x_i)} + \frac{1}{n}\sum_{i = 1}^n\left[\frac{1}{\hat{p}_{x}(x_i)} - \frac{1}{p_{x}(x_i)}\right]a(z_i)\right).
+    \hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon} &= V\hat{Q}^{-1}\left(\frac{1}{n}\sum_{i = 1}^n\frac{a(z_i)}{p(x_i)} + \frac{1}{n}\sum_{i = 1}^n\left[\frac{1}{\hat{p}(x_i)} - \frac{1}{p(x_i)}\right]a(z_i)\right).
 \end{align*}
-Now we'll apply a first order Taylor expansion of $g(t) = 1/t$ where $\Delta(x_i) = \hat{p}_{x}(x_i) - p_{x}(x_i)$ to say,
+Now we'll apply a first order Taylor expansion of $g(t) = 1/t$ where $\Delta(x_i) = \hat{p}(x_i) - p(x_i)$ to say,
 \begin{align}
-    \hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon} &= V\hat{Q}^{-1}\bigg(\frac{1}{n}\sum_{i = 1}^n\frac{a(z_i)}{p_{x}(x_i)} - \underbrace{\frac{1}{n}\sum_{i = 1}^n\frac{a(z_i)\Delta(x_i)}{p_{x}^2(x_i)}}_{R_1} + \underbrace{\frac{1}{n}\sum_{i = 1}^na(z_i) \frac{1}{2}g''(\xi_i)\Delta(x_i)^2}_{R_2}\bigg) \label{eq: expansion with remainder}
+    \hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon} &= V\hat{Q}^{-1}\bigg(\frac{1}{n}\sum_{i = 1}^n\frac{a(z_i)}{p(x_i)} - \underbrace{\frac{1}{n}\sum_{i = 1}^n\frac{a(z_i)\Delta(x_i)}{p^2(x_i)}}_{R_1} + \underbrace{\frac{1}{n}\sum_{i = 1}^na(z_i) \frac{1}{2}g''(\xi_i)\Delta(x_i)^2}_{R_2}\bigg) \label{eq: expansion with remainder}
 \end{align}
-where $\xi_i$ is some value between $p_{x}(x_i)$ and $\hat{p}_{x}(x_i)$. Now note that $\mathbb{E}[a(Z)/p_{x}(X)] = \mathbb{E}[wXu] = 0$ by the population first order conditions. We'll adopt the notation that $\mathbb{P}f = \mathbb{E}_{p_{x}}[f]$ and $\mathbb{P}_nf = \frac{1}{n}\sum_{i = 1}^nf(x_i)$. Thus,
+where $\xi_i$ is some value between $p(x_i)$ and $\hat{p}(x_i)$. Now note that $\mathbb{E}[a(Z)/p(X)] = \mathbb{E}[w\boldsymbol{x}u] = 0$ by the population first order conditions. We'll adopt the notation that $\mathbb{P}f = \mathbb{E}_{p}[f]$ and $\mathbb{P}_nf = \frac{1}{n}\sum_{i = 1}^nf(x_i)$. Thus,
 \begin{align*}
-    \frac{1}{n}\sum_{i = 1}^n\frac{a(z_i)}{p_{x}(x_i)} &= \frac{1}{n}\sum_{i = 1}^n\frac{a(z_i)}{p_{x}(x_i)} - \mathbb{E}\left[\frac{a(Z)}{p_{x}(X)}\right] \\
-    &= (\mathbb{P}_n -\mathbb{P})\left[\frac{a(Z)}{p_{x}(X)}\right] \\
-    &= \frac{1}{n}\sum_{i = 1}^n w_i X_i u_i.
+    \frac{1}{n}\sum_{i = 1}^n\frac{a(z_i)}{p(x_i)} &= \frac{1}{n}\sum_{i = 1}^n\frac{a(z_i)}{p(x_i)} - \mathbb{E}\left[\frac{a(Z)}{p(X)}\right] \\
+    &= (\mathbb{P}_n -\mathbb{P})\left[\frac{a(Z)}{p(X)}\right] \\
+    &= \frac{1}{n}\sum_{i = 1}^n w_i \boldsymbol{x}_i u_i.
 \end{align*}
 Now we'll consider the first remainder term. By \Cref{lemma: remainder term},
 \[
-    R_1 = \frac{1}{n}\sum_{i = 1}^n \frac{\mathbb{E}[a(Z)\,|\,X=x_i]}{p_{x}(x_i)} + o_p\left(\sqrt{\frac{\epsilon^d}{n}}\right).
+    R_1 = \frac{1}{n}\sum_{i = 1}^n \frac{\mathbb{E}[a(Z)\,|\,X=x_i]}{p(x_i)} + o_p\left(\sqrt{\frac{\epsilon^d}{n}}\right).
 \]
 For the second remainder term, \Cref{lemma: uniform convergence of kde} and the standing choice $h\asymp n^{-1/(2s+d)}$ imply
 \[
@@ -815,12 +815,12 @@ For the second remainder term, \Cref{lemma: uniform convergence of kde} and the 
 \]
 where $nh^d/\log n\rightarrow\infty$. Thus,
 \begin{align*}
-    \|R_2\|_2 &= \left\|\mathbb{P}_n\left[\frac{a(Z)}{p_{x}(X)}p_{x}(X)\frac{1}{2}g''(\xi)\Delta(X)^2\right]\right\|_2\\
-    &\leq \mathbb{P}_n[\left\|wXu\right\|_2(1/2)|g''(\xi)|]\sup_{\mathcal{B}(0, \epsilon)}|p_{x}(x)|\cdot \sup_{\mathcal{B}(0, \epsilon)}|\Delta(x)|^2.
+    \|R_2\|_2 &= \left\|\mathbb{P}_n\left[\frac{a(Z)}{p(X)}p(X)\frac{1}{2}g''(\xi)\Delta(X)^2\right]\right\|_2\\
+    &\leq \mathbb{P}_n[\left\|w\boldsymbol{x}u\right\|_2(1/2)|g''(\xi)|]\sup_{\mathcal{B}(0, \epsilon)}|p(x)|\cdot \sup_{\mathcal{B}(0, \epsilon)}|\Delta(x)|^2.
 \end{align*}
-Now note that $g''(t) = 2/t^3$. Since $p_{x}\geq m>0$ on $\mathcal{B}(0,\epsilon)$ and $\sup_{x\in \mathcal{B}(0,\epsilon)}|\Delta(x)|=o_p(1)$, we know that $\hat{p}_{x}(x)>m/2$ uniformly on $\mathcal{B}(0,\epsilon)$ with probability approaching $1$. It follows that $\xi_i>m/2$ with probability approaching $1$ as well. Moreover, the standing moment assumptions and local boundedness of the density ratio imply $\mathbb{E}\|wXu\|_2=O(\epsilon^d)$, and hence $\mathbb{P}_n\|wXu\|_2=O_p(\epsilon^d)$. Therefore,
+Now note that $g''(t) = 2/t^3$. Since $p\geq m>0$ on $\mathcal{B}(0,\epsilon)$ and $\sup_{x\in \mathcal{B}(0,\epsilon)}|\Delta(x)|=o_p(1)$, we know that $\hat{p}(x)>m/2$ uniformly on $\mathcal{B}(0,\epsilon)$ with probability approaching $1$. It follows that $\xi_i>m/2$ with probability approaching $1$ as well. Moreover, the standing moment assumptions and local boundedness of the density ratio imply $\mathbb{E}\|w\boldsymbol{x}u\|_2=O(\epsilon^d)$, and hence $\mathbb{P}_n\|w\boldsymbol{x}u\|_2=O_p(\epsilon^d)$. Therefore,
 \begin{align*}
-    \|R_2\|_2 &\leq \mathbb{P}_n\left\|wXu\right\|_2\cdot (8/m^3)\cdot \sup_{\mathcal{B}(0, \epsilon)}|p_{x}(x)|\cdot \sup_{\mathcal{B}(0, \epsilon)}|\Delta(x)|^2 \\
+    \|R_2\|_2 &\leq \mathbb{P}_n\left\|w\boldsymbol{x}u\right\|_2\cdot (8/m^3)\cdot \sup_{\mathcal{B}(0, \epsilon)}|p(x)|\cdot \sup_{\mathcal{B}(0, \epsilon)}|\Delta(x)|^2 \\
     &= O_p\left(\epsilon^d\left\{\frac{\log n}{nh^d} +h^{2s}\right\}\right) \\
     &= o_p\left(\sqrt{\frac{\epsilon^d}{n}}\right),
 \end{align*}
@@ -833,7 +833,7 @@ where the final line follows from $h\asymp n^{-1/(2s+d)}$ and $\epsilon/h\righta
 \] Combining the bounds for $R_1$ and $R_2$ in \cref{eq: expansion with remainder} gives
 \begin{align*}
     \hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon}
-    &= V\hat{Q}^{-1}\left(\frac{1}{n}\sum_{i = 1}^n\frac{a(z_i) - \mathbb{E}[a(Z)\,|\,X=x_i]}{p_{x}(x_i)}
+    &= V\hat{Q}^{-1}\left(\frac{1}{n}\sum_{i = 1}^n\frac{a(z_i) - \mathbb{E}[a(Z)\,|\,X=x_i]}{p(x_i)}
     + o_p\left(\sqrt{\frac{\epsilon^d}{n}}\right)\right).
 \end{align*}
 Now we will introduce $Q$ as follows,
@@ -842,12 +842,12 @@ Now we will introduce $Q$ as follows,
 \end{equation*}
 with
 \begin{align*}
-    \psi_n &= \frac{1}{n}\sum_{i = 1}^n\frac{a(z_i) -\mathbb{E}[a(Z)\,|\,X=x_i]}{p_{x}(x_i)}
+    \psi_n &= \frac{1}{n}\sum_{i = 1}^n\frac{a(z_i) -\mathbb{E}[a(Z)\,|\,X=x_i]}{p(x_i)}
     + o_p\left(\sqrt{\frac{\epsilon^d}{n}}\right) \\
     &= O_p\left(\sqrt{\frac{\epsilon^d}{n}}\right).
 \end{align*}
 Indeed, the summands in the first term are mean zero and the standing moment and density assumptions imply
-$\mathbb{E}\|(a(Z)-\mathbb{E}[a(Z)\mid X])/p_{x}(X)\|_2^2=O(\epsilon^d)$. By \Cref{lemma: Q convergence} we know that
+$\mathbb{E}\|(a(Z)-\mathbb{E}[a(Z)\mid X])/p(X)\|_2^2=O(\epsilon^d)$. By \Cref{lemma: Q convergence} we know that
 \[
     \|\hat{Q}^{-1} - Q^{-1}\|_{\operatorname{op}}
     =
@@ -871,15 +871,15 @@ Furthermore, $\|Q^{-1}\|_{\operatorname{op}} \lesssim \epsilon^{-d}$ as derived 
 \]
 Finally, observe that
 \[
-    \frac{a(z_i)-\mathbb{E}[a(Z)\mid X=x_i]}{p_{x}(x_i)}
+    \frac{a(z_i)-\mathbb{E}[a(Z)\mid X=x_i]}{p(x_i)}
     =
-    w_iX_i\left(u_i-\mathbb{E}[u_i\mid X_i]\right).
+    w_i\boldsymbol{x}_i\left(u_i-\mathbb{E}[u_i\mid \boldsymbol{x}_i]\right).
 \]
 Putting everything together, we obtain
 \begin{equation}
     \hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon}
     =
-    \frac{1}{n}VQ^{-1}\sum_{i = 1}^nw_iX_i(u_i - \mathbb{E}[u_i\,|\,X_i])
+    \frac{1}{n}VQ^{-1}\sum_{i = 1}^nw_i\boldsymbol{x}_i(u_i - \mathbb{E}[u_i\,|\,\boldsymbol{x}_i])
     + o_p\left(\frac{1}{\sqrt{n\epsilon^{d}}}\right).
 \end{equation}
 \qed{}
@@ -889,16 +889,16 @@ Putting everything together, we obtain
 \subsection{Proof of \Cref{corr: central limit for v}} \label{sec: proof of central limit for v}
 From \Cref{thm: decomposition for beta} we have, 
 \begin{align*}
-    \hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon} = \frac{1}{n}VQ^{-1}\sum_{i = 1}^nw_iX_i(u_i - \mathbb{E}[u_i|X_i]) 
+    \hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon} = \frac{1}{n}VQ^{-1}\sum_{i = 1}^nw_i\boldsymbol{x}_i(u_i - \mathbb{E}[u_i|\boldsymbol{x}_i])
     + O_p\left(h^s\right) + o_p\left(\frac{1}{\sqrt{n\epsilon^d}}\right).
 \end{align*}
 Multiplying through by $\sqrt{n\epsilon^{d}}$ yields
 \begin{align*}
-    \sqrt{n\epsilon^{d}}(\hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon}) = \sqrt{\frac{\epsilon^{d}}{n}}VQ^{-1}\sum_{i = 1}^nw_iX_i(u_i - \mathbb{E}[u_i|X_i]) 
+    \sqrt{n\epsilon^{d}}(\hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon}) = \sqrt{\frac{\epsilon^{d}}{n}}VQ^{-1}\sum_{i = 1}^nw_i\boldsymbol{x}_i(u_i - \mathbb{E}[u_i|\boldsymbol{x}_i])
     + o_p\left(1\right)
 \end{align*}
 under the assymption that $\epsilon/h \to 0.$ Now we'll appeal to the Lyapunov central limit theorem described in \Cref{thm: lyapunov clt}. To do this, we will define the triangular array
-\[U_{n, i} = \sqrt{\frac{\epsilon^{d}}{n}}VQ^{-1}w_iX_i(u_i - \mathbb{E}[u_i|X_i]).\]
+\[U_{n, i} = \sqrt{\frac{\epsilon^{d}}{n}}VQ^{-1}w_i\boldsymbol{x}_i(u_i - \mathbb{E}[u_i|\boldsymbol{x}_i]).\]
 Now let
 \[
     V_n = \sum_{i=1}^n\operatorname{Cov}(U_{n,i})
@@ -909,17 +909,17 @@ Since the $U_{n,i}$ are independent and identically distributed for each fixed $
 \begin{align*}
     V_n
     &= \frac{\epsilon^d}{n}\sum_{i=1}^n
-    VQ^{-1}\operatorname{Cov}\left(w_iX_i(u_i-\mathbb{E}[u_i\mid X_i])\right)Q^{-1}V^\top \\
+    VQ^{-1}\operatorname{Cov}\left(w_i\boldsymbol{x}_i(u_i-\mathbb{E}[u_i\mid \boldsymbol{x}_i])\right)Q^{-1}V^\top \\
     &= \epsilon^dVQ^{-1}\Lambda Q^{-1}V^\top,
 \end{align*}
-where $\Lambda=\operatorname{Cov}(wX(u-\mathbb{E}[u\mid X]))$. By \Cref{lemma: asymptotic var bound},
+where $\Lambda=\operatorname{Cov}(w\boldsymbol{x}(u-\mathbb{E}[u\mid \boldsymbol{x}]))$. By \Cref{lemma: asymptotic var bound},
 \[
     V_n \rightarrow c_{\Sigma}I_d,
     \qquad
     c_{\Sigma}
     =
     \frac{(d+2)\sigma^2(0)}
-    {p_{x}(0)\mathcal{L}(\mathcal{B}(0,1))}
+    {p(0)\mathcal{L}(\mathcal{B}(0,1))}
     >0.
 \]
 Therefore, $v_n^2\rightarrow c_{\Sigma}$ and in particular $v_n$ is bounded away from zero for all sufficiently large $n$.
@@ -929,16 +929,16 @@ We now verify the Lyapunov condition in \Cref{thm: lyapunov clt} with $\delta=1$
     \frac{1}{v_n^3}\sum_{i=1}^n\mathbb{E}\|U_{n,i}\|_2^3
     &=
     \frac{\epsilon^{3d/2}}{v_n^3\sqrt{n}}
-    \mathbb{E}\left\|VQ^{-1}wX(u-\mathbb{E}[u\mid X])\right\|_2^3 \\
+    \mathbb{E}\left\|VQ^{-1}w\boldsymbol{x}(u-\mathbb{E}[u\mid \boldsymbol{x}])\right\|_2^3 \\
     &\leq
     \frac{\epsilon^{3d/2}}{v_n^3\sqrt{n}}
     \|VQ^{-1}\|_{\operatorname{op}}^3
-    \mathbb{E}\left\|wX(u-\mathbb{E}[u\mid X])\right\|_2^3.
+    \mathbb{E}\left\|w\boldsymbol{x}(u-\mathbb{E}[u\mid \boldsymbol{x}])\right\|_2^3.
 \end{align*}
-By \Cref{lemma: Q op norm}, $\|Q^{-1}\|_{\operatorname{op}}\lesssim\epsilon^{-d}$. Moreover, $u-\mathbb{E}[u\mid X]=\varepsilon$, since conditional on $X$ we have $\mathbb{E}[u\mid X]=f(g(x))-X^\top\beta^*_{x_0,\epsilon}$. Thus, using $\|X\|_2\leq\sqrt{2}$ on $\mathcal{B}(0,\epsilon)$,
+By \Cref{lemma: Q op norm}, $\|Q^{-1}\|_{\operatorname{op}}\lesssim\epsilon^{-d}$. Moreover, $u-\mathbb{E}[u\mid \boldsymbol{x}]=\varepsilon$, since conditional on $\boldsymbol{x}$ we have $\mathbb{E}[u\mid \boldsymbol{x}]=f(g(x))-\boldsymbol{x}^\top\beta^*_{x_0,\epsilon}$. Thus, using $\|\boldsymbol{x}\|_2\leq\sqrt{2}$ on $\mathcal{B}(0,\epsilon)$,
 \begin{align*}
-    \mathbb{E}\|wX(u-\mathbb{E}[u\mid X])\|_2^3
-    &= \mathbb{E}\left[w^3\|X\|_2^3|\varepsilon|^3\right] \\
+    \mathbb{E}\|w\boldsymbol{x}(u-\mathbb{E}[u\mid \boldsymbol{x}])\|_2^3
+    &= \mathbb{E}\left[w^3\|\boldsymbol{x}\|_2^3|\varepsilon|^3\right] \\
     &\leq 2^{3/2}w_{\max}^2\mathbb{E}\left[w|\varepsilon|^3\right] \\
     &= 2^{3/2}w_{\max}^2\int_{\mathcal{B}(0,\epsilon)}
     p^*(x)\mathbb{E}[|\varepsilon|^3\mid x]\,dx \\
@@ -981,7 +981,7 @@ where $\mu_{\psi} = \mathbb{E}[\psi_{\epsilon}]$,
 \varphi_{\epsilon,j}
 =
 \frac{1}{\epsilon |f'(g(x_0))|\|\nabla g(x_0)\|_2}
-P_{\epsilon}VQ^{-1}w_jX_j\left(u_j-\mathbb{E}[u_j\mid X_j]\right).
+P_{\epsilon}VQ^{-1}w_j\boldsymbol{x}_j\left(u_j-\mathbb{E}[u_j\mid \boldsymbol{x}_j]\right).
 \]
 and
 \[\psi_{\epsilon, i} = \frac{\mathbbm{1}_{\{x_i \in \mathcal{B}(0, \epsilon)\}}(y_i - \bar{f}(x_0))\partial_{z_i}K_r(\frac{z_i}{h_r})x_i}{\mathbb{E}\left[\mathbbm{1}_{\{x \in \mathcal{B}(0, \epsilon)\}}K_r(z/h_r)\right]}.\]
@@ -1047,11 +1047,11 @@ This result employs a nearly identical proof to that of \Cref{thm: population pr
 and the surrogate residual 
 \[\xi(x) = f(\Pi(x)) - m(x).\] Note that \Cref{lemma: proj approx} implies that there exists an $\epsilon, \eta > 0$ (where $\eta$ is non-decreasing with $\epsilon$) such that for all $x \in \mathcal{B}(x_0, \epsilon)$ we have $|\xi(x + x_0)| \le 2(M_2\eta^2+rM_3\eta^3)\text{L}(f)\epsilon^2$. Let  
 \begin{align}
-    \tilde{\beta}^*_{x_0, \epsilon} &= \arg\min_{\beta}\mathbb{E}\Big[\mathbbm{1}_{\{x \in \mathcal{B}(0, \epsilon)\}}\frac{p^*(x)}{p_{0}(x)}\Big(m(x+x_0) - X^{\top}\beta\Big)^2\Big] \label{eq: perturbed pop estimator curve}
+    \tilde{\beta}^*_{x_0, \epsilon} &= \arg\min_{\beta}\mathbb{E}\Big[\mathbbm{1}_{\{x \in \mathcal{B}(0, \epsilon)\}}\frac{p^*(x)}{p(x)}\Big(m(x+x_0) - \boldsymbol{x}^{\top}\beta\Big)^2\Big] \label{eq: perturbed pop estimator curve}
 \end{align}
-where the expectation is taken with respect to $x \sim p_{x}$. By \Cref{lemma: surrogate problem} we know that for some $c_0, c_* \in \mathbb{R}$ we have $\tilde{\beta}^*_{x_0, \epsilon}  =  \begin{bmatrix}
+where the expectation is taken with respect to $x \sim p$. By \Cref{lemma: surrogate problem} we know that for some $c_0, c_* \in \mathbb{R}$ we have $\tilde{\beta}^*_{x_0, \epsilon}  =  \begin{bmatrix}
     c_0 & c_*\nabla \Pi(x_0)
-\end{bmatrix}^{\top}$, while \Cref{lemma: constant of prop} gives the exact characterization $c_*=\epsilon f'(\Pi(x_0))+o(\epsilon^2)$. Observe that $\mathbb{E}[wXX^{\top}]$ is necessarily positive definite by \Cref{lemma: pd}. Moreover, retaining the pointwise remainder bound in the proof of \Cref{lemma: proj approx} gives
+\end{bmatrix}^{\top}$, while \Cref{lemma: constant of prop} gives the exact characterization $c_*=\epsilon f'(\Pi(x_0))+o(\epsilon^2)$. Observe that $\mathbb{E}[w\boldsymbol{x}\boldsymbol{x}^{\top}]$ is necessarily positive definite by \Cref{lemma: pd}. Moreover, retaining the pointwise remainder bound in the proof of \Cref{lemma: proj approx} gives
 \[
 |\xi(x+x_0)|
 \leq
@@ -1072,7 +1072,7 @@ Thus, applying \Cref{lemma: perturbation} and proceeding exactly as in the proof
 
 \subsection{Supplementary results for \Cref{thm: differentiability of pi}}
 
-For all proofs in this section, we will assume that \Cref{assumption: the curve gamma} holds for the $x$-marginal $p_x$ and $\gamma$. As a reminder, this assumption guarantees that for all $x \in \Omega$,  $\Pi$ projects to the interior of the parameter space of $\gamma$. This, coupled with the fact that $\gamma$ is $C^3$, allows us to differentiate $\gamma$ at all projected points in the support of $p_x$.  
+For all proofs in this section, we will assume that \Cref{assumption: the curve gamma} holds for the $x$-marginal $p$ and $\gamma$. As a reminder, this assumption guarantees that for all $x \in \Omega$,  $\Pi$ projects to the interior of the parameter space of $\gamma$. This, coupled with the fact that $\gamma$ is $C^3$, allows us to differentiate $\gamma$ at all projected points in the support of $p$.
 
 % \begin{restatable}[Closure of the singular set has zero Lebesgue measure]{lemma}{} \label{lemma: singular set measure}
 %     The closure of the set 
@@ -1434,15 +1434,15 @@ Having established the $O(\epsilon^2)$ deviation between the true target and the
 \begin{restatable}[Surrogate]{lemma}{} \label{lemma: surrogate problem} Define the linearized surrogate response as
 \[m(x) = f\Big(g(x_0) + \nabla g(x_0)^{\top}(x-x_0)\Big)\]
 and define the population regression solution using the linearized surrogate as 
-\[\tilde{\beta}^*_{x_0, \epsilon} = \arg\min_{\beta \in \mathbb{R}^{d+1}}\mathbb{E}_{ p_{0}}\Big[\mathbbm{1}_{\{x \in \mathcal{B}(0, \epsilon)\}}\frac{p^*(x)}{p_{0}(x)}\Big(m(x + x_0) - X^{\top}\beta \Big)^2\Big].\]
+\[\tilde{\beta}^*_{x_0, \epsilon} = \arg\min_{\beta \in \mathbb{R}^{d+1}}\mathbb{E}_{ p}\Big[\mathbbm{1}_{\{x \in \mathcal{B}(0, \epsilon)\}}\frac{p^*(x)}{p(x)}\Big(m(x + x_0) - \boldsymbol{x}^{\top}\beta \Big)^2\Big].\]
 Then for some $c_0, c_* \in \mathbb{R}$ we have $\tilde{\beta}^*_{x_0, \epsilon} = \begin{bmatrix}c_0  & c_*\nabla g(x_0) \end{bmatrix}^{\top}$. 
 \end{restatable}
 \noindent \textit{Proof.} Define 
-\[R_{\epsilon}(\beta; x) = \mathbb{E}_{ p_{0}}\Big[\mathbbm{1}_{\{x \in \mathcal{B}(x_0, \epsilon)\}}\frac{p^*(x)}{p_{0}(x)}\Big(m(x + x_0) - X^{\top}\beta\Big)^2\Big].\]
+\[R_{\epsilon}(\beta; x) = \mathbb{E}_{ p}\Big[\mathbbm{1}_{\{x \in \mathcal{B}(x_0, \epsilon)\}}\frac{p^*(x)}{p(x)}\Big(m(x + x_0) - \boldsymbol{x}^{\top}\beta\Big)^2\Big].\]
 Then we have,
 \begin{align*}
-    R_{\epsilon}(\beta; x)&= \int_{\mathbb{R}^d}\mathbbm{1}_{\{x \in \mathcal{B}(0, \epsilon)\}}\frac{p^*(x)}{p_{0}(x)}\Big(m(x+x_0) - X^{\top}\beta\Big)^2p_{0}(x) dx_1 \dots dx_d \\
-    &= \int_{\mathbb{R}^d}\mathbbm{1}_{\{x \in \mathcal{B}(0, \epsilon)\}}p^*(x)\Big(m(x + x_0) - X^{\top}\beta \Big)^2 dx_1 \dots dx_d.
+    R_{\epsilon}(\beta; x)&= \int_{\mathbb{R}^d}\mathbbm{1}_{\{x \in \mathcal{B}(0, \epsilon)\}}\frac{p^*(x)}{p(x)}\Big(m(x+x_0) - \boldsymbol{x}^{\top}\beta\Big)^2p(x) dx_1 \dots dx_d \\
+    &= \int_{\mathbb{R}^d}\mathbbm{1}_{\{x \in \mathcal{B}(0, \epsilon)\}}p^*(x)\Big(m(x + x_0) - \boldsymbol{x}^{\top}\beta \Big)^2 dx_1 \dots dx_d.
 \end{align*}
 Now let 
 \begin{equation}
@@ -1450,19 +1450,19 @@ Now let
 \end{equation}
 Then we have,
 \begin{align*}
-    R_{\epsilon}(\beta; x)&= A(\epsilon) \bigintsss_{\mathbb{R}^d}\underbrace{\frac{\mathbbm{1}_{\{x \in \mathcal{B}(0, \epsilon)\}}p^*(x)}{A(\epsilon)}}_{\triangleq \tilde{p}(x)}\Big(m(x+x_0) - X^{\top}\beta \Big)^2 dx_1 \dots dx_d \\
-    &= A(\epsilon)\, \mathbb{E}_{ \tilde{p}}\left(m(x+x_0)-X^{\top}\beta\right)^2.
+    R_{\epsilon}(\beta; x)&= A(\epsilon) \bigintsss_{\mathbb{R}^d}\underbrace{\frac{\mathbbm{1}_{\{x \in \mathcal{B}(0, \epsilon)\}}p^*(x)}{A(\epsilon)}}_{\triangleq \tilde{p}(x)}\Big(m(x+x_0) - \boldsymbol{x}^{\top}\beta \Big)^2 dx_1 \dots dx_d \\
+    &= A(\epsilon)\, \mathbb{E}_{ \tilde{p}}\left(m(x+x_0)-\boldsymbol{x}^{\top}\beta\right)^2.
 \end{align*}
 Applying the law of iterated expectation yields
 \begin{align*}
-    R_{\epsilon}(\beta; X)&= A(\epsilon)\,\mathbb{E}\left[\mathbb{E}\left[\left(m(x+x_0)-X^{\top}\beta\right)^2 \, \Big| 
+    R_{\epsilon}(\beta; \boldsymbol{x})&= A(\epsilon)\,\mathbb{E}\left[\mathbb{E}\left[\left(m(x+x_0)-\boldsymbol{x}^{\top}\beta\right)^2 \, \Big|
     \, \nabla g(x_0)^{\top}x\right]\right]\\
-    &= A(\epsilon)\,\mathbb{E}\left[\mathbb{E}\left[\left(f\left(g(x_0) + \nabla g(x_0)^{\top}x\right)-X^{\top}\beta\right)^2 \, \Big| 
+    &= A(\epsilon)\,\mathbb{E}\left[\mathbb{E}\left[\left(f\left(g(x_0) + \nabla g(x_0)^{\top}x\right)-\boldsymbol{x}^{\top}\beta\right)^2 \, \Big|
     \, \nabla g(x_0)^{\top}x\right]\right].
 \end{align*}
 Now we'll apply Jensen's inequality to say,
 \begin{align*}
-    R_{\epsilon}(\beta; x) &\geq A( \epsilon)\,\mathbb{E}\left[\left(f\Big(g(x_0) + \nabla g(x_0)^{\top}x\Big)-\mathbb{E}\left[X^{\top}\beta \, \Big| 
+    R_{\epsilon}(\beta; x) &\geq A( \epsilon)\,\mathbb{E}\left[\left(f\Big(g(x_0) + \nabla g(x_0)^{\top}x\Big)-\mathbb{E}\left[\boldsymbol{x}^{\top}\beta \, \Big|
     \, \nabla g(x_0)^{\top}x\right]\right)^2\right] \\
     &= A( \epsilon)\,\mathbb{E}\left[\left(f\Big( g(x_0) + \nabla g(x_0)^{\top}x\Big)-(1/\epsilon)\mathbb{E}\left[x^{\top}\beta' \, \Big| 
     \, \nabla g(x_0)^{\top}x\right]- \beta_0\right)^2\right]
@@ -1477,14 +1477,14 @@ Observe that the inequality becomes an equality when $\beta = \begin{bmatrix}c_0
 \begin{restatable}[Constant of proportionality]{lemma}{} \label{lemma: constant of prop}
     The constants of proportionality $c_0, c_*$ of \Cref{lemma: surrogate problem} can be expressed as \[c_0 = \frac{\mathbb{E}[\mathbbm{1}_{\{x \in \mathcal{B}(0, \epsilon\}}m(x)]}{\mathbb{P}_{p^*}(x \in \mathcal{B}(0, \epsilon))} \qquad \text{and} \qquad c_* = \epsilon f'(g(x_0))+ o(\epsilon^2).\] 
 \end{restatable}
-\noindent \textit{Proof.} Without loss of generality, suppose that $x \sim p_{x}$ has had $x_0$ subtracted off. One can derive the following closed form expression for $\tilde \beta^*_{x_0, \epsilon}$ from \Cref{lemma: surrogate problem} as
+\noindent \textit{Proof.} Without loss of generality, suppose that $x \sim p$ has had $x_0$ subtracted off. One can derive the following closed form expression for $\tilde \beta^*_{x_0, \epsilon}$ from \Cref{lemma: surrogate problem} as
 \begin{align*}
-    \tilde \beta^*_{x_0, \epsilon} &= \mathbb{E}[\mathbbm{1}_{\{x \in \mathcal{B}(0, \epsilon)\}}XX^{\top}]^{-1}\mathbb{E}[\mathbbm{1}_{\{x \in \mathcal{B}(0, \epsilon)\}}Xm(x)] \\
+    \tilde \beta^*_{x_0, \epsilon} &= \mathbb{E}[\mathbbm{1}_{\{x \in \mathcal{B}(0, \epsilon)\}}\boldsymbol{x}\boldsymbol{x}^{\top}]^{-1}\mathbb{E}[\mathbbm{1}_{\{x \in \mathcal{B}(0, \epsilon)\}}\boldsymbol{x}m(x)] \\
     &= Q^{-1}\mathbb{E}\left[\mathbbm{1}_{\{x \in \mathcal{B}(0, \epsilon)\}}\begin{pmatrix}
         1 \\ x/\epsilon
     \end{pmatrix}m(x)\right]
 \end{align*}
-where the expectation is taken with respect to $p^*$ and $Q = \mathbb{E}[\mathbbm{1}_{\{x \in \mathcal{B}(0, \epsilon)\}}XX^{\top}]$. It follows from \Cref{eq: Q closed form} that
+where the expectation is taken with respect to $p^*$ and $Q = \mathbb{E}[\mathbbm{1}_{\{x \in \mathcal{B}(0, \epsilon)\}}\boldsymbol{x}\boldsymbol{x}^{\top}]$. It follows from \Cref{eq: Q closed form} that
 \begin{align}
     \tilde \beta^*_{x_0, \epsilon} &= \begin{bmatrix}
          P_\epsilon^{-1} & 0 \\
@@ -1530,14 +1530,14 @@ By spherical symmetry, $\mathbb{E}[\mathbbm{1}_{\{x \in \mathcal{B}(0, \epsilon)
         R_1
         =
         \frac{1}{n}\sum_{i=1}^n
-        \frac{\mathbb{E}[a(Z)\mid X=x_i]}{p_{x}(x_i)}
+        \frac{\mathbb{E}[a(Z)\mid X=x_i]}{p(x_i)}
         +
         o_p\left(\sqrt{\frac{\epsilon^d}{n}}\right).
     \]
 \end{restatable}
 \noindent \textit{Proof.}
-We first record a bound that will be used repeatedly below. Recall that $u=y-X^\top\beta_{x_0,\epsilon}^*$, and therefore
-$\mathbb{E}[u\mid X=x]=f(g(x+x_0))-X^\top\beta_{x_0,\epsilon}^*$. By the second-order smoothness of $f\circ g$, uniformly over $x\in\mathcal{B}(0,\epsilon)$,
+We first record a bound that will be used repeatedly below. Recall that $u=y-\boldsymbol{x}^\top\beta_{x_0,\epsilon}^*$, and therefore
+$\mathbb{E}[u\mid X=x]=f(g(x+x_0))-\boldsymbol{x}^\top\beta_{x_0,\epsilon}^*$. By the second-order smoothness of $f\circ g$, uniformly over $x\in\mathcal{B}(0,\epsilon)$,
 \[
     f(g(x+x_0))
     =
@@ -1547,7 +1547,7 @@ $\mathbb{E}[u\mid X=x]=f(g(x+x_0))-X^\top\beta_{x_0,\epsilon}^*$. By the second-
     +
     O(\epsilon^2).
 \]
-Since $X=(1,x/\epsilon)^\top$, the first two terms on the right are linear in $X$. The population normal equations and $\|Q^{-1}\|_{\operatorname{op}}\lesssim\epsilon^{-d}$ therefore imply
+Since $\boldsymbol{x}=(1,x/\epsilon)^\top$, the first two terms on the right are linear in $\boldsymbol{x}$. The population normal equations and $\|Q^{-1}\|_{\operatorname{op}}\lesssim\epsilon^{-d}$ therefore imply
 \begin{equation}
     \sup_{x\in\mathcal{B}(0,\epsilon)}
     |\mathbb{E}[u\mid X=x]|
@@ -1559,12 +1559,12 @@ Indeed, the difference between the population coefficient $\beta_{x_0,\epsilon}^
     \mathbb{E}[a(Z)\mid X=x]
     =
     \mathbbm{1}_{\{x\in\mathcal{B}(0,\epsilon)\}}
-    p^*(x)X\,\mathbb{E}[u\mid X=x].
+    p^*(x)\boldsymbol{x}\,\mathbb{E}[u\mid X=x].
 \]
-Thus \cref{eq: conditional residual bound remainder}, together with the local upper and lower bounds on $p^*$ and $p_{x}$, implies
+Thus \cref{eq: conditional residual bound remainder}, together with the local upper and lower bounds on $p^*$ and $p$, implies
 \begin{equation}
     \left\|
-        \frac{\mathbb{E}[a(Z)\mid X=x]}{p_{x}(x)}
+        \frac{\mathbb{E}[a(Z)\mid X=x]}{p(x)}
     \right\|_2
     \lesssim
     \epsilon^2\mathbbm{1}_{\{x\in\mathcal{B}(0,\epsilon)\}}.
@@ -1574,29 +1574,29 @@ In particular,
 \begin{equation}
     \int
     \left\|
-        \frac{\mathbb{E}[a(Z)\mid X=x]}{p_{x}(x)}
+        \frac{\mathbb{E}[a(Z)\mid X=x]}{p(x)}
     \right\|_2dx
     =
     O(\epsilon^{d+2}),
     \qquad
     \int
     \left\|
-        \frac{\mathbb{E}[a(Z)\mid X=x]}{p_{x}(x)}
+        \frac{\mathbb{E}[a(Z)\mid X=x]}{p(x)}
     \right\|_2^2dx
     =
     O(\epsilon^{d+4}).
     \label{eq: conditional a integral bounds}
 \end{equation}
-Moreover, the moment assumptions on the noise, boundedness of $p^*/p_{x}$ on $\mathcal{B}(0,\epsilon)$, and $\|X\|_2\lesssim1$ give
+Moreover, the moment assumptions on the noise, boundedness of $p^*/p$ on $\mathcal{B}(0,\epsilon)$, and $\|\boldsymbol{x}\|_2\lesssim1$ give
 \begin{equation}
     \mathbb{E}\left\|
-        \frac{a(Z)}{p_{x}(X)^2}
+        \frac{a(Z)}{p(X)^2}
     \right\|_2^2
     =
     O(\epsilon^d),
     \qquad
     \mathbb{E}\left\|
-        \frac{a(Z)}{p_{x}(X)}
+        \frac{a(Z)}{p(X)}
     \right\|_2^2
     =
     O(\epsilon^d).
@@ -1607,19 +1607,19 @@ We now expand $R_1$ as
     R_1
     &=
     \frac{1}{n^2}\sum_{i,j}
-    \frac{a(z_i)}{p_{x}(x_i)^2}
+    \frac{a(z_i)}{p(x_i)^2}
     \frac{1}{h^d}
     K\left(\frac{x_j-x_i}{h}\right)
     -
     \frac{1}{n}\sum_{i=1}^n
-    \frac{a(z_i)}{p_{x}(x_i)} \nonumber\\
+    \frac{a(z_i)}{p(x_i)} \nonumber\\
     &=
     R_{11}
     +
     \frac{K(0)}{nh^d}
-    \mathbb{P}_n\left[\frac{a(Z)}{p_{x}(X)^2}\right]
+    \mathbb{P}_n\left[\frac{a(Z)}{p(X)^2}\right]
     -
-    \mathbb{P}_n\left[\frac{a(Z)}{p_{x}(X)}\right],
+    \mathbb{P}_n\left[\frac{a(Z)}{p(X)}\right],
     \label{eq: R1 repaired split}
 \end{align}
 where, using the symmetry of $K$,
@@ -1628,9 +1628,9 @@ where, using the symmetry of $K$,
     =
     \frac{1}{n^2}\sum_{i<j}
     \left(
-        \frac{a(z_i)}{p_{x}(x_i)^2}
+        \frac{a(z_i)}{p(x_i)^2}
         +
-        \frac{a(z_j)}{p_{x}(x_j)^2}
+        \frac{a(z_j)}{p(x_j)^2}
     \right)
     \frac{1}{h^d}K\left(\frac{x_j-x_i}{h}\right).
 \]
@@ -1639,9 +1639,9 @@ Define
     t(w_i,w_j)
     =
     \left(
-        \frac{a(z_i)}{p_{x}(x_i)^2}
+        \frac{a(z_i)}{p(x_i)^2}
         +
-        \frac{a(z_j)}{p_{x}(x_j)^2}
+        \frac{a(z_j)}{p(x_j)^2}
     \right)
     \frac{1}{h^d}K\left(\frac{x_j-x_i}{h}\right),
 \]
@@ -1662,16 +1662,16 @@ For fixed $w_i$, conditioning on the second observation yields
 \begin{align*}
     \mathbb{E}[t(w_i,W)]
     &=
-    \frac{a(z_i)}{p_{x}(x_i)^2}
+    \frac{a(z_i)}{p(x_i)^2}
     \int
     \frac{1}{h^d}
-    K\left(\frac{x-x_i}{h}\right)p_{x}(x)\,dx \\
+    K\left(\frac{x-x_i}{h}\right)p(x)\,dx \\
     &\qquad
     +
     \int
     \frac{1}{h^d}
     K\left(\frac{x-x_i}{h}\right)
-    \frac{\mathbb{E}[a(Z)\mid X=x]}{p_{x}(x)}
+    \frac{\mathbb{E}[a(Z)\mid X=x]}{p(x)}
     \,dx.
 \end{align*}
 By symmetry and exchangeability,
@@ -1679,35 +1679,35 @@ By symmetry and exchangeability,
     \mathbb{E}[t(W_1,W_2)]
     &=
     2\mathbb{E}\left[
-        \frac{a(Z)}{p_{x}(X)^2}
+        \frac{a(Z)}{p(X)^2}
         \int
         \frac{1}{h^d}
-        K\left(\frac{x-X}{h}\right)p_{x}(x)\,dx
+        K\left(\frac{x-X}{h}\right)p(x)\,dx
     \right].
 \end{align*}
-The order-$s$ kernel conditions and the smoothness of $p_{x}$ imply, uniformly over the localization region,
+The order-$s$ kernel conditions and the smoothness of $p$ imply, uniformly over the localization region,
 \[
     \int
-    \frac{1}{h^d}K\left(\frac{x-X}{h}\right)p_{x}(x)\,dx
+    \frac{1}{h^d}K\left(\frac{x-X}{h}\right)p(x)\,dx
     =
-    p_{x}(X)+O(h^s).
+    p(X)+O(h^s).
 \]
-Since $\mathbb{E}[a(Z)/p_{x}(X)]=\mathbb{E}[wXu]=0$ by the population first-order conditions, it follows that the contribution of the preceding expectation is entirely due to the kernel approximation error. Substituting these identities into \cref{eq: repaired hoeffding remainder} and then into \cref{eq: R1 repaired split}, straightforward cancellation gives
+Since $\mathbb{E}[a(Z)/p(X)]=\mathbb{E}[w\boldsymbol{x}u]=0$ by the population first-order conditions, it follows that the contribution of the preceding expectation is entirely due to the kernel approximation error. Substituting these identities into \cref{eq: repaired hoeffding remainder} and then into \cref{eq: R1 repaired split}, straightforward cancellation gives
 \begin{align}
     R_1
     -
     \mathbb{P}_n\left[
-        \frac{\mathbb{E}[a(Z)\mid X]}{p_{x}(X)}
+        \frac{\mathbb{E}[a(Z)\mid X]}{p(X)}
     \right]
     &=
     \frac{n-1}{n}(\mathbb{P}_n-\mathbb{P})
     \left[
-        \frac{a(Z)}{p_{x}(X)^2}
+        \frac{a(Z)}{p(X)^2}
         \left\{
             \int \frac{1}{h^d}
-            K\left(\frac{x-X}{h}\right)p_{x}(x)\,dx
+            K\left(\frac{x-X}{h}\right)p(x)\,dx
             -
-            p_{x}(X)
+            p(X)
         \right\}
     \right] \nonumber\\
     &
@@ -1717,25 +1717,25 @@ Since $\mathbb{E}[a(Z)/p_{x}(X)]=\mathbb{E}[wXu]=0$ by the population first-orde
         \int
         \frac{1}{h^d}
         K\left(\frac{x-X}{h}\right)
-        \frac{\mathbb{E}[a(Z)\mid X=x]}{p_{x}(x)}
+        \frac{\mathbb{E}[a(Z)\mid X=x]}{p(x)}
         \,dx
         -
-        \frac{\mathbb{E}[a(Z)\mid X]}{p_{x}(X)}
+        \frac{\mathbb{E}[a(Z)\mid X]}{p(X)}
     \right] \nonumber\\
     &
     -
     \frac{1}{n}\mathbb{P}_n
     \left[
-        \frac{\mathbb{E}[a(Z)\mid X]}{p_{x}(X)}
+        \frac{\mathbb{E}[a(Z)\mid X]}{p(X)}
         +
-        \frac{a(Z)}{p_{x}(X)}
+        \frac{a(Z)}{p(X)}
     \right]
     +
     \frac{1}{n^2}\sum_{i<j}m(w_i,w_j) \nonumber\\
     &
     +
     \frac{K(0)}{nh^d}
-    \mathbb{P}_n\left[\frac{a(Z)}{p_{x}(X)^2}\right].
+    \mathbb{P}_n\left[\frac{a(Z)}{p(X)^2}\right].
     \label{eq: repaired exact remainder decomposition}
 \end{align}
 We now bound each term on the right. For the first term, the uniform kernel-bias bound and
@@ -1743,10 +1743,10 @@ We now bound each term on the right. For the first term, the uniform kernel-bias
 \[
     (\mathbb{P}_n-\mathbb{P})
     \left[
-        \frac{a(Z)}{p_{x}(X)^2}
+        \frac{a(Z)}{p(X)^2}
         \left\{
             \int \frac{1}{h^d}
-            K\left(\frac{x-X}{h}\right)p_{x}(x)\,dx-p_{x}(X)
+            K\left(\frac{x-X}{h}\right)p(x)\,dx-p(X)
         \right\}
     \right]
     =
@@ -1760,18 +1760,18 @@ For the second term, Fubini's theorem gives
         \int
         \frac{1}{h^d}
         K\left(\frac{x-X}{h}\right)
-        \frac{\mathbb{E}[a(Z)\mid X=x]}{p_{x}(x)}
+        \frac{\mathbb{E}[a(Z)\mid X=x]}{p(x)}
         \,dx
         -
-        \frac{\mathbb{E}[a(Z)\mid X]}{p_{x}(X)}
+        \frac{\mathbb{E}[a(Z)\mid X]}{p(X)}
     \right] \\
      =
     \int
-    \frac{\mathbb{E}[a(Z)\mid X=x]}{p_{x}(x)}
+    \frac{\mathbb{E}[a(Z)\mid X=x]}{p(x)}
     \left\{
         \int
         \frac{1}{h^d}
-        K\left(\frac{x-y}{h}\right)p_{x}(y)\,dy-p_{x}(x)
+        K\left(\frac{x-y}{h}\right)p(y)\,dy-p(x)
     \right\}dx.
 \end{multline*}
 Thus \cref{eq: conditional a integral bounds} and the kernel-bias bound imply that the norm of this expectation is $O(\epsilon^{d+2}h^s)$. Moreover, Young's convolution inequality \citep[Theorem 1.2.12]{grafakos2014classical} and \cref{eq: conditional a integral bounds} imply that the centered empirical fluctuation of this term is
@@ -1788,14 +1788,14 @@ $O_p(\epsilon^{d/2+2}/\sqrt n)$. Since $n\epsilon^{d+4}=O(1)$,
 Hence the entire second term in \cref{eq: repaired exact remainder decomposition} is $o_p(\sqrt{\epsilon^d/n})$. For the third term, \cref{eq: conditional a bound remainder,eq: a moment bounds remainder} and the population first-order conditions give
 \[
     \mathbb{P}_n\left[
-        \frac{\mathbb{E}[a(Z)\mid X]}{p_{x}(X)}
+        \frac{\mathbb{E}[a(Z)\mid X]}{p(X)}
     \right]
     =
     O_p(\epsilon^{d+2})
     +
     O_p\left(\frac{\epsilon^{d/2+2}}{\sqrt n}\right),
     \qquad
-    \mathbb{P}_n\left[\frac{a(Z)}{p_{x}(X)}\right]
+    \mathbb{P}_n\left[\frac{a(Z)}{p(X)}\right]
     =
     O_p\left(\sqrt{\frac{\epsilon^d}{n}}\right).
 \]
@@ -1822,19 +1822,19 @@ $\mathbb{E}\|t(W_1,W_2)\|_2^2=O(\epsilon^d/h^d)$. Consequently
     o_p\left(\sqrt{\frac{\epsilon^d}{n}}\right),
 \]
 where the final step follows from $nh^d\to\infty$. Finally, by \cref{eq: conditional a bound remainder},
-$\|\mathbb{E}[a(Z)/p_{x}(X)^2]\|_2=O(\epsilon^{d+2})$, while
+$\|\mathbb{E}[a(Z)/p(X)^2]\|_2=O(\epsilon^{d+2})$, while
 \cref{eq: a moment bounds remainder} gives
 \[
-    \mathbb{P}_n\left[\frac{a(Z)}{p_{x}(X)^2}\right]
+    \mathbb{P}_n\left[\frac{a(Z)}{p(X)^2}\right]
     -
-    \mathbb{E}\left[\frac{a(Z)}{p_{x}(X)^2}\right]
+    \mathbb{E}\left[\frac{a(Z)}{p(X)^2}\right]
     =
     O_p\left(\sqrt{\frac{\epsilon^d}{n}}\right).
 \]
 Hence the diagonal term satisfies
 \[
     \frac{K(0)}{nh^d}
-    \mathbb{P}_n\left[\frac{a(Z)}{p_{x}(X)^2}\right]
+    \mathbb{P}_n\left[\frac{a(Z)}{p(X)^2}\right]
     =
     O\left(\frac{\epsilon^{d+2}}{nh^d}\right)
     +
@@ -1847,25 +1847,25 @@ $o_p(\sqrt{\epsilon^d/n})$. Therefore every remainder in
     R_1
     =
     \frac{1}{n}\sum_{i=1}^n
-    \frac{\mathbb{E}[a(Z)\mid X=x_i]}{p_{x}(x_i)}
+    \frac{\mathbb{E}[a(Z)\mid X=x_i]}{p(x_i)}
     +
     o_p\left(\sqrt{\frac{\epsilon^d}{n}}\right).
 \]
 \qed{}
 
 \begin{restatable}{lemma}{} \label{lemma: Lambda trace bound}
-    Let $w = \mathbbm{1}_{\{x \in \mathcal{B}(0, \epsilon)\}}\frac{p^*(x)}{p_{x}(x)}$ where $p_{x}$ is the density of $x - x_0$ (with $x \sim p_x$), let $u = y - X^{\top}\beta_{x_0, \epsilon}^*$, and finally let $\Lambda = \operatorname{Cov}(wXu)$. Suppose there exists $\epsilon_0>0$ such that $p_{x}$ is bounded away from zero and $p^*$ is bounded above on $\mathcal{B}(0,\epsilon_0)$, and suppose that $\sup_{x\in\mathcal{B}(0,\epsilon_0)}\mathbb{E}[|\varepsilon|^3\mid x]<\infty$. Then, for all sufficiently small $\epsilon$,
+    Let $w = \mathbbm{1}_{\{x \in \mathcal{B}(0, \epsilon)\}}\frac{p^*(x)}{p(x)}$ where $p$ is the density of $x - x_0$ (with $x \sim p$), let $u = y - \boldsymbol{x}^{\top}\beta_{x_0, \epsilon}^*$, and finally let $\Lambda = \operatorname{Cov}(w\boldsymbol{x}u)$. Suppose there exists $\epsilon_0>0$ such that $p$ is bounded away from zero and $p^*$ is bounded above on $\mathcal{B}(0,\epsilon_0)$, and suppose that $\sup_{x\in\mathcal{B}(0,\epsilon_0)}\mathbb{E}[|\varepsilon|^3\mid x]<\infty$. Then, for all sufficiently small $\epsilon$,
     \[\operatorname{tr}\left(\Lambda\right) \lesssim \epsilon^{d}.\]
 \end{restatable}
-Note that this lemma uses the uncentered covariance $\operatorname{Cov}(wXu)$ for a trace bound; the CLT sections use the centered covariance $\operatorname{Cov}(wX(u - \mathbb{E}[u\,|\,X]))$.
+Note that this lemma uses the uncentered covariance $\operatorname{Cov}(w\boldsymbol{x}u)$ for a trace bound; the CLT sections use the centered covariance $\operatorname{Cov}(w\boldsymbol{x}(u - \mathbb{E}[u\,|\,\boldsymbol{x}]))$.
 
-\noindent \textit{Proof.} Note that population first order conditions for the optimization in \cref{eq: population estimator} indicate that $\mathbb{E}[wXu] = 0$. Thus, $\Lambda = \mathbb{E}[w^2u^2XX^{\top}]$, and therefore
+\noindent \textit{Proof.} Note that population first order conditions for the optimization in \cref{eq: population estimator} indicate that $\mathbb{E}[w\boldsymbol{x}u] = 0$. Thus, $\Lambda = \mathbb{E}[w^2u^2\boldsymbol{x}\boldsymbol{x}^{\top}]$, and therefore
 \begin{align*}
     \operatorname{tr}(\Lambda)
-    &= \mathbb{E}\left[w^2u^2\|X\|_2^2\right] \\
+    &= \mathbb{E}\left[w^2u^2\|\boldsymbol{x}\|_2^2\right] \\
     &\leq 2w_{\max,\epsilon}\mathbb{E}\left[wu^2\right],
 \end{align*}
-where $w_{\max,\epsilon} = \sup_{x \in \mathcal{B}(0, \epsilon)}p^*(x)/p_{x}(x)$ and we have used $\|X\|_2^2\leq 2$ on $\mathcal{B}(0,\epsilon)$ together with $w^2\leq w_{\max,\epsilon}w$. By the local upper and lower bounds on $p^*$ and $p_{x}$, $w_{\max,\epsilon}$ is uniformly bounded for all sufficiently small $\epsilon$. Since $\beta^*_{x_0,\epsilon}$ minimizes the population weighted least-squares objective, comparison with $\beta=0$ gives $\mathbb{E}[wu^2]\leq \mathbb{E}[wy^2]$. Moreover, by the definition of $w$,
+where $w_{\max,\epsilon} = \sup_{x \in \mathcal{B}(0, \epsilon)}p^*(x)/p(x)$ and we have used $\|\boldsymbol{x}\|_2^2\leq 2$ on $\mathcal{B}(0,\epsilon)$ together with $w^2\leq w_{\max,\epsilon}w$. By the local upper and lower bounds on $p^*$ and $p$, $w_{\max,\epsilon}$ is uniformly bounded for all sufficiently small $\epsilon$. Since $\beta^*_{x_0,\epsilon}$ minimizes the population weighted least-squares objective, comparison with $\beta=0$ gives $\mathbb{E}[wu^2]\leq \mathbb{E}[wy^2]$. Moreover, by the definition of $w$,
 \begin{align*}
     \mathbb{E}[wy^2]
     &= \int_{\mathcal{B}(0,\epsilon)}p^*(x)\mathbb{E}[y^2\mid x]\,dx.
@@ -1883,7 +1883,7 @@ Combining the preceding bounds yields $\operatorname{tr}(\Lambda)\lesssim\epsilo
 \begin{restatable}[Normalized velocity decomposition]{lemma}{} \label{lemma: norm velocity decomp}
     Under the assumptions of \Cref{thm: decomposition for beta}, suppose additionally that $f'(g(x_0)) \neq 0$, $\|\nabla g(x_0)\|_2>0$, $n\epsilon^{d+2}\rightarrow\infty$, and $n^{-\frac{s}{2s+d}} = o\left(\frac{1}{\sqrt{n\epsilon^d}}\right).$ Then
     \begin{equation}
-        \hat{v}_{x_0, \epsilon}' - v'^*_{x_0, \epsilon} = \frac{1}{n\epsilon |f'(g(x_0))|\|\nabla g(x_0)\|_2}P_\epsilon VQ^{-1}\sum_{i = 1}^nw_iX_i(u_i - \mathbb{E}[u_i|X_i]) +o_p\left(\frac{1}{\sqrt{n\epsilon^{d+2}}}\right),
+        \hat{v}_{x_0, \epsilon}' - v'^*_{x_0, \epsilon} = \frac{1}{n\epsilon |f'(g(x_0))|\|\nabla g(x_0)\|_2}P_\epsilon VQ^{-1}\sum_{i = 1}^nw_i\boldsymbol{x}_i(u_i - \mathbb{E}[u_i|\boldsymbol{x}_i]) +o_p\left(\frac{1}{\sqrt{n\epsilon^{d+2}}}\right),
     \end{equation}
     where $\hat{v}'_{x_0, \epsilon} = \hat{v}_{x_0, \epsilon}/\|\hat{v}_{x_0, \epsilon}\|_2$, $v'^*_{x_0, \epsilon} = v^*_{x_0, \epsilon}/\|v^*_{x_0, \epsilon}\|_2$, and $P_\epsilon = I_d - v_{x_0, \epsilon}'^{*}v_{x_0, \epsilon}'^{*T}$.
 \end{restatable}
@@ -1934,7 +1934,7 @@ Finally, \Cref{thm: decomposition for beta} and the assumed condition $n^{-s/(2s
     \hat v_{x_0,\epsilon}-v^*_{x_0,\epsilon}
     =
     \frac{1}{n}VQ^{-1}\sum_{i=1}^n
-    w_iX_i(u_i-\mathbb{E}[u_i\mid X_i])
+    w_i\boldsymbol{x}_i(u_i-\mathbb{E}[u_i\mid \boldsymbol{x}_i])
     +
     o_p\left(\frac{1}{\sqrt{n\epsilon^d}}\right).
 \]
@@ -1945,8 +1945,8 @@ Substituting this into the preceding display gives the result.
 \subsection{Supplementary results for \Cref{corr: central limit for v}}
 
 \begin{restatable}{lemma}{} \label{lemma: asymptotic var bound}
-    Suppose the matrices $V, Q, \Lambda$ are defined as in \Cref{corr: central limit for v}. Further suppose that $p_{x}$, $p^*(\cdot)$, and $\sigma^2$ are continuous at $0$, with $p_{x}(0)>0$ and $p^*(0)>0$, and that there exists $\epsilon_0>0$ such that $p_{x}$ is bounded away from $0$ and $p^*$ and $\sigma^2$ are bounded on $\mathcal{B}(0,\epsilon_0)$. Then
-    \[\lim_{\epsilon \rightarrow 0}\epsilon^dVQ^{-1}\Lambda Q^{-1}V^{\top} = \frac{(d+2)\sigma^2(0)}{p_{x}(0)\mathcal{L}(\mathcal{B}(0,1))}I_d.\]
+    Suppose the matrices $V, Q, \Lambda$ are defined as in \Cref{corr: central limit for v}. Further suppose that $p$, $p^*(\cdot)$, and $\sigma^2$ are continuous at $0$, with $p(0)>0$ and $p^*(0)>0$, and that there exists $\epsilon_0>0$ such that $p$ is bounded away from $0$ and $p^*$ and $\sigma^2$ are bounded on $\mathcal{B}(0,\epsilon_0)$. Then
+    \[\lim_{\epsilon \rightarrow 0}\epsilon^dVQ^{-1}\Lambda Q^{-1}V^{\top} = \frac{(d+2)\sigma^2(0)}{p(0)\mathcal{L}(\mathcal{B}(0,1))}I_d.\]
 \end{restatable}
 \noindent \textit{Proof.} Observe that we can rewrite $Q$ as follows
 \begin{align*}
@@ -1971,18 +1971,18 @@ where $\nu^2 = \mathbb{E}_{p^*}[\mathbbm{1}_{\{x \in \mathcal{B}(0, \epsilon)\}}
          0 & (\epsilon/\nu)^{2}I_d
     \end{bmatrix}.
 \end{align}
-Moreover, $\Lambda = \mathbb{E}[w^2(u - \mathbb{E}[u|X])^2XX^{\top}]$ since the random vector inside the covariance is mean zero. From the definition of $V$, applying $V$ and $V^\top$ selects the bottom-right $d\times d$ block, and therefore
+Moreover, $\Lambda = \mathbb{E}[w^2(u - \mathbb{E}[u|\boldsymbol{x}])^2\boldsymbol{x}\boldsymbol{x}^{\top}]$ since the random vector inside the covariance is mean zero. From the definition of $V$, applying $V$ and $V^\top$ selects the bottom-right $d\times d$ block, and therefore
 \begin{align*}
     VQ^{-1}\Lambda Q^{-1}V^{\top}
-    &= (1/\epsilon^2)(\epsilon/\nu)^{4}\mathbb{E}\left[w^2(u - \mathbb{E}[u|X])^2xx^{\top}\right] \\
-    &= (1/\epsilon^2)(\epsilon/\nu)^{4}\int_{\mathcal{B}(0, \epsilon)} \frac{p^*(x)^2}{p_{x}(x)}m_u(x)xx^{\top} dx,
+    &= (1/\epsilon^2)(\epsilon/\nu)^{4}\mathbb{E}\left[w^2(u - \mathbb{E}[u|\boldsymbol{x}])^2xx^{\top}\right] \\
+    &= (1/\epsilon^2)(\epsilon/\nu)^{4}\int_{\mathcal{B}(0, \epsilon)} \frac{p^*(x)^2}{p(x)}m_u(x)xx^{\top} dx,
 \end{align*}
-where $m_u(x) = \mathbb{E}[(u - \mathbb{E}[u|X])^2|x]$. Since $u=y-X^\top\beta^*_{x_0,\epsilon}$ and $X^\top\beta^*_{x_0,\epsilon}$ is deterministic conditional on $x$, we have $m_u(x)=\operatorname{Var}(y|x)=\sigma^2(x)$.
+where $m_u(x) = \mathbb{E}[(u - \mathbb{E}[u|\boldsymbol{x}])^2|x]$. Since $u=y-\boldsymbol{x}^\top\beta^*_{x_0,\epsilon}$ and $\boldsymbol{x}^\top\beta^*_{x_0,\epsilon}$ is deterministic conditional on $x$, we have $m_u(x)=\operatorname{Var}(y|x)=\sigma^2(x)$.
 
 Now apply the change of variables $x=\epsilon z$, so that $dx=\epsilon^d dz$. It follows that
 \begin{align*}
     \epsilon^dVQ^{-1}\Lambda Q^{-1}V^{\top}
-    &= (\epsilon^{2d+4}/\nu^{4})\int_{\mathcal{B}(0, 1)} \frac{p^*(\epsilon z)^2}{p_{x}(\epsilon z)}\sigma^2(\epsilon z)zz^{\top} dz.
+    &= (\epsilon^{2d+4}/\nu^{4})\int_{\mathcal{B}(0, 1)} \frac{p^*(\epsilon z)^2}{p(\epsilon z)}\sigma^2(\epsilon z)zz^{\top} dz.
 \end{align*}
 Similarly,
 \begin{align*}
@@ -1992,18 +1992,18 @@ Similarly,
 and hence
 \begin{align}
     \epsilon^dVQ^{-1}\Lambda Q^{-1}V^{\top}
-    &= \frac{\int_{\mathcal{B}(0, 1)} \frac{p^*(\epsilon z)^2}{p_{x}(\epsilon z)}\sigma^2(\epsilon z)zz^{\top} dz}{\left[\int_{\mathcal{B}(0, 1)}z_i^2p^*(\epsilon z) dz\right]^2}. \label{eq: asymp var intermediate}
+    &= \frac{\int_{\mathcal{B}(0, 1)} \frac{p^*(\epsilon z)^2}{p(\epsilon z)}\sigma^2(\epsilon z)zz^{\top} dz}{\left[\int_{\mathcal{B}(0, 1)}z_i^2p^*(\epsilon z) dz\right]^2}. \label{eq: asymp var intermediate}
 \end{align}
-By continuity at $0$, for every $z\in\mathcal{B}(0,1)$ we have $p^*(\epsilon z)\rightarrow p^*(0)$, $p_{x}(\epsilon z)\rightarrow p_{x}(0)$, and $\sigma^2(\epsilon z)\rightarrow\sigma^2(0)$. Moreover, the local boundedness assumptions and the lower bound on $p_{x}$ provide integrable dominating functions on $\mathcal{B}(0,1)$. Thus, by the dominated convergence theorem,
+By continuity at $0$, for every $z\in\mathcal{B}(0,1)$ we have $p^*(\epsilon z)\rightarrow p^*(0)$, $p(\epsilon z)\rightarrow p(0)$, and $\sigma^2(\epsilon z)\rightarrow\sigma^2(0)$. Moreover, the local boundedness assumptions and the lower bound on $p$ provide integrable dominating functions on $\mathcal{B}(0,1)$. Thus, by the dominated convergence theorem,
 \begin{align*}
     \lim_{\epsilon\rightarrow0}\int_{\mathcal{B}(0,1)}
-    \frac{p^*(\epsilon z)^2}{p_{x}(\epsilon z)}
+    \frac{p^*(\epsilon z)^2}{p(\epsilon z)}
     \sigma^2(\epsilon z)zz^\top dz
     &=
-    \frac{p^*(0)^2\sigma^2(0)}{p_{x}(0)}
+    \frac{p^*(0)^2\sigma^2(0)}{p(0)}
     \int_{\mathcal{B}(0,1)}zz^\top dz \\
     &=
-    \frac{p^*(0)^2\sigma^2(0)\mathcal{L}(\mathcal{B}(0,1))}{p_{x}(0)(d+2)}I_d,
+    \frac{p^*(0)^2\sigma^2(0)\mathcal{L}(\mathcal{B}(0,1))}{p(0)(d+2)}I_d,
 \end{align*}
 where the final equality follows from \Cref{prop: spherical cov}. Similarly,
 \begin{align*}
@@ -2019,7 +2019,7 @@ Plugging these limits into \cref{eq: asymp var intermediate} yields
 \lim_{\epsilon \rightarrow 0}\epsilon^dVQ^{-1}\Lambda Q^{-1}V^{\top}
 =
 \frac{(d+2)\sigma^2(0)}
-{p_{x}(0)\mathcal{L}(\mathcal{B}(0,1))}I_d.
+{p(0)\mathcal{L}(\mathcal{B}(0,1))}I_d.
 \]
 
 \qed{}
@@ -2037,7 +2037,7 @@ Plugging these limits into \cref{eq: asymp var intermediate} yields
 \varphi_{\epsilon,j}
 =
 \frac{1}{\epsilon |f'(g(x_0))|\|\nabla g(x_0)\|_2}
-P_{\epsilon}VQ^{-1}w_jX_j\left(u_j-\mathbb{E}[u_j\mid X_j]\right).
+P_{\epsilon}VQ^{-1}w_j\boldsymbol{x}_j\left(u_j-\mathbb{E}[u_j\mid \boldsymbol{x}_j]\right).
 \]
     and
     \[\psi_{\epsilon, i} = \frac{\mathbbm{1}_{\{x_i \in \mathcal{B}(0, \epsilon)\}}(y_i - \bar{f}(x_0))\partial_{z_i}K_r(\frac{z_i}{h_r})x_i}{\mathbb{E}\left[\mathbbm{1}_{\{x \in \mathcal{B}(0, \epsilon)\}}K_r(z/h_r)\right]}.\]
@@ -2115,7 +2115,7 @@ where
 \varphi_{\epsilon,j}
 =
 \frac{1}{\epsilon |f'(g(x_0))|\|\nabla g(x_0)\|_2}
-P_{\epsilon}VQ^{-1}w_jX_j\left(u_j-\mathbb{E}[u_j\mid X_j]\right).
+P_{\epsilon}VQ^{-1}w_j\boldsymbol{x}_j\left(u_j-\mathbb{E}[u_j\mid \boldsymbol{x}_j]\right).
 \]
 where $P_{\epsilon}$ is a projection onto the orthogonal complement of $v_{x_0, \epsilon}'^{*}$.  Now we'll consider $(\tilde{B} - \widehat{B})/\tilde{B}$ by applying the same Taylor expansion as above,
 \begin{align*}
@@ -2251,10 +2251,10 @@ Finally, using the standard inequality $\|a/\|a\|_2-b/\|b\|_2\|_2\leq 2\|a-b\|_2
 \end{restatable}
 \noindent \textit{Proof.} By \Cref{thm: decomposition for beta} we have
 \begin{align*}
-\|\hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon}\|_2 &= \left\|\frac{1}{n}VQ^{-1}\sum_{i = 1}^nw_iX_i(u_i - \mathbb{E}[u_i \,|\, x_i])\right\|_2 +o_p\left(\frac{1}{\sqrt{n\epsilon^{d}}}\right) \\
-&\leq \left\|V\right\|_{\operatorname{op}}\left\|Q^{-1}\right\|_{\operatorname{op}}\left\|\frac{1}{n}\sum_{i = 1}^nw_iX_i(u_i - \mathbb{E}[u_i \,|\, x_i])\right\|_2+o_p\left(\frac{1}{\sqrt{n\epsilon^{d}}}\right).
+\|\hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon}\|_2 &= \left\|\frac{1}{n}VQ^{-1}\sum_{i = 1}^nw_i\boldsymbol{x}_i(u_i - \mathbb{E}[u_i \,|\, x_i])\right\|_2 +o_p\left(\frac{1}{\sqrt{n\epsilon^{d}}}\right) \\
+&\leq \left\|V\right\|_{\operatorname{op}}\left\|Q^{-1}\right\|_{\operatorname{op}}\left\|\frac{1}{n}\sum_{i = 1}^nw_i\boldsymbol{x}_i(u_i - \mathbb{E}[u_i \,|\, x_i])\right\|_2+o_p\left(\frac{1}{\sqrt{n\epsilon^{d}}}\right).
 \end{align*}
-\Cref{lemma: Q op norm} indicates that $\|Q^{-1}\|_{\operatorname{op}}\lesssim \epsilon^{-d}$ and \Cref{lemma: Lambda trace bound} guarantees that \[\left\|\frac{1}{n}\sum_{i = 1}^nw_iX_i(u_i - \mathbb{E}[u_i \,|\, x_i])\right\|_2 = O_p\left(\sqrt{\epsilon^d/n}\right).\] Together, this implies
+\Cref{lemma: Q op norm} indicates that $\|Q^{-1}\|_{\operatorname{op}}\lesssim \epsilon^{-d}$ and \Cref{lemma: Lambda trace bound} guarantees that \[\left\|\frac{1}{n}\sum_{i = 1}^nw_i\boldsymbol{x}_i(u_i - \mathbb{E}[u_i \,|\, x_i])\right\|_2 = O_p\left(\sqrt{\epsilon^d/n}\right).\] Together, this implies
 \[\|\hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon}\|_2 = O_p\left(\frac{1}{\sqrt{n\epsilon^d}}\right).\]
 For the second result, recall \Cref{thm: population prop} guarantees that $\|v^*_{x_0, \epsilon} - \Theta(\epsilon)\nabla g(s_0)\|_2 \lesssim \epsilon^2$, with $s_0 = g(x_0)$. This then yields the bound
 \begin{align*}
@@ -2339,7 +2339,7 @@ Since $\mu_\psi$ is deterministic and $\varphi_{\epsilon}$ is mean zero,
     \operatorname{tr}(VQ^{-1}\Lambda Q^{-1}V^{\top}) \\
     &= \|\mu_\psi\|_2^2 O(\epsilon^{-d-2}),
 \end{align*}
-where $\Lambda=\operatorname{Cov}(wX(u-\mathbb{E}[u\mid X]))$ and the final equality follows from \Cref{lemma: asymptotic var bound}. Moreover, $\|\mu_\psi\|_2=O(\epsilon^2)$. Indeed, on $\mathcal{B}(0,\epsilon)$ we have $|z|=O(\epsilon)$, and since $K_r'(0)=0$, $K_r''$ is bounded, and $h_r=\Theta(1)$, it follows that $|\partial_zK_r(z/h_r)|\lesssim\epsilon$. Together with $\|x\|_2\leq\epsilon$, the local moment assumptions, and the fact that the denominator in the definition of $\psi_\epsilon$ is $\Theta(\epsilon^d)$, this gives $\|\mu_\psi\|_2=O(\epsilon^2)$. Therefore, $\mathbb{E}[\langle \mu_{\psi}, \varphi_{\epsilon}\rangle^2]=O(\epsilon^{2-d})=o(\epsilon^{-d})$.
+where $\Lambda=\operatorname{Cov}(w\boldsymbol{x}(u-\mathbb{E}[u\mid \boldsymbol{x}]))$ and the final equality follows from \Cref{lemma: asymptotic var bound}. Moreover, $\|\mu_\psi\|_2=O(\epsilon^2)$. Indeed, on $\mathcal{B}(0,\epsilon)$ we have $|z|=O(\epsilon)$, and since $K_r'(0)=0$, $K_r''$ is bounded, and $h_r=\Theta(1)$, it follows that $|\partial_zK_r(z/h_r)|\lesssim\epsilon$. Together with $\|x\|_2\leq\epsilon$, the local moment assumptions, and the fact that the denominator in the definition of $\psi_\epsilon$ is $\Theta(\epsilon^d)$, this gives $\|\mu_\psi\|_2=O(\epsilon^2)$. Therefore, $\mathbb{E}[\langle \mu_{\psi}, \varphi_{\epsilon}\rangle^2]=O(\epsilon^{2-d})=o(\epsilon^{-d})$.
 
 For the second term, Cauchy--Schwarz gives
 \begin{align*}
@@ -2370,11 +2370,11 @@ By \Cref{corr: zeta third moment}, the second term is $O(\epsilon^{-2d})$. For t
 From the definition of $\varphi_\epsilon$ and $\|P_\epsilon\|_{\operatorname{op}}\leq1$,
 \begin{align*}
     \mathbb{E}[\|\varphi_{\epsilon}\|_2^3]
-    &\lesssim \epsilon^{-3}\mathbb{E}\left[\|VQ^{-1}wX(u-\mathbb{E}[u\mid X])\|_2^3\right].
+    &\lesssim \epsilon^{-3}\mathbb{E}\left[\|VQ^{-1}w\boldsymbol{x}(u-\mathbb{E}[u\mid \boldsymbol{x}])\|_2^3\right].
 \end{align*}
-Since $\|Q^{-1}\|_{\operatorname{op}}\lesssim\epsilon^{-d}$ by \Cref{lemma: Q op norm}, $\|X\|_2\leq\sqrt{2}$ on $\mathcal{B}(0,\epsilon)$, and $u-\mathbb{E}[u\mid X]=\varepsilon$, the local third-moment assumption implies
+Since $\|Q^{-1}\|_{\operatorname{op}}\lesssim\epsilon^{-d}$ by \Cref{lemma: Q op norm}, $\|\boldsymbol{x}\|_2\leq\sqrt{2}$ on $\mathcal{B}(0,\epsilon)$, and $u-\mathbb{E}[u\mid \boldsymbol{x}]=\varepsilon$, the local third-moment assumption implies
 \begin{align*}
-    \mathbb{E}\left[\|VQ^{-1}wX(u-\mathbb{E}[u\mid X])\|_2^3\right]
+    \mathbb{E}\left[\|VQ^{-1}w\boldsymbol{x}(u-\mathbb{E}[u\mid \boldsymbol{x}])\|_2^3\right]
     &\lesssim \epsilon^{-3d}\mathbb{E}\left[\mathbbm{1}_{\{x\in\mathcal{B}(0,\epsilon)\}}|\varepsilon|^3\right] \\
     &\lesssim \epsilon^{-2d}.
 \end{align*}
@@ -2384,7 +2384,7 @@ Consequently, $\mathbb{E}[\|\varphi_\epsilon\|_2^3]=O(\epsilon^{-2d-3})$ and the
 
 
 \begin{restatable}{lemma}{}\label{lemma: bias bound}
-    Suppose the assumptions of \Cref{thm: regression ptwise decomp} hold and $p_x$ is $C^2$ in a neighborhood of $x_0$. Then
+    Suppose the assumptions of \Cref{thm: regression ptwise decomp} hold and $p$ is $C^2$ in a neighborhood of $x_0$. Then
     \[
         |\bar b(x_0;\epsilon,h_r)| \lesssim \epsilon^2.
     \]
@@ -2423,7 +2423,7 @@ Next, write the numerator as
 N_\epsilon
 =
 \int_{\mathcal B(x_0,\epsilon)}
-(f(g(x))-f(s_0))K_r(z/h_r)p_x(x)\,dx,
+(f(g(x))-f(s_0))K_r(z/h_r)p(x)\,dx,
 \]
 where \(z=\langle x-x_0,v_{x_0,\epsilon}^{\prime *}\rangle\). Applying the change of variables \(x=x_0+u\), we obtain
 \[
@@ -2432,7 +2432,7 @@ N_\epsilon
 \int_{\mathcal B(0,\epsilon)}
 (f(g(x_0+u))-f(s_0))
 K_r(\langle u,v_{x_0,\epsilon}^{\prime *}\rangle/h_r)\,
-p_x(x_0+u)\,du.
+p(x_0+u)\,du.
 \]
 Since \(g\) is \(C^2\) near \(x_0\),
 \[
@@ -2456,9 +2456,9 @@ K_r(0)+R_K(u),
 \qquad
 |R_K(u)| \lesssim \|u\|_2^2
 \]
-uniformly for \(u\in \mathcal B(0,\epsilon)\). Finally, since \(p_x\) is \(C^2\) near \(x_0\),
+uniformly for \(u\in \mathcal B(0,\epsilon)\). Finally, since \(p\) is \(C^2\) near \(x_0\),
 \[
-p_x(x_0+u)=p_x(x_0)+\nabla p_x(x_0)^\top u + R_p(u),
+p(x_0+u)=p(x_0)+\nabla p(x_0)^\top u + R_p(u),
 \qquad
 |R_p(u)| \lesssim \|u\|_2^2.
 \]
@@ -2466,15 +2466,15 @@ Multiplying the three expansions yields
 \[
 (f(g(x_0+u))-f(s_0))
 K_r(\langle u,v_{x_0,\epsilon}^{\prime *}\rangle/h_r)
-p_x(x_0+u)
+p(x_0+u)
 =
-K_r(0)p_x(x_0)a^\top u + R(u),
+K_r(0)p(x_0)a^\top u + R(u),
 \]
 where $|R(u)| \lesssim \|u\|_2^2$. Therefore,
 \[
 N_\epsilon
 =
-K_r(0)p_x(x_0)\int_{\mathcal B(0,\epsilon)} a^\top u\,du
+K_r(0)p(x_0)\int_{\mathcal B(0,\epsilon)} a^\top u\,du
 +
 O\!\left(\int_{\mathcal B(0,\epsilon)} \|u\|_2^2\,du\right).
 \]
@@ -2497,7 +2497,7 @@ Hence \(N_\epsilon=O(\epsilon^{d+2})\). Combining this with \(D_\epsilon\asymp\e
 \subsection{Supplementary results for \Cref{corollary: population prop curve}}
 
 \begin{restatable}[Approximation]{lemma}{} \label{lemma: proj approx}
-    Almost surely (over $x_0 \sim p_x$) there exists an $\epsilon, \eta > 0$ such that for all $x \in \mathcal{B}(x_0, \epsilon)$ 
+    Almost surely (over $x_0 \sim p$) there exists an $\epsilon, \eta > 0$ such that for all $x \in \mathcal{B}(x_0, \epsilon)$
     \[\bigg|f\big(\Pi(x)\big) - f\big(\Pi(x_0) + \nabla \Pi(x_0)^{\top}(x-x_0) \big)\bigg| \le 2(M_2\eta^2+rM_3\eta^3)\text{L}(f)\epsilon^2. \]
 \end{restatable}
 
@@ -2566,37 +2566,37 @@ Taking the difference,
 \qed{}
 
 
-\begin{restatable}[Projection norm bound]{lemma}{} \label{lemma: pnorm bound} Suppose that $X = \begin{bmatrix}
+\begin{restatable}[Projection norm bound]{lemma}{} \label{lemma: pnorm bound} Suppose that $\boldsymbol{x} = \begin{bmatrix}
     1 & x/\epsilon
-\end{bmatrix}^{\top}$ where $x \sim p_{x}$, and assume that we are operating under the hypotheses of \Cref{thm: population prop}. Then we have
+\end{bmatrix}^{\top}$ where $x \sim p$, and assume that we are operating under the hypotheses of \Cref{thm: population prop}. Then we have
 \begin{equation}
-   \left\|\mathbb{E}[wXX^{\top}]^{-1}\mathbb{E}[wX]\right\|_2 =  1.
+   \left\|\mathbb{E}[w\boldsymbol{x}\boldsymbol{x}^{\top}]^{-1}\mathbb{E}[w\boldsymbol{x}]\right\|_2 =  1.
 \end{equation}
 \end{restatable}
 \noindent \textit{Proof.} Let $e = \begin{bmatrix}
     1 & 0 & \dots & 0
 \end{bmatrix}^{\top} \in \mathbb{R}^{d+1}$. Then for every $x \in \mathbb{R}^d$ we have
 \begin{align*}
-    XX^{\top}e &= X(X^{\top}e) \\
-    &= X.
+    \boldsymbol{x}\boldsymbol{x}^{\top}e &= \boldsymbol{x}(\boldsymbol{x}^{\top}e) \\
+    &= \boldsymbol{x}.
 \end{align*}
 Multiplying by $w$ and taking the expectation yields
-\[\mathbb{E}[wXX^{\top}]e = \mathbb{E}[wX]\]
+\[\mathbb{E}[w\boldsymbol{x}\boldsymbol{x}^{\top}]e = \mathbb{E}[w\boldsymbol{x}]\]
 which, if the matrix on the LHS is invertible, implies
-\[\mathbb{E}[wXX^{\top}]^{-1}\mathbb{E}[wX] = e.\]
+\[\mathbb{E}[w\boldsymbol{x}\boldsymbol{x}^{\top}]^{-1}\mathbb{E}[w\boldsymbol{x}] = e.\]
 Taking the norm completes the proof.
 
 \qed{}
 
 
 \begin{restatable}{lemma}{}\label{lemma: operator norm and var proxy}
-    Suppose there exists $\epsilon_0>0$ such that $p_{x}$ is bounded away from zero and $p_{x},p^*$ are bounded above on $\mathcal{B}(0,\epsilon_0)$. Let $w_{\max} = \sup_{x \in \mathcal{B}(0, \epsilon)}p^*(x)/p_{x}(x)$. Then the matrix $Y_i = w_iX_iX_i^{\top} - \mathbb{E}[wXX^{\top}]$ has operator norm bounded by $4w_{\max}$ and variance proxy $\sigma^2 = \|\sum_{i = 1}^n \mathbb{E}[Y_i^2]\|_{\operatorname{op}} \lesssim n\epsilon^d$.
+    Suppose there exists $\epsilon_0>0$ such that $p$ is bounded away from zero and $p,p^*$ are bounded above on $\mathcal{B}(0,\epsilon_0)$. Let $w_{\max} = \sup_{x \in \mathcal{B}(0, \epsilon)}p^*(x)/p(x)$. Then the matrix $Y_i = w_i\boldsymbol{x}_i\boldsymbol{x}_i^{\top} - \mathbb{E}[w\boldsymbol{x}\boldsymbol{x}^{\top}]$ has operator norm bounded by $4w_{\max}$ and variance proxy $\sigma^2 = \|\sum_{i = 1}^n \mathbb{E}[Y_i^2]\|_{\operatorname{op}} \lesssim n\epsilon^d$.
 \end{restatable} 
-\noindent \textit{Proof.} Since $\|X_i\|_2^2\leq2$ whenever $w_i\neq0$, we have
+\noindent \textit{Proof.} Since $\|\boldsymbol{x}_i\|_2^2\leq2$ whenever $w_i\neq0$, we have
 \begin{align*}
     \|Y_i\|_{\operatorname{op}}
-    &\leq w_i\|X_iX_i^{\top}\|_{\operatorname{op}}
-    +\|\mathbb{E}[wXX^{\top}]\|_{\operatorname{op}} \\
+    &\leq w_i\|\boldsymbol{x}_i\boldsymbol{x}_i^{\top}\|_{\operatorname{op}}
+    +\|\mathbb{E}[w\boldsymbol{x}\boldsymbol{x}^{\top}]\|_{\operatorname{op}} \\
     &\leq 2w_{\max}+2w_{\max}
     =4w_{\max}.
 \end{align*}
@@ -2608,40 +2608,40 @@ By expanding the square and using $\mathbb{E}[Y]=0$,
 \[
     \mathbb{E}[Y^2]
     =
-    \mathbb{E}[(wXX^{\top})^2]
+    \mathbb{E}[(w\boldsymbol{x}\boldsymbol{x}^{\top})^2]
     -
-    \left(\mathbb{E}[wXX^{\top}]\right)^2
+    \left(\mathbb{E}[w\boldsymbol{x}\boldsymbol{x}^{\top}]\right)^2
     \preceq
-    \mathbb{E}[(wXX^{\top})^2].
+    \mathbb{E}[(w\boldsymbol{x}\boldsymbol{x}^{\top})^2].
 \]
-Since $(wXX^{\top})^2=w^2\|X\|_2^2XX^{\top}$ and $\|X\|_2^2\leq2$ on $\mathcal{B}(0,\epsilon)$,
+Since $(w\boldsymbol{x}\boldsymbol{x}^{\top})^2=w^2\|\boldsymbol{x}\|_2^2\boldsymbol{x}\boldsymbol{x}^{\top}$ and $\|\boldsymbol{x}\|_2^2\leq2$ on $\mathcal{B}(0,\epsilon)$,
 \begin{align*}
     \|\mathbb{E}[Y^2]\|_{\operatorname{op}}
-    &\leq \mathbb{E}\|(wXX^{\top})^2\|_{\operatorname{op}} \\
-    &= \mathbb{E}[w^2\|X\|_2^4] \\
+    &\leq \mathbb{E}\|(w\boldsymbol{x}\boldsymbol{x}^{\top})^2\|_{\operatorname{op}} \\
+    &= \mathbb{E}[w^2\|\boldsymbol{x}\|_2^4] \\
     &\leq 4w_{\max}^2\mathbb{P}(x\in\mathcal{B}(0,\epsilon))
     \lesssim \epsilon^d,
 \end{align*}
-where the final bound follows from the local upper bound on $p_{x}$. Therefore, $\sigma^2\lesssim n\epsilon^d$.
+where the final bound follows from the local upper bound on $p$. Therefore, $\sigma^2\lesssim n\epsilon^d$.
 \qed{}
 
 \begin{restatable}{lemma}{}
-    Let $Q = \mathbb{E}\left[wXX^{\top}\right]$
-    and assume that $p_{x}$ and $p^*$ are lower bounded by some $m > 0$ and upper bounded by some finite value on $\mathcal{B}(0, \epsilon)$. We then have
+    Let $Q = \mathbb{E}\left[w\boldsymbol{x}\boldsymbol{x}^{\top}\right]$
+    and assume that $p$ and $p^*$ are lower bounded by some $m > 0$ and upper bounded by some finite value on $\mathcal{B}(0, \epsilon)$. We then have
     $\lambda_{\min}(Q) \gtrsim \epsilon^d$ where $\lambda_{\min}(A)$ denotes the minimum eigenvalue of the matrix $A$. 
     \label{lemma: Q op norm}
 \end{restatable}
 \noindent \textit{Proof.} We have
 \begin{align*}
     \lambda_{\min}(Q) &= \min_{\|v\|_2 = 1}v^{\top}Qv \\
-    &= \min_{\|v\|_2 = 1} \mathbb{E}[wv^{\top}XX^{\top}v] \\
-    &= \min_{\|v\|_2 = 1} \mathbb{E}[w(X^{\top}v)^2]
+    &= \min_{\|v\|_2 = 1} \mathbb{E}[wv^{\top}\boldsymbol{x}\boldsymbol{x}^{\top}v] \\
+    &= \min_{\|v\|_2 = 1} \mathbb{E}[w(\boldsymbol{x}^{\top}v)^2]
 \end{align*}
-Now let $w_{\min} = \inf_{x \in \mathcal{B}(0, \epsilon)}p^*(x)/p_{x}(x)$ -- it follows that
+Now let $w_{\min} = \inf_{x \in \mathcal{B}(0, \epsilon)}p^*(x)/p(x)$ -- it follows that
 \begin{align*}
-    \lambda_{\min}(Q) &\gtrsim \min_{\|v\|_2 = 1}\mathbb{E}[\mathbbm{1}_{\{x \in \mathcal{B}(0, \epsilon)\}}(X^{\top}v)^2] \\
-    &= \min_{\|v\|_2 = 1}\int_{\mathcal{B}(0, \epsilon)}(X^{\top}v)^2 dp_{x}(x) \\
-    &\geq m \mathcal{L}(\mathcal{B}(0, \epsilon))\min_{\|v\|_2 = 1}\int_{\mathcal{B}(0, \epsilon)}(X^{\top}v)^2 du(x)
+    \lambda_{\min}(Q) &\gtrsim \min_{\|v\|_2 = 1}\mathbb{E}[\mathbbm{1}_{\{x \in \mathcal{B}(0, \epsilon)\}}(\boldsymbol{x}^{\top}v)^2] \\
+    &= \min_{\|v\|_2 = 1}\int_{\mathcal{B}(0, \epsilon)}(\boldsymbol{x}^{\top}v)^2 dp(x) \\
+    &\geq m \mathcal{L}(\mathcal{B}(0, \epsilon))\min_{\|v\|_2 = 1}\int_{\mathcal{B}(0, \epsilon)}(\boldsymbol{x}^{\top}v)^2 du(x)
 \end{align*}
 where $u$ is the uniform measure over $\mathcal{B}(0, \epsilon)$. We then have
 \begin{align*}
@@ -2677,9 +2677,9 @@ where the expectation is with respect to the uniform measure on $\mathcal{B}(0,\
 \begin{restatable}{lemma}{}
     Let
     \[
-        Q = \mathbb{E}\left[wXX^{\top}\right]
+        Q = \mathbb{E}\left[w\boldsymbol{x}\boldsymbol{x}^{\top}\right]
         \qquad\text{and}\qquad
-        \hat{Q} = \frac{1}{n}\sum_{i = 1}^n\hat{w}_iX_iX_i^{\top},
+        \hat{Q} = \frac{1}{n}\sum_{i = 1}^n\hat{w}_i\boldsymbol{x}_i\boldsymbol{x}_i^{\top},
     \]
     and suppose the assumptions of \Cref{lemma: Q op norm} hold. Under \cref{assumption: kernel smoothness}, \cref{assumption: boundedness and integrability}, and \cref{assumption: lce and covariate density}, we have 
     \[
@@ -2691,14 +2691,14 @@ where the expectation is with respect to the uniform measure on $\mathcal{B}(0,\
     when $h\rightarrow0$, $nh^d/\log n\rightarrow\infty$, $\epsilon\rightarrow0$, and $n\epsilon^d\rightarrow\infty$.
     \label{lemma: Q convergence}
 \end{restatable}
-\noindent \textit{Proof.} Before establishing the convergence of $\hat Q$, we will bound $\hat w_i-w_i$. Let $\Delta(x)=\hat p_{x}(x)-p_{x}(x)$. A first-order Taylor expansion of $t\mapsto1/t$ gives
+\noindent \textit{Proof.} Before establishing the convergence of $\hat Q$, we will bound $\hat w_i-w_i$. Let $\Delta(x)=\hat p(x)-p(x)$. A first-order Taylor expansion of $t\mapsto1/t$ gives
 \begin{align*}
     |\hat{w}_i - w_i|
     &\leq \mathbbm{1}_{\{x_i \in \mathcal{B}(0, \epsilon)\}}p^*(x_i)
     \left[\frac{\sup_{x \in \mathcal{B}(0, \epsilon)}|\Delta(x)|}{m^2}
     + \frac{1}{2}|g''(\xi_i)|\sup_{x \in \mathcal{B}(0, \epsilon)}|\Delta(x)|^2\right],
 \end{align*}
-where $\xi_i$ lies between $\hat p_{x}(x_i)$ and $p_{x}(x_i)$. By \Cref{lemma: uniform convergence of kde},
+where $\xi_i$ lies between $\hat p(x_i)$ and $p(x_i)$. By \Cref{lemma: uniform convergence of kde},
 \[
     \sup_{x \in \mathcal{B}(0, \epsilon)}|\Delta(x)|
     =
@@ -2712,17 +2712,17 @@ where the final equality follows from $h\rightarrow0$ and $nh^d/\log n\rightarro
     =
     \mathbbm{1}_{\{x_i\in\mathcal B(0,\epsilon)\}}p^*(x_i)o_p(1)
 \]
-uniformly over $i$. Now define $\tilde Q=n^{-1}\sum_{i=1}^nw_iX_iX_i^\top$. Since $p^*$ is locally bounded and $\|X_i\|_2^2\leq2$ on $\mathcal B(0,\epsilon)$, the same matrix Bernstein argument as in \Cref{lemma: operator norm and var proxy} gives
+uniformly over $i$. Now define $\tilde Q=n^{-1}\sum_{i=1}^nw_i\boldsymbol{x}_i\boldsymbol{x}_i^\top$. Since $p^*$ is locally bounded and $\|\boldsymbol{x}_i\|_2^2\leq2$ on $\mathcal B(0,\epsilon)$, the same matrix Bernstein argument as in \Cref{lemma: operator norm and var proxy} gives
 \begin{align*}
     \|\hat Q-\tilde Q\|_{\operatorname{op}}
     &=
     o_p\left(\sqrt{\frac{\epsilon^d}{n}}+\frac{1}{n}+\epsilon^d\right).
 \end{align*}
-Now define $\tilde Q=n^{-1}\sum_{i=1}^nw_iX_iX_i^\top$. Since $p^*$ is locally bounded and $\|X_i\|_2^2\leq2$ on $\mathcal B(0,\epsilon)$, the preceding uniform bound implies
+Now define $\tilde Q=n^{-1}\sum_{i=1}^nw_i\boldsymbol{x}_i\boldsymbol{x}_i^\top$. Since $p^*$ is locally bounded and $\|\boldsymbol{x}_i\|_2^2\leq2$ on $\mathcal B(0,\epsilon)$, the preceding uniform bound implies
 \begin{align*}
     \|\hat Q-\tilde Q\|_{\operatorname{op}}
     \leq \frac{1}{n}\sum_{i=1}^n
-    |\hat w_i-w_i|\,\|X_iX_i^\top\|_{\operatorname{op}} \leq
+    |\hat w_i-w_i|\,\|\boldsymbol{x}_i\boldsymbol{x}_i^\top\|_{\operatorname{op}} \leq
     o_p(1)\frac{1}{n}\sum_{i=1}^n
     \mathbbm{1}_{\{x_i\in\mathcal B(0,\epsilon)\}} =o_p(\epsilon^d),
 \end{align*}
@@ -2732,7 +2732,7 @@ where the final equality follows from
 \mathbbm{1}_{\{x_i\in\mathcal B(0,\epsilon)\}}
 =O_p(\epsilon^d),
 \]
-since $\mathbb P(x\in\mathcal B(0,\epsilon))=O(\epsilon^d)$ by the local upper bound on $p_x$. Moreover, \Cref{lemma: operator norm and var proxy} and the matrix Bernstein inequality (\Cref{thm: matrix bernstein}) imply
+since $\mathbb P(x\in\mathcal B(0,\epsilon))=O(\epsilon^d)$ by the local upper bound on $p$. Moreover, \Cref{lemma: operator norm and var proxy} and the matrix Bernstein inequality (\Cref{thm: matrix bernstein}) imply
 \begin{align*}
     \|\tilde Q-Q\|_{\operatorname{op}}
     &= O_p\left(\frac{\sqrt{n\epsilon^d}}{n}+\frac{1}{n}\right) = O_p\left(\sqrt{\frac{\epsilon^d}{n}}+\frac{1}{n}\right).
@@ -3011,17 +3011,17 @@ where the final relation follows from $\epsilon\rightarrow0$ and $n\epsilon^d\ri
 
 
 \begin{restatable}{lemma}{} \label{lemma: pd}
-    Suppose $p^*(x)>0$ almost everywhere on $\mathcal{B}(0,\epsilon)$. Then the matrix $\mathbb{E}_{p_{x}}[wXX^{\top}]$ is positive definite.
+    Suppose $p^*(x)>0$ almost everywhere on $\mathcal{B}(0,\epsilon)$. Then the matrix $\mathbb{E}_{p}[w\boldsymbol{x}\boldsymbol{x}^{\top}]$ is positive definite.
 \end{restatable}
 \noindent \textit{Proof.} Expanding $w$ yields
 \[
-    \mathbb{E}_{p_{x}}[wXX^{\top}]
+    \mathbb{E}_{p}[w\boldsymbol{x}\boldsymbol{x}^{\top}]
     =
-    \mathbb{E}_{p^*}\left[\mathbbm{1}_{\{x\in\mathcal{B}(0,\epsilon)\}}XX^{\top}\right].
+    \mathbb{E}_{p^*}\left[\mathbbm{1}_{\{x\in\mathcal{B}(0,\epsilon)\}}\boldsymbol{x}\boldsymbol{x}^{\top}\right].
 \]
 Thus, for any $v=(v_0,v_1^\top)^\top\in\mathbb{R}^{d+1}$ with $v\neq0$,
 \[
-    v^\top\mathbb{E}_{p_{x}}[wXX^{\top}]v
+    v^\top\mathbb{E}_{p}[w\boldsymbol{x}\boldsymbol{x}^{\top}]v
     =
     \int_{\mathcal{B}(0,\epsilon)}
     \left(v_0+\frac{v_1^\top x}{\epsilon}\right)^2
@@ -3029,7 +3029,7 @@ Thus, for any $v=(v_0,v_1^\top)^\top\in\mathbb{R}^{d+1}$ with $v\neq0$,
 \]
 The affine function $x\mapsto v_0+v_1^\top x/\epsilon$ is not identically zero when $v\neq0$, and its zero set has Lebesgue measure zero unless $v_1=0$, in which case it is the nonzero constant $v_0$. Since $p^*(x)>0$ almost everywhere on $\mathcal{B}(0,\epsilon)$, the integral is strictly positive. Hence
 \[
-    \mathbb{E}_{p_{x}}[wXX^{\top}]\succ0.
+    \mathbb{E}_{p}[w\boldsymbol{x}\boldsymbol{x}^{\top}]\succ0.
 \]
 
 \qed{}
