@@ -100,13 +100,29 @@
 
 \section{Introduction}
 
-Single-index regression is a classical tool in semi-parametric statistics for regression analysis. The model typically stipulates that the response variable $y \in \mathbb{R}$ depends on the covariates $x \in \mathbb{R}^d$ through the compositional relationship $y = f(g(x)) + \varepsilon$ where $f: \mathbb{R} \to \mathbb R$ is the \emph{link} function, $\varepsilon$ is distributed according to some noise distribution, and $g(x) = \theta^\top x$ where $\theta \in \mathbb{R}^d$ is the \emph{index} vector. Many techniques have been developed for estimation and inference in this model under a variety of assumptions \citep{li1991sliced,dennis2000save,li2005contour,li2007directional, li1989regression}, as the model simultaneously offers flexibility and interpretability. Most of these methods rely heavily on the linear structure of $g$ for computational tractability, thereby avoiding the need to jointly optimize over $f$ and $g$. 
+Single-index regression is a classical tool in semi-parametric statistics for regression analysis. In a regression setting, we assume access to data $(x, y)$ consisting of a covariate $x$ and a  (univariate) response variable $y$ where the goal is to estimate $\mu(x) = \mathbb{E}[Y|X = x]$. The classical single-index model stipulates that $\mu(x) = f(x^{\top}\theta_0)$ for some unknown $f:\mathbb{R}\to\mathbb{R}$ and $\theta_0\in\mathbb{S}^{d-1}$. As a generalization, we consider the assumption
+\begin{equation}\label{eq:non-linear-index-model}
+    \mu(x) = f(g(x))\quad\mbox{for all}\quad x\in\mathcal{X}.
+\end{equation}
+Here $f:\mathbb{R}\to\mathbb{R}$ and $g:\mathbb{R}^d\to\mathbb{R}$ are some unknown functions. This can alternatively be expressed as 
+\[
+Y = f(g(X)) + \varepsilon\quad\mbox{where}\quad \mathbb{E}[\varepsilon|X] = 0\quad\mbox{a.s.}\quad X.
+\]
+No additional assumptions on $\varepsilon$ are needed in this formulation. In particular, we do not need independence between $\varepsilon, X$, nor do we need conditional Gaussianity of $\varepsilon$ given $X$.
+The model typically stipulates that the response variable $y \in \mathbb{R}$ depends on the covariates $x \in \mathbb{R}^d$ through the compositional relationship $y = f(g(x)) + \varepsilon$ where $f: \mathbb{R} \to \mathbb R$ is the \emph{link} function, $\varepsilon$ is distributed according to some noise distribution, and $g(x) = \theta^\top x$ where $\theta \in \mathbb{R}^d$ is the \emph{index} vector. Many techniques have been developed for estimation and inference in this model under a variety of assumptions \citep{li1991sliced,dennis2000save,li2005contour,li2007directional, li1989regression}, as the model simultaneously offers flexibility and interpretability. Most of these methods rely heavily on the linear structure of $g$ for computational tractability, thereby avoiding the need to jointly optimize over $f$ and $g$. 
 
-In this work we consider a modified version of the classical single-index regression model which ablates the linear structure of $g$ that we call the \emph{generalized single-index regression model}. In particular, the model instead assumes that $g: \mathbb{R}^d \to \mathbb{R}$ is an arbitrary $\beta$-H\"older function. Na\"ively, estimation in such a model would require a bi-level optimization procedure of the form
+{\color{red}The following program makes it look like we are first one doing this, which is not true. People have considered this sort of models before.}
+In this work we consider a modified version of the classical single-index regression model which ablates the linear structure of $g$ that we call the \emph{generalized single-index regression model}. \tls{add citation to other people who have considered such a model} In particular, the model instead assumes that $g: \mathbb{R}^d \to \mathbb{R}$ is an arbitrary $\beta$-H\"older function. Na\"ively, estimation in such a model would require a bi-level optimization procedure of the form
 \begin{equation}\label{bilevel optimization}
     \hat f_n, \hat g_n \in \arg\min_{\hat f \in \mathcal{F}, \hat g \in \mathcal{G}}\frac{1}{n}\sum_{i = 1}^n\left|Y_i - \hat f(\hat g(X_i))\right|^2.
 \end{equation}
 In this work we instead propose and analyze a conceptually simple and computationally tractable estimation procedure for the generalized single-index model that we call \emph{Locally Linear Single-Index Regression} (LLSIR). A hallmark of this procedure is that it avoids the bi-level optimization problem in \Cref{bilevel optimization} through localization; in a neighborhood of an out-of-sample point $x_0$ the $g$ function is approximately linear, and one can therefore employ classical single-index techniques to estimate $\nabla g(x_0)$ up to scale. From there, one can project onto the curve defining the estimated velocity and perform nonparametric regresison. This concept underpins the LLSIR procedure, making it conceptually simple and easy to both implement and analyze.
+
+The motivation behind classical single-index or multi-index models is the true conditional expectation $\mu(x) := \mathbb{E}[Y|X = x]$ depends on $x$ only through a low-dimensional linear function which should allow one to estimate $\mu(\cdot)$ without a curse of dimensionality~\citep{gaiffas2007optimal}. Our motivation in considering the non-linear extension is also the same. Given the compositional structure of our assumed $\mu(\cdot)$, it is possible to apply other more general methods to directly estimate $\mu(\cdot)$. For example,~\cite{Schmidt_Hieber_2020} proves the minimax rate (in terms of MSE) for estimating $\mu(x) = f(g(x))$ when $g:\mathbb{R}^d\to\mathbb{R}$ is $\beta_g$-smooth and $f:\mathbb{R}\to\mathbb{R}$ is $\beta_f$-smooth is given by $\max\{n^{-2\beta_g/(2\beta_g + d)},\, n^{-2\beta_f/(2\beta_f + 1)}\}$. Hence, if the inner function $g$ is significantly smoother, i.e., $\beta_g \asymp d$, then the conditional expectation can be estimated without curse of dimensionality. Moreover,~\cite{Schmidt_Hieber_2020} proves that a ``well-designed'' and ``well-trained'' neural network achieves this rate adaptively. However, both these requirements are difficult to achieve in practice given the significant non-convexity of the problem. For this reason, we directly target the estimation of identifiable aspects of $g(\cdot)$ and then perform non-parametric regression of $Y$ on $\widehat{g}(X)$ to obtain an estimate of $f(\cdot)$. While we may not achieve the minimax rate for estimating $\mu(\cdot)$, this approach is particularly beneficial in the context of transfer learning. Imagine, instead of one sample, we have $K$ samples $(X_{i}^{(k)}, Y_{i}^{(k)}), 1\le i\le n_k$ for $1\le k\le K$ such that
+\[
+\mathbb{E}[Y_i^{(k)}|X_{i}^{(k)} = x] = f_k(g(x))\quad\mbox{for}\quad 1\le i\le n_k, 1\le k\le K. 
+\]
+This means that the inner function stays the same across different samples while the outer function can change between samples. In this scenario, an estimation procedure that targets $g$ can pool information from all samples while the estimation of outer function can be performed within each sample. See, for example,~\cite{chen2013estimation} for example where $g(x) = x^{\top}\theta_0$. While we do not pursue the goal of transfer learning in this paper, it plays a significant motivating role for our method. Additionally, the procedure and analysis that follow can be extended to this setting. 
 
 In \Cref{sec: theoretical results}, we provide theoretical analyses of the LLSIR procedure. Because the procedure estimates $f$ through estimating $\nabla g$, our analysis falls into two corresponding categories. In our first body of analysis, we derive an influence function expansios for the estimation error $\widehat{\nabla g} - \nabla g$ (\Cref{thm: decomposition for beta}); this readily yields a central limit theorem (\cref{corr: central limit for v}) and a rate of convergence (\cref{thm: velocity risk}). In our second body of analysis, we carry out the same derivations for the regression estimator $\hat f$. In particular, we derive an influence function expansion of $\hat f - f$ (\Cref{thm: regression ptwise decomp}), a central limit theorem (\Cref{corr: central limit for f}) and a rate of convergence (\Cref{regression risk}) for $\hat f$. Finally, we pull from the literature on estimation of composition of H\"older-smooth functions, where we find that our rates are indeed minimax optimal when $g$ is $2$-H\"older. 
 
@@ -122,7 +138,7 @@ In \Cref{sec: single variable model}, we instantiate the LLSIR method in the con
 % \end{enumerate}
 
 \subsection{Related Work}
-
+\tls{put this before we discuss what comes next in the paper}
 
 % In this work we consider the problem where we are given samples $\{(x_1, y_1), \dots, (x_n, y_n)\} \sim \nu$ from some distribution over $\mathbb{R}^d\times \mathbb{R}$ with density $p_{x,y}$ and we want to model the conditional mean of $y$ given $x$. The only assumption on the covariates the we impose is that the $x$-marginal of $p_{x,y}$ has bounded support. Furthermore, we assume that the conditional mean of the responses $y$ are related to the covariates $x$ through the following composition,
 % \begin{equation}
@@ -141,8 +157,8 @@ The classical single-index model assumes that the regression function takes the 
 \medskip 
 
 \emph{Compositional function estimation.}
-The literature regarding general models of the compositional form $m=f\circ g$ is quite rich. Most directly, \citet{juditsky2009nonparametric} study the estimation of a multivariate function represented as the composition of a univariate outer function and a multivariate inner function, and they characterize minimax estimation rates over smooth composition classes. More recently, \citet{Schmidt_Hieber_2020} establishes minimax rates for substantially more general hierarchical composition classes using sparse deep ReLU networks. 
-Finally, our closest-point projection example in \Cref{sec: single variable model} is directly related to the nonlinear single-variable model of \citet{wu2026conditional}, who consider $m(x)=f(\Pi_\gamma x)$ with $\Pi_\gamma$ the closest-point coordinate associated with an unknown regular curve $\gamma$. Their estimator combines ideas from inverse regression and manifold learning, though their analysis restricts the covariate distribution to a neighborhood of the curve $\gamma$; under additional conditions on the link and variation normal to the curve, they obtain a one-dimensional minimax rate up to logarithmic and geometry-dependent effects. We remark that this setting is related to, but distinct from, regression under a manifold-support assumption. In this setting, local polynomial regression has been shown to adapt to intrinsic dimension when the covariates lie on or sufficiently near a lower-dimensional manifold \citep{bickel2007local}. Furthermore, locally-linear methods have also been developed for simultaneous regression and gradient estimation on an unknown manifold \citep{cheng2013local}. 
+The literature regarding general models of the compositional form $m=f\circ g$ is quite rich. Most directly, \citet{juditsky2009nonparametric} study the estimation of a multivariate function represented as the composition of a univariate outer function and a multivariate inner function, and they characterize minimax estimation rates over smooth composition classes. \tls{they use discretization... mention that} More recently, \citet{Schmidt_Hieber_2020} establishes minimax rates for substantially more general hierarchical composition classes using sparse deep ReLU networks. 
+Finally, our closest-point projection example in \Cref{sec: single variable model} is directly related to the nonlinear single-variable model of \citet{wu2026conditional}, who consider $m(x)=f(\Pi x)$ with $\Pi$ the closest-point coordinate associated with an unknown regular curve $\gamma$. Their estimator combines ideas from inverse regression and manifold learning, though their analysis restricts the covariate distribution to a neighborhood of the curve $\gamma$; under additional conditions on the link and variation normal to the curve, they obtain a one-dimensional minimax rate up to logarithmic and geometry-dependent effects. We remark that this setting is related to, but distinct from, regression under a manifold-support assumption. In this setting, local polynomial regression has been shown to adapt to intrinsic dimension when the covariates lie on or sufficiently near a lower-dimensional manifold \citep{bickel2007local}. Furthermore, locally-linear methods have also been developed for simultaneous regression and gradient estimation on an unknown manifold \citep{cheng2013local}. 
 \medskip
 
 \emph{Sufficient dimension reduction.}
@@ -152,7 +168,7 @@ Our work is also intimately related to the vast literature on sufficient dimensi
 
 
 \emph{Local regression and gradient estimation.}
-The first stage of our procedure is also closely connected to the classical literature on local polynomial regression and nonparametric derivative estimation. Local polynomial estimators and their bias and variance expansions were developed by \citet{ruppert1994multivariate}, while \citet{lu1996partial} develops the asymptotic theory for multivariate partial derivative estimation. This literature is especially pertinent because $\nabla(f\circ g)(x_0)=f'(g(x_0))\nabla g(x_0)$, so local derivative estimation provides one route to recovering the index direction. Our approach instead extends the density-weighted linear least-squares (DWLLS) methodology of \citet{Newey_Ruud_2005} to nonlinear $g$. In this way, we retain the computational tractability and single-index interpretation of DWLLS while allowing the index to vary spatially.
+The first stage of our procedure is also closely connected to the classical literature on local polynomial regression and nonparametric derivative estimation. Local polynomial estimators and their bias and variance expansions were developed by \citet{ruppert1994multivariate}, while \citet{lu1996partial} develops the asymptotic theory for multivariate partial derivative estimation. This literature is especially pertinent because $\nabla(f\circ g)(x_0)=f'(g(x_0))\nabla g(x_0)$, so local derivative estimation provides one route to recovering the index direction. Our approach instead extends the density-weighted linear least-squares (DWLLS) methodology of \citet{Newey_Ruud_2005} to nonlinear $g$. In this way, we retain the computational tractability and single-index interpretation of DWLLS while allowing the index to vary spatially. \tls{add comment about computational aspects of local linear reg.}
 
 % \emph{Generated covariates and two-stage nonparametric estimation.}
 % Our regression estimator uses the first-stage direction estimate to construct a scalar projected covariate and therefore also belongs to the broad class of nonparametric procedures with generated regressors. \citet{mammen2012generated}, for example, derive general stochastic expansions and asymptotic distributions for nonparametric regression estimators whose covariates are themselves estimated in a preliminary nonparametric step. In our setting the generated covariate has a specific geometric form, obtained by projecting local displacements onto an estimated gradient direction, which allows the first-stage estimation error to be incorporated directly into the pointwise expansion for the final regression estimator.
@@ -285,7 +301,7 @@ Under these assumptions, we can invoke a uniform convergence in probability resu
 \begin{restatable}[Uniform convergence over a bounded set, \citet{hansen2008uniform}]{lemma}{} \label{lemma: uniform convergence of kde}
     Suppose that $\|p_{x}\|_{\infty}< \infty$ and the $s^{\text{th}}$ derivative of $p_{x}$ is uniformly continuous, where $s$ is the order of the kernel $K$. Moreover, suppose that \Cref{further kernel assumptions} holds. Then for any sequence $\epsilon_n  = O(1)$ we have
     \[\sup_{x \in \mathcal{B}(0, \epsilon_n)}\left|\hat{p}_{x}(x) - p_{x}(x)\right| = O_p\left(\sqrt{\frac{\log n}{nh^d}} +h^s \right)\]
-    when $h \to 0$ and $nh^d/\log n \to \infty$.
+    when $h \to 0$ and $nh^d/\log n \to \infty$. \tls{get rid of subscript x in the density est}
 \end{restatable}
 
 \subsection{Estimating the regression function} \label{sec: regression est}
@@ -325,17 +341,17 @@ Our entire procedure for estimating the generalized single index model, which we
 
 Clear from \Cref{alg: LLSIR} is the fact that the method is algorithmically simple. The velocity estimation stage to produce $\hat v_{x_0, \epsilon}$ has a simple matrix-algebraic closed form, while the conditional mean estimation is simply univariate kernel regression. This is in stark contrast to the na\"ive bilevel optimization problem in \Cref{bilevel optimization} for estimating the generalized single index model.
 
-\subsection{Identifiability}
+\subsection{Identifiability} \tls{put this before settings and assumptions}
 
-Before presenting our theoretical analyses of the LLSIR procedure, we will briefly remark on the nuances of identifiability. In particular, we cannot expect that, in general, $f$ and $g$ can be uniquely identified. Indeed, taking $\tilde f(z) = f(z + c)$ and $\tilde g(x) = g(x) - c$ gives $(\tilde f \circ \tilde g)(x) = (f \circ g)(x) = m(x)$ yielding an immediate counterexample. In fact, this can be generalized to any invertible $h: \mathbb{R}\to \mathbb{R}$, taking $\tilde f = f \circ h^{-1},$ and $\tilde g = h \circ g$ gives $m(x) = (f\circ g)(x) = (\tilde f \circ \tilde g)(x)$. Despite this, one can show that $\nabla g$ can be identified up to scale pointwise almost surely under reasonable assumptions about $f, g$. 
+Before presenting our theoretical analyses of the LLSIR procedure, we will briefly remark on the nuances of identifiability. In particular, we cannot expect that, in general, $f$ and $g$ can be uniquely identified. Indeed, taking $\tilde f(z) = f(z + c)$ and $\tilde g(x) = g(x) - c$ gives $(\tilde f \circ \tilde g)(x) = (f \circ g)(x) = m(x)$ yielding an immediate counterexample. In fact, this can be generalized to any invertible $h: \mathbb{R}\to \mathbb{R}$, taking $\tilde f = f \circ h^{-1},$ and $\tilde g = h \circ g$ gives $m(x) = (f\circ g)(x) = (\tilde f \circ \tilde g)(x)$. Despite this, one can show that $\nabla g$ can be identified up to scale pointwise almost surely under reasonable assumptions about $f, g$. \tls{ if lebesgue measure  $\{x \}$}
 
 \begin{prop}[Identification of $\nabla g(x_0)$ up to scale]\label{identification}
-    Suppose $x_0 \sim P_x$ and define the critical sets of $f, g$ as
+    Suppose $x_0 \sim P_x$ \tls{dont use $x_0$} and define the critical sets of $f, g$ as
     \[\mathcal{C}_f = \{t : f'(t) = 0\}, \quad \mathcal{C}_g = \{x : \nabla g(x) =0\}.\]
     Then if $f$ and $g$ satisfy $\mathcal{L}_1(\mathcal{C}_f) = \mathcal{L}_d(\mathcal{C}_g) = 0$ where $\mathcal{L}_d$ is the $d$-dimensional Lebesgue measure on $\mathbb{R}^d$, then $\operatorname{span}\{\nabla g(x_0)\}$ is identifiable $P_x$-almost-surely.
 \end{prop}
 \begin{proof}
-    The proof of the statement above is quite simple. We seek to show that if $f \circ g \equiv \tilde f \circ \tilde g$, then under the stated assumptions $\operatorname{span}\{\nabla g(x_0)\} = \operatorname{span}\{\nabla \tilde g(x_0)\}$ $P_x$-a.s. To see this, note that since $P_x \ll \mathcal{L}_d$, we have $P_x(\mathcal{C}_g) = 0.$ Moreover, the $\beta \geq 2$ H\"older regularity of $g$ that we have assumed guarantees that $g_{\#}P_x \ll \mathcal{L}_1$, and therefore $P_x(g^{-1}(\mathcal{C}_g)) = 0$ because $\mathcal{L}_1(\mathcal{C}_f) = 0.$ Thus, we have shown that for $x \sim P_x$, $f'(g(x_0)) \neq 0 $ and $\nabla g(x_0) \neq 0$ almost surely.
+    The proof of the statement above is quite simple. We seek to show that if $f \circ g \equiv \tilde f \circ \tilde g$, then under the stated assumptions $\operatorname{span}\{\nabla g(x_0)\} = \operatorname{span}\{\nabla \tilde g(x_0)\}$ $P_x$-a.s. To see this, note that since $P_x \ll \mathcal{L}_d$, we have $P_x(\mathcal{C}_g) = 0.$ Moreover, the $\beta \geq 2$ H\"older regularity of $g$ that we have assumed allows us to invoke the coarea formula \citep[Theorem 3.2.22]{federer1959curvature} with $h(x) = p_x\mathbbm{1}\{g^{-1}(\mathcal C_f) \cap \|\nabla g(x)\|_2 > 0\}/\|\nabla g(x)\|_2$, which guarantees that $P_x(g^{-1}(\mathcal{C}_f)) = 0$ because $\mathcal{L}_1(\mathcal{C}_f) = 0.$ Thus, we have shown that for $x \sim P_x$, $f'(g(x)) \neq 0 $ and $\nabla g(x) \neq 0$ almost surely.
 
     Now suppose that $\tilde f \circ \tilde g = f \circ g$. Differentiating both sides at an $x \in \mathbb{R}^d$ such that neither $f(g(x))$ nor $g(x)$ are critical gives
     \begin{align*}
@@ -355,7 +371,7 @@ In this section we present theoretical results regarding the LLSIR procedure. To
     \begin{enumerate}
         \item (LCE density): the density $p^*(x)$ satisfies $\mathbb{E}_{p^*}[XX^{\top}] \succ 0$, is continuous at $0$, and satisfies $p^*(0)>0$.
         \item (Covariate support): We assume that the support of the covariates is bounded, i.e.  for some $r > 0$ \[\overline{\{x : p_{x}(x) \neq 0\}} \subseteq \mathcal{B}(0, r).\]
-        \item (Covariate density): there exists a non-negative integer $s \geq 1$ such that the $s^{\text{th}}$ derivative of the density $p_{x}(x)$ is uniformly continuous.
+        \item (Covariate density): there exists a non-negative integer $s > 2$ such that the $s^{\text{th}}$ derivative of the density $p_{x}(x)$ is uniformly continuous.
         \item (Noise regularity): at the out of sample point $x_0$, $\sigma^2(x)$ is continuous at $x_0$, $\sigma^2(x_0)>0$, and there exists $\delta>0$ such that
         \[
             \sup_{x\in\mathcal{B}(x_0,\delta)}
@@ -380,7 +396,7 @@ In particular, we will first show that the population quantity $v^*_{x_0, \epsil
 
 The proof of \Cref{thm: population prop} is provided in \Cref{sec: proof of population vel prop}. This result establishes that the rate with which the bias induced by localization (or rather, lack thereof) shrinks as a function of the localization parameter $\epsilon$. Our next result instead considers the deviation between the population quantity $v^*_{x_0, \epsilon}$ and the sample estimator $\hat v_{x_0, \epsilon}$ -- in particular, we provide an influence function expansion of the difference, which will later allow us to establish a central limit theorem and rates of convergence. This influence function expansion is described in \Cref{thm: decomposition for beta}
 
-\begin{restatable}[Velocity error expansion]{lemma}{} \label{thm: decomposition for beta}
+\begin{restatable}[Velocity error expansion \tls{add citation for newey and ruud}]{lemma}{} \label{thm: decomposition for beta}
     Suppose that \cref{further kernel assumptions} and \cref{assumption: lce and covariate density} are satisfied, and suppose that the density kernel bandwidth satisfies $h \asymp n^{-1/(2s+d)}$, $\epsilon \rightarrow 0, n\epsilon^d \rightarrow \infty$ and $\sqrt{n\epsilon^d}n^{-s/(2s+d)} \to 0$. Finally, suppose that $p_{x}$ is bounded away from zero on $\mathcal{B}(0, \epsilon)$ (where $p_{x}$ is the density of $x - x_0$). Then it holds that
     \[\hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon} = \frac{1}{n}VQ^{-1}\sum_{i = 1}^nw_iX_i(u_i - \mathbb{E}[u_i\,|\,X_i]) +o_p\left(\frac{1}{\sqrt{n\epsilon^{d}}}\right)\]
     where $u = y - X^{\top}\beta_{x_0, \epsilon}^*$ and $Q = \mathbb{E}[wXX^{\top}]$.
@@ -410,7 +426,7 @@ Applying \Cref{lemma: scaled high prob bound for velocity} we have $ \|\hat{v}_{
 
 \qed{}
 
-\subsection{Nonparametric Regression}  \label{sec: regression results presentation}
+\subsection{Nonparametric Regression \tls{change this to "est of outer function"}}  \label{sec: regression results presentation}
 
 Now, to obtain a conditional mean estimate for an out of sample point $x_0$, we will project its neighborhood onto the estimate $\hat{v}_{x_0, \epsilon}$ and then perform kernel regression. To keep scale consistent, we will first normalize the gradient vector estimate to obtain $\hat{v}_{x_0, \epsilon}' = \hat{v}_{x_0, \epsilon}/\|\hat{v}_{x, \epsilon}\|_2$ (with its population counterpart being $v'^{*}_{x, \epsilon}$). 
 
@@ -420,7 +436,7 @@ Now, to obtain a conditional mean estimate for an out of sample point $x_0$, we 
     \begin{equation*}
     \hat{f}(x_0) - f(s_0) = \bar{b}(x; \epsilon, h_r) + \frac{1}{n}\sum_{i = 1}^n\mathbb{IF}_{i, \epsilon} + o_p\left(\frac{1}{\sqrt{n\epsilon^d}}\right)
     \end{equation*}
-    where $\mathbb{IF}_{i, \epsilon} = \langle \mu_{\psi}, \varphi_{\epsilon, i}\rangle + \zeta_i$ is mean zero, $s_0 = g(x_0)$, $\bar{b}(x_0;\epsilon)$ is the asymptotic bias of the form
+    where $\mathbb{IF}_{i, \epsilon} = \langle \mu_{\psi}, \varphi_{\epsilon, i}\rangle + \zeta_i$ is mean zero, $s_0 = g(x_0)$, $\bar{b}(x_0;\epsilon)$ is the asymptotic bias of the form \tls{change from $\hat f$ to $\hat \mu$}
     \begin{equation*}
         \bar{b}(x_0; \epsilon) = \frac{\mathbb{E}\left[\left\{f(g(x)) - f(s_0)\right\}K_r(z/h_r)\mathbbm{1}_{\{x\in \mathcal{B}(x_0, \epsilon)\}}\right]}{\mathbb{E}\left[K_r(z/h_r)\mathbbm{1}_{\{x\in \mathcal{B}(x_0, \epsilon)\}}\right]},
     \end{equation*}
@@ -523,11 +539,11 @@ We will now show that under the assumptions on $\gamma$ and $P_x$ described earl
     Suppose that $\gamma$ and $P_{x}$ satisfy \Cref{assumption: the curve gamma}. Then there exists an \textit{open} set $R$ such that $x \in R$ almost surely, and for all $x \in R$:
     \begin{enumerate}
         \item $s = \Pi(x)$ is unique and well defined
-        \item both $\nabla\Pi(x)$, $\nabla^2\Pi(x)$ exist and can be expressed as $\nabla\Pi(x)  = -\gamma'(s)/g(x)$ and 
+        \item both $\nabla\Pi(x)$, $\nabla^2\Pi(x)$ exist and can be expressed as $\nabla\Pi(x)  = -\gamma'(s)/\ell(x)$ and 
         \begin{equation}
-            \nabla^2\Pi(x) = \frac{1}{g^2(x)}\left(\gamma''(s)\gamma'(s)^{\top} + \gamma'(s)\gamma''(s)^{\top}\right)- \frac{\langle\gamma^{(3)}(s), x - \gamma(s)\rangle}{g^3(x)}\gamma'(s)\gamma'(s)^{\top}
+            \nabla^2\Pi(x) = \frac{1}{\ell^2(x)}\left(\gamma''(s)\gamma'(s)^{\top} + \gamma'(s)\gamma''(s)^{\top}\right)- \frac{\langle\gamma^{(3)}(s), x - \gamma(s)\rangle}{\ell^3(x)}\gamma'(s)\gamma'(s)^{\top}
         \end{equation}
-        where $g(x) = -\mathfrak s + \langle\gamma''(s), x-\gamma(s)\rangle \neq 0$. 
+        where $\ell(x) = -\mathfrak s^2 + \langle\gamma''(s), x-\gamma(s)\rangle \neq 0$. 
     \end{enumerate}
 \end{restatable}
 \begin{proof}[Proof of \Cref{thm: differentiability of pi}]
@@ -541,13 +557,13 @@ To estimate the gradient $\gamma$ we will estimate its tangent vector $\gamma'(t
 \begin{equation} \label{eq: surrogate decomposition colloquial}
     f(\Pi(x)) \approx f(\Pi(x_0) + \underbrace{\nabla\Pi(x_0)}_{\mathclap{\propto\, \gamma'(\Pi(x_0)) \text{ by \Cref{thm: differentiability of pi}}}}(x - x_0)) \qquad \text{for all }x \in \mathcal{B}(x_0, \epsilon).
 \end{equation}
-As before, the LLSIR procedure will estimate $\gamma'$ and then use projected kernel regression to estimate $f$. In the subsequent content, we will instantiate our theoretical results from \Cref{sec: theoretical results} in the setting of the nonlinear single variable model. Again, we will operate under \Cref{assumption: lce and covariate density} -- note that, unlike prior work on estimating the nonlinear single variable model, we do not assume that the covariates are concentrated near the curve $\gamma$. Instead, we only require that the support is bounded and the density is sufficiently smooth. We consider this a key aspect of our approach, as any assumption about concentration near $\gamma$ reduces the problem to one of manifold learning. 
+As before, the LLSIR procedure will estimate $\gamma'$ and then use projected kernel regression to estimate $f$. \tls{no need to repeat the formula -- just say the algorithm applies directly}In the subsequent content, we will instantiate our theoretical results from \Cref{sec: theoretical results} in the setting of the nonlinear single variable model. Again, we will operate under \Cref{assumption: lce and covariate density} -- note that, unlike prior work on estimating the nonlinear single variable model, we do not assume that the covariates are concentrated near the curve $\gamma$. Instead, we only require that the support is bounded and the density is sufficiently smooth. We consider this a key aspect of our approach, as any assumption about concentration near $\gamma$ reduces the problem to one of manifold learning. 
 
 \begin{restatable}[Bias shrinkage with localization]{corollary}{}\label{corollary: population prop curve}
     For some scalar $c_* \in \mathbb{R}$, $p_x$-almost every $x_0 \in \mathcal{B}(0, r)$ and $\epsilon$ sufficiently small we have 
     \[\|v^*_{x_0, \epsilon} - c_*\gamma'(s_0)\|_2 \lesssim \epsilon^2\]
     with $v^*_{x_0, \epsilon}$ defined in \cref{eq: velocity estimator}, and  $s_0 = \Pi(x_0)$. Moreover, we have the explicit expression
-    \[c_* = \frac{\epsilon f'(\Pi(x_0))+ o(\epsilon^2)}{\mathfrak s - \langle \gamma''(s_0), x_0 - \gamma(s_0)\rangle}.\]
+    \[c_* = \frac{\epsilon f'(\Pi(x_0))+ o(\epsilon^2)}{\mathfrak s ^2- \langle \gamma''(s_0), x_0 - \gamma(s_0)\rangle}.\]
 \end{restatable}
 
 The proof, which is nearly identical to that of \Cref{thm: population prop}, is provided in \Cref{proof of population prop curve}. We restate and reprove this result in for the single variable model specifically as it is the only result that requires special treatment in this setting; this stems from the fact that our general setting considers any $\beta$-H\"older $g$, while the projection map $\Pi$ is only twice differentiable locally (almost surely). This nuance requires special attention but does not change any results. As a result, all limiting distribution and rate of convergence results described in \Cref{sec: theoretical results} transfer directly to LLSIR when applied to the nonlinear single variable model.
@@ -569,13 +585,13 @@ Having analyzed the statistical properties of the LLSIR procedure, we now evalua
     \label{fig:simulation-curves}
 \end{figure}
 
-We provide log-log plots of the mean squared velocity error and mean squared regression error in \Cref{fig:fixed-point-planar}. In it we see that we see that LLSIR strictly outperforms NSVM on 5 of the 8 panels, while for the remaining three panels we see that LLSIR outperforms NSVM only in the low sample regime. We also unsurprisingly find that DWLLS and LLSIR exhibit nearly identical performance when $\gamma$ is linear. Regarding comparison with the theoretical rates of convergence obtained in \Cref{sec: theoretical results}, we find that LLSIR typically exhibits slightly improved asymptotics than the theoretical results suggest. In \Cref{fig:fixed-point-lifted}, we provide the results for a nearly identical experiment, except we lift the problem to $\mathbb R^d$ and add small Gaussian noise along the third axis. In this experiment we find that NSVM struggles to correctly identify the tangent velocity of the curve $\gamma$, as the geometry of the conditional measure $P_{x|y}$ no longer identifies said velocity (a fact upon which NSVM relies).  On the other hand, we see that LLSIR still maintains strong performance and is typically consistent with the theoretical rate. 
+We provide log-log plots of the mean squared velocity error and mean squared regression error in \Cref{fig:fixed-point-planar}. In it we see that we see that LLSIR strictly outperforms NSVM on 4 of the 8 panels, while for three of the remaining panels we see that LLSIR outperforms NSVM in the high sample regime. We also unsurprisingly find that DWLLS and LLSIR exhibit nearly identical performance when $\gamma$ is linear. Regarding comparison with the theoretical rates of convergence obtained in \Cref{sec: theoretical results}, we find that LLSIR typically exhibits slightly improved asymptotics than the theoretical results suggest. In \Cref{fig:fixed-point-lifted}, we provide the results for a nearly identical experiment, except we lift the problem to $\mathbb R^d$ and add small Gaussian noise along the third axis. In this experiment we find that NSVM struggles to correctly identify the tangent velocity of the curve $\gamma$, as the geometry of the conditional measure $P_{x|y}$ no longer identifies said velocity (a fact upon which NSVM relies).  On the other hand, we see that LLSIR still maintains strong performance and is typically consistent with the theoretical rate. 
 
 
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=\linewidth]{figures/error_fixed_point.pdf}
-    \caption{Simulation experiment for $d=2$. The top row shows mean squared velocity error between unit directions, (minimizing over signs); the bottom row shows mean squared prediction error. Nodes average $B=100$ nested training trials, with one Monte Carlo standard error as error bars. Red dashed lines show the theoretical guides. More details for this experiment are provided in \Cref{experimental details}.}
+    \caption{\tls{make legend bigger}Simulation experiment for $d=2$. The top row shows mean squared velocity error between unit directions, (minimizing over signs); the bottom row shows mean squared prediction error. Nodes average $B=100$ nested training trials, with one Monte Carlo standard error as error bars. Red dashed lines show the theoretical guides. More details for this experiment are provided in \Cref{experimental details}.}
     \label{fig:fixed-point-planar}
 \end{figure}
 
@@ -611,13 +627,12 @@ Note that, for the velocity stage, the theoretical slopes $-2/(d+4)$ are ($-0.33
     \label{fig:reprogramming-umap}
 \end{figure}
 
-
-\clearpage
 \section{Conclusion}\label{sec: conclusion}
 
-In this work we proposed and analyzed LLSIR, a conceptually simple and computationally tractable procedure for generalized single-index regression. Through localization, the procedure estimates the spatially varying direction $\nabla g(x_0)$ up to scale and then performs projected kernel regression, avoiding the need to jointly optimize over the link and index functions. We derived influence function expansions, central limit theorems, and pointwise rates of convergence for both stages. In particular, when $g$ is $2$-H\"older, the regression rate coincides with the minimax rate for the corresponding composition class.
+In this work we proposed and analyzed LLSIR, a conceptually simple and computationally tractable procedure for generalized single-index regression. Through localization, the procedure estimates the spatially varying direction $\nabla g(x_0)$ up to scale and then performs projected kernel regression, avoiding the need to jointly optimize over the link and index functions. We derived influence function expansions, central limit theorems, and pointwise rates of convergence for both stages. In particular, when $g$ is $2$-H\"older, the regression rate coincides with the minimax rate for the corresponding composition class. We also instantiated this procedure in the nonlinear single-variable model, where the index is a closest-point projection onto a curve. A key aspect of this application is that it does not require the covariates to be concentrated near the curve, allowing estimation under the bounded-support and density regularity assumptions of our general framework. Our simulations and cellular reprogramming example demonstrate the utility of the procedure for estimating both local directions and regression responses. 
 
-We also instantiated this procedure in the nonlinear single-variable model, where the index is a closest-point projection onto a curve. A key aspect of this application is that it does not require the covariates to be concentrated near the curve, allowing estimation under the bounded-support and density regularity assumptions of our general framework. Our simulations and cellular reprogramming example demonstrate the utility of the procedure for estimating both local directions and regression responses. Finally, characterizing the minimax rate for the curve-projection model under these milder covariate assumptions remains an open question and a fruitful direction of future research.
+\section{Acknowledgements and AI Declaration}
+The authors are grateful to Yuxi (Eric) Chen for his assistance with simulations and for fruitful discussions regarding the method. ChatGPT 5.6 Sol was used to audit the proofs, aid in the literature review and assist with writing and phrasing. The development of the estimation procedure and proof the strategies for the limit theorems and decomposition involved little to no AI usage. 
 
 \break
 
@@ -1036,16 +1051,19 @@ and the surrogate residual
 \end{align}
 where the expectation is taken with respect to $x \sim p_{x}$. By \Cref{lemma: surrogate problem} we know that for some $c_0, c_* \in \mathbb{R}$ we have $\tilde{\beta}^*_{x_0, \epsilon}  =  \begin{bmatrix}
     c_0 & c_*\nabla \Pi(x_0)
-\end{bmatrix}^{\top}$, while \Cref{lemma: constant of prop} gives the exact characterization $c_* = \epsilon f'(\Pi(x_0))+ o(\epsilon^2)$. Observe that $\mathbb{E}[wXX^{\top}]$ is necessarily positive definite as shown in \Cref{lemma: pd}. Thus, \Cref{lemma: perturbation} allows us to say 
-\begin{align*} 
-\|v^*_{x_0, \epsilon} - V\tilde{\beta}_{x_0, \epsilon}^*\|_2 &\leq \|V\|_{\operatorname{op}}\|\beta^*_{x_0, \epsilon} - \tilde\beta_{x_0, \epsilon}\|_2\\
-&= \left\|\mathbb{E}[wXX^{\top}]^{-1}\mathbb{E}[wX\xi(x+x_0)]\right\|_2 \\
-&\leq 2\left\|\mathbb{E}[wXX^{\top}]^{-1}\mathbb{E}[wX]\right\|_2(M_2\eta^2+rM_3\eta^3)\text{L}(f)\epsilon^2.
-\end{align*}
-Now we'll apply \Cref{lemma: pnorm bound} to obtain,
-\begin{align}
-    \|v^*_{x_0, \epsilon} - V\tilde{\beta}_{x_0, \epsilon}^*\|_2 &\le 2(M_2\eta^2+rM_3\eta^3)\text{L}(f)\epsilon^2.
-\end{align}
+\end{bmatrix}^{\top}$, while \Cref{lemma: constant of prop} gives the exact characterization $c_*=\epsilon f'(\Pi(x_0))+o(\epsilon^2)$. Observe that $\mathbb{E}[wXX^{\top}]$ is necessarily positive definite by \Cref{lemma: pd}. Moreover, retaining the pointwise remainder bound in the proof of \Cref{lemma: proj approx} gives
+\[
+|\xi(x+x_0)|
+\leq
+2(M_2\eta^2+rM_3\eta^3)\mathrm{L}(f)\|x\|_2^2,
+\qquad x\in\mathcal B(0,\epsilon).
+\]
+Thus, applying \Cref{lemma: perturbation} and proceeding exactly as in the proof of \Cref{thm: population prop} after the application of \Cref{lemma: proj approx general}, we obtain
+\[
+\|v^*_{x_0,\epsilon}-V\tilde\beta^*_{x_0,\epsilon}\|_2
+\leq
+2d(M_2\eta^2+rM_3\eta^3)\mathrm{L}(f)\epsilon^2.
+\]
 
 \qed{}
 
@@ -2238,9 +2256,9 @@ Finally, using the standard inequality $\|a/\|a\|_2-b/\|b\|_2\|_2\leq 2\|a-b\|_2
 \end{align*}
 \Cref{lemma: Q op norm} indicates that $\|Q^{-1}\|_{\operatorname{op}}\lesssim \epsilon^{-d}$ and \Cref{lemma: Lambda trace bound} guarantees that \[\left\|\frac{1}{n}\sum_{i = 1}^nw_iX_i(u_i - \mathbb{E}[u_i \,|\, x_i])\right\|_2 = O_p\left(\sqrt{\epsilon^d/n}\right).\] Together, this implies
 \[\|\hat{v}_{x_0, \epsilon} - v^*_{x_0, \epsilon}\|_2 = O_p\left(\frac{1}{\sqrt{n\epsilon^d}}\right).\]
-For the second result, recall \Cref{thm: population prop} guarantees that $\|v^*_{x_0, \epsilon} - \Theta(\epsilon)\gamma'(s_0)\|_2 \lesssim \epsilon^2$, with $s_0 = g(x_0)$. This then yields the bound
+For the second result, recall \Cref{thm: population prop} guarantees that $\|v^*_{x_0, \epsilon} - \Theta(\epsilon)\nabla g(s_0)\|_2 \lesssim \epsilon^2$, with $s_0 = g(x_0)$. This then yields the bound
 \begin{align*}
-    \|v^*_{x_0, \epsilon}\|_2 &\geq \|\Theta(\epsilon)\gamma'(s_0)\|_2 - \|v^*_{x_0, \epsilon} - \Theta(\epsilon)\gamma'(s_0)\|_2 \\
+    \|v^*_{x_0, \epsilon}\|_2 &\geq \|\Theta(\epsilon)\gamma'(s_0)\|_2 - \|v^*_{x_0, \epsilon} - \Theta(\epsilon)\nabla g(s_0)\|_2 \\
     &= c_1\epsilon - c_2\epsilon^2
 \end{align*}
 for some $c_1, c_2 \neq 0$. Note that the second step follows from the fact that $\gamma$ is parameterized by arclength, and therefore has $\|\gamma'\| \equiv 1$. It then holds that $\|v^*_{x_0, \epsilon}\|_2 \asymp \epsilon$. Now observe that we can write the normalized distance as 
@@ -2700,7 +2718,21 @@ uniformly over $i$. Now define $\tilde Q=n^{-1}\sum_{i=1}^nw_iX_iX_i^\top$. Sinc
     &=
     o_p\left(\sqrt{\frac{\epsilon^d}{n}}+\frac{1}{n}+\epsilon^d\right).
 \end{align*}
-Moreover, \Cref{lemma: operator norm and var proxy} and the matrix Bernstein inequality (\Cref{thm: matrix bernstein}) imply
+Now define $\tilde Q=n^{-1}\sum_{i=1}^nw_iX_iX_i^\top$. Since $p^*$ is locally bounded and $\|X_i\|_2^2\leq2$ on $\mathcal B(0,\epsilon)$, the preceding uniform bound implies
+\begin{align*}
+    \|\hat Q-\tilde Q\|_{\operatorname{op}}
+    \leq \frac{1}{n}\sum_{i=1}^n
+    |\hat w_i-w_i|\,\|X_iX_i^\top\|_{\operatorname{op}} \leq
+    o_p(1)\frac{1}{n}\sum_{i=1}^n
+    \mathbbm{1}_{\{x_i\in\mathcal B(0,\epsilon)\}} =o_p(\epsilon^d),
+\end{align*}
+where the final equality follows from
+\[
+\frac{1}{n}\sum_{i=1}^n
+\mathbbm{1}_{\{x_i\in\mathcal B(0,\epsilon)\}}
+=O_p(\epsilon^d),
+\]
+since $\mathbb P(x\in\mathcal B(0,\epsilon))=O(\epsilon^d)$ by the local upper bound on $p_x$. Moreover, \Cref{lemma: operator norm and var proxy} and the matrix Bernstein inequality (\Cref{thm: matrix bernstein}) imply
 \begin{align*}
     \|\tilde Q-Q\|_{\operatorname{op}}
     &= O_p\left(\frac{\sqrt{n\epsilon^d}}{n}+\frac{1}{n}\right) = O_p\left(\sqrt{\frac{\epsilon^d}{n}}+\frac{1}{n}\right).
@@ -3048,24 +3080,37 @@ Now we can compute the covariance scaling factor as
 
 \section{Further experimental details}\label{experimental details}
 
-Regarding the experiments in \Cref{fig:fixed-point-planar} and \Cref{fig:fixed-point-lifted}, each method uses one frozen hyperparameter configuration per curve and ambient dimension, shared by velocity and prediction. For LLSIR, the localization radius and finite Gaussian weight standard deviation scale as $n^{-1/(d+4)}$, with the remaining settings fixed. NSVM's slice count is capped at $\lfloor n/8\rfloor$ for small training samples. These settings were selected in a preceding smoothing comparison on 50 of the seeded training trials at $n \in \{5000,7500,10000\}$; the plotted averages include those trials. The dashed theoretical guides have exponents $-2/(d+4)$ for velocity and $-4/(d+4)$ for prediction, and serve as heuristic comparisons in these simulation settings.
+\paragraph{Curves and data.} The synthetic experiments use the model in \cref{eq: the model}, with $f$ the identity and $\varepsilon_i\sim\mathcal{N}(0,0.01^2)$. The first three curves in \Cref{fig:simulation-curves} are
+\[
+\gamma(t)=
+\begin{cases}
+    (t,t), & \text{Identity},\\
+    (0.5+0.4\cos(2\pi t),\;0.5+0.4\sin(2\pi t)), & \text{Circle},\\
+    (t,\;0.5+0.4\sin(2\pi t)), & \text{Sinusoid},
+\end{cases}
+\qquad t\in[0,1].
+\]
+Polygon joins $(0.15,0.20)$, $(0.85,0.25)$, $(0.75,0.80)$, $(0.35,0.90)$, and $(0.10,0.55)$ in order, with arc length rescaled to $[0,1]$. For $d>2$, the remaining curve coordinates are zero. Projection models take $g=\Pi$. Covariates are uniform on $[0,1]^d$, except that Sinusoid excludes endpoint projections and the lifted experiment replaces the third coordinate by independent $\mathcal{N}(0,10^{-6})$ noise.
 
-\paragraph{More details for \Cref{fig:fixed-point-planar}}
-We compare LLSIR and NSVM at fixed inference locations for the Identity, Circle, Sinusoid, and Polygon curves, with DWLLS included for Identity. The response is $Y_i = \Pi_\gamma(X_i) + \varepsilon_i$, where $\varepsilon_i \sim \mathcal{N}(0,0.01^2)$. Planar covariates are uniform on $[0,1]^2$; for Sinusoid, this measure is conditioned on the closest-point projection lying in the interior of the curve, excluding endpoint projections. For each curve we run $B=100$ independent training trials at $n \in \{500,1000,2500,5000,10000\}$. Training samples are nested within each trial: increasing $n$ adds observations while preserving all previous covariates, responses, and noise. Both methods and both error metrics use the same training samples.
+\paragraph{Fixed-point comparisons.} For \Cref{fig:fixed-point-planar,fig:fixed-point-lifted}, we use $B=100$ independent training trials at $n\in\{500,1000,2500,5000,10000\}$, with $x_0$ fixed across trials and sample sizes. Training samples are nested: increasing $n$ adds observations while retaining previous $(x_i,y_i)$. All methods use the same samples. In the lifted experiment, the curves and inference points remain at $x_3=0$. Each method uses one configuration per curve and dimension, shared by velocity and regression. LLSIR's localization radius $\epsilon$ and any finite Gaussian reference-density standard deviation scale as $n^{-1/(d+4)}$; other settings are fixed. NSVM's slice count is capped at $\lfloor n/8\rfloor$. Configurations were selected using 50 seeded trials at $n\in\{5000,7500,10000\}$, which are included in the plotted averages. Nodes report mean squared error with one Monte Carlo standard error; velocity error uses normalized directions $\hat v'_{x_0,\epsilon}$ and minimizes over signs.
 
-\paragraph{More details for \Cref{fig:fixed-point-lifted}}
-Unweighted least-squares fits of $\log$ Monte Carlo mean squared error against $\log n$ over all five sample sizes give, in column order, velocity slopes $(-0.571, -0.178, -0.277, -0.110)$ for LLSIR and $(0.002, 0.000, 0.001, 0.006)$ for NSVM; prediction slopes are $(-0.269, -0.588, -1.518, -0.585)$ and $(-0.678, -0.891, -0.527, -1.263)$, respectively. DWLLS (Identity) has velocity slope $-0.576$ and prediction slope $-0.267$. The theoretical slopes are $-2/(d+4)=-0.286$ for velocity and $-4/(d+4)=-0.571$ for prediction. More negative fitted slopes indicate faster decay than the theoretical guide; less negative slopes indicate slower decay.
+\paragraph{Dimension dependence.} The tables use $d\in\{2,3,4,5,6\}$ and $B=200$ independent trials, each with nested training samples at
+\[
+    n\in\{5000,7155,10238,14651,20965,30000\}.
+\]
+Each trial evaluates five fixed points $x_0$. For the projection models, their planar coordinates are $\gamma(t)+0.02\,\nu(t)$, with $\nu(t)$ a unit normal and five equally spaced $t\in[0.12,0.82]$; remaining coordinates equal $0.5$. Projection labels use 5000 equally spaced curve parameters. For the three smooth indices in \Cref{sec: simulations}, query points are drawn once per dimension using a fixed seed in $[0.25,0.75]^d$, with the first coordinate adjusted for $g(x)=\sin(\pi x_1)$ to avoid a vanishing gradient.
 
-\paragraph{Projection.} We first take $g = \Pi$, the closest-point projection onto a curve $\gamma \colon [0,1] \to \mathbb{R}^2$ embedded in $\mathbb{R}^d$ by setting the remaining $d - 2$ coordinates to zero. Concretely, $\Pi(x) = \arg\min_{t \in [0,1]} |x - \gamma(t)|$ returns the curve parameter of the nearest point. We consider four curves, (i) Identity, $\gamma(t) = (t,\, t)$, (ii) Circle, $\gamma(t) = (0.5 + 0.4\cos 2\pi t,\; 0.5 + 0.4\sin 2\pi t)$, (iii) Sinusoid, $\gamma(t) = (t,\; 0.5 + 0.4\sin 2\pi t)$, and (iv) Polygon, the piecewise-linear path joining $(0.15, 0.20) \to (0.85, 0.25) \to (0.75, 0.80) \to (0.35, 0.90) \to (0.10, 0.55)$, parametrized by arc length. We place the five planar query coordinates at $\gamma(t)+0.02\,\nu(t)$ for equally spaced $t$ between $0.12$ and $0.82$, where $\nu(t)$ is a unit planar normal, and set each remaining coordinate to $0.5$. For Sinusoid, training covariates are conditioned on interior closest-point projection to exclude endpoint projections. Projection labels use a grid of 5000 curve parameters. For the nominal radius, we identify competing local distance minima separated by at least $0.1$ in curve parameter and cap the base radius at $0.45(d_2-d_1)$, where $d_1,d_2$ are the planar distances to the nearest and second-nearest competing minima. Distances are computed in the first two coordinates because the remaining coordinates do not change the projection parameter. The nearest-neighbor radius lower bound can override this nominal cap when its neighborhood is too sparse. Thus the actual neighborhoods are not guaranteed to stay within a smooth projection branch. Both nominal and actual radii, neighborhood counts, and errors are saved with the trial results.
+The base radius at $n=5000$ is $\max\{0.1,(50/[5000\mathcal{L}(\mathcal{B}(0,1))])^{1/d}\}$. For projection models, it is capped at $0.45(d_2-d_1)$, where $d_1,d_2$ are planar distances to competing local minima separated by at least $0.1$ in curve parameter. Writing the resulting base radius as $\epsilon_0$, we use
+\[
+\begin{aligned}
+    \epsilon_{\mathrm{nom}}(n)&=\epsilon_0(n/5000)^{-1/(d+4)},\\
+    \epsilon(n)&=\max\{\epsilon_{\mathrm{nom}}(n),(1+10^{-12})r_{2(d+1)}(x_0)\},
+\end{aligned}
+\]
+where $r_{2(d+1)}(x_0)$ is the distance to the $2(d+1)$-th nearest training observation. This lower bound may override the projection cap. Both stages use the same fit, with Gaussian reference density $p^*$ of standard deviation $\epsilon/2$ and Gaussian local linear regression with $h_r=0.5$ in radius-scaled coordinates. No tuning or NSVM fitting is performed. For each trial, squared errors are averaged over the five query points before fitting a line against $\log n$ on the log-log scale. Tables report the mean and sample standard deviation of all 200 complete trial-specific slopes.
 
-\paragraph{General.} We next take $g$ to be a smooth, explicitly defined function, for which no medial axis complications arise. The three choices are (i) $g(x) = \sin(\pi x_1)$, (ii) $g(x) = \|x\|^2$, and (iii) $g(x) = x_1 x_2$. The five query points are generated once per dimension from a fixed seed in $[0.25,0.75]^d$, with the first coordinate adjusted for the sine model to avoid $x_1=1/2$, where its gradient vanishes. Velocity error compares unit estimated directions with the normalized analytic gradient, minimizing over the two possible signs. Tables~\ref{tab:vel-general} and~\ref{tab:reg-general} report mean $\pm$ standard deviation over all 200 trial-specific slopes.
+\paragraph{Cellular reprogramming.} The UMAP visualization in \Cref{fig:reprogramming-umap} uses the saved PCA coordinates, 60 neighbors, minimum distance $0.4$, and seed 42. Directions are mapped to UMAP by local ridge regression over 60 expression-space neighbors, with penalty $0.01$ times the mean local covariance eigenvalue. UMAP does not affect the predictions.
 
-\paragraph{Tables in \Cref{sec: simulations}}
-For each $(d,g)$ pair we fix five query points and run $B=200$ independent Monte Carlo training trials. Each trial uses nested training samples at six geometrically spaced sizes, $N \in \{5000,7155,10238,14651,20965,30000\}$. The queries are held fixed across all trials and sample sizes. For each trial and $N$, we average squared error over the five queries, then fit a least-squares line with $\log N$ as the predictor and the logarithm of this mean squared error as the response. Tables~\ref{tab:vel}, \ref{tab:reg}, \ref{tab:vel-general}, and~\ref{tab:reg-general} report the mean and sample standard deviation of the 200 trial-specific slopes. Every trial includes all five queries at every sample size; no failed or partial trials are discarded.
-
-Velocity and regression use the same LLSIR fits and hyperparameters. With $V_d=\pi^{d/2}/\Gamma(d/2+1)$ and $N_0=5000$, the uncapped base localization radius is $\varepsilon_0=\max(0.1,(50/(N_0V_d))^{1/d})$, and its nominal value scales as $\varepsilon(N)=\varepsilon_0(N/N_0)^{-1/(d+4)}$. The actual radius is bounded below by the distance to the $k_d$-th nearest training observation, with $k_d=2(d+1)$: $\varepsilon_{\mathrm{actual}}(N)=\max\{\varepsilon(N),(1+10^{-12})r_{k_d}(N)\}$. This retains at least 6, 8, 10, 12, and 14 observations for dimensions 2 through 6, respectively. The constant 50 calibrates the initial nominal radius only. All fits must succeed before results are published. The physical Gaussian weight standard deviation is half the actual radius, and the projected regression uses a Gaussian local linear estimator with bandwidth $0.5$ in radius-scaled coordinates. No hyperparameter search or NSVM fitting is performed for these tables.
-
-\paragraph{Cellular Reprogramming.} In \Cref{fig:reprogramming-umap}, we visualize all cells using an unsupervised UMAP embedding \citep{mcinnes2018umap} of the saved PCA coordinates, with 60 neighbors, minimum distance $0.4$, and random seed 42. Estimated directions are mapped to UMAP using local ridge regression between original and embedding displacements over 60 expression-space neighbors; the penalty is $0.01$ times the mean local covariance eigenvalue. UMAP is used only for visualization, and its parameters do not change the time predictions. The two experimental conditions are pooled, so these time-associated directions may also reflect treatment effects.
 
 \end{appendices}
 \bibliography{main}
